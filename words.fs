@@ -87,4 +87,4 @@ variable word-finder ( so we can try both )  ' word? word-finder !
   cr ." Testing (WORD2?)..." ['] WORD2? (test-word?) ;
 
 test-word?
-unit-tests
+forget-unit-tests

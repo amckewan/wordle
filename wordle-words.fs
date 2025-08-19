@@ -1,7 +1,5 @@
-( From https://gist.github.com/dracos/dd0668f281e685bad51479e5acaadb93 )
-
-( valid wordle solutions - original list )
-( in alphabetical order )
+( Valid wordle solutions - original list )
+( in alphabetical order for binary search )
 
 WW, ABACK
 WW, ABASE

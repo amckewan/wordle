@@ -11,11 +11,11 @@ include unit-test.fs
 
 test-my-module
 
-unit-tests
+forget-unit-tests
 
 )
 
-marker unit-tests
+marker forget-unit-tests
 
 variable tests
 variable fails
