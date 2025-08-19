@@ -3,7 +3,7 @@
 ( one byte per word, 0=absent, 1=present )
 create working  #words allot
 
-: add-all  working #words 1 fill ;
+: all-words  working #words 1 fill ;
 
 ( no bounds check )
 : has ( n -- f )   working + c@ ;
@@ -23,7 +23,8 @@ create working  #words allot
 
 : first ( -- n true | false )  -1 next ;
 
-( unit tests )
+
+( === unit tests === )
 include unit-test.fs
 
 : expect-has ( n -- )  test
@@ -35,12 +36,14 @@ include unit-test.fs
   cr ." Testing working set..." begin-unit-tests
 
   remove-all
+  #working if fail ." expected working empty" then
   0 expect-has-not
   1 expect-has-not
   #words 2/ expect-has-not
   #words 1- expect-has-not
 
-  add-all
+  all-words
+  #working #words - if fail ." expected working full" then
   0 expect-has
   1 expect-has
   #words 2/ expect-has
@@ -52,8 +55,39 @@ include unit-test.fs
   55 dup remove expect-has-not
   #words 1- dup remove expect-has-not
   2 expect-has
+  #working 4 + #words - if fail ." expected working paritally full" then
 
   report-unit-tests ;
+
+: expect ( [n'] f n -- )
+  swap 0= if fail ." expected " . ." got none"
+  else 2dup <> if fail ." expected " . ." got " . else 2drop then then ;
+: expect-none ( [n] f -- ) if fail ." expected none, got " . then ;
+
+: test-iterators
+  cr ." Testing working set interators..."
+  begin-unit-tests
+
+  all-words
+  first 0 expect
+  0 next 1 expect
+  100 next 101 expect
+
+  0 remove 1 remove 2 remove
+  first 3 expect
+  0 next 3 expect
+  1 next 3 expect
+  3 next 4 expect
+
+  101 remove 102 remove
+  100 next 103 expect
+
+  remove-all
+  first expect-none
+  0 next expect-none
+
+  report-unit-tests ;
+
 
 test-working
 unit-tests

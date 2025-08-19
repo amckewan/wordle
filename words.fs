@@ -50,7 +50,7 @@ HERE WORDLE-WORDS - LEN / CONSTANT #WORDS
   2DROP R>  THEN DROP FALSE ;
 
 
-( unit tests )
+( === unit tests === )
 include unit-test.fs
 
 variable word-finder ( so we can try both )  ' word? word-finder !
