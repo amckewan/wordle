@@ -4,9 +4,15 @@
 
 include unit-test.fs
 
+: expect-true  test  0= if fail ." expected true" then ;
+
 : test-my-module
+  cr ." Testing my module "
   begin-unit-tests
+
+  4 5 < expect-true
   ...
+
   report-unit-tests ;
 
 test-my-module
@@ -25,4 +31,5 @@ variable fails
 : test  1 tests +! ;
 : fail  cr ." [FAIL] "  1 fails +! ;
 
-: report-unit-tests  ."  ==> tests: " tests ? ." fail: " fails ? ;
+: report-unit-tests  cr ." ==> " tests ? ." TESTS " 
+  fails @ if fails ? ." FAIL " else ." PASS " then ;

@@ -1,6 +1,8 @@
 ( Wordle words )
 
-( 1. Build an array of valid Wordle words, 5 chars per entry )
+\ Build an array of valid Wordle words, 5 chars per entry.
+\ Wordle words are identified by the index into this array.
+\ Use 'w' in stack diagrams.
 
 5 CONSTANT LEN
 
@@ -10,18 +12,19 @@ CREATE WORDLE-WORDS   INCLUDE wordle-words.fs
 
 HERE WORDLE-WORDS - LEN / CONSTANT #WORDS
 
-: ASSERT-WORD ( n -- n )  DUP #WORDS U>= ABORT" invalid wordle word" ;
 
-: WW ( n -- a )  LEN * WORDLE-WORDS + ;
+: ASSERT-WORD ( w -- w )  DUP #WORDS U>= ABORT" invalid wordle word" ;
 
-: .WW ( n -- )  WW LEN TYPE SPACE ;
+: WW ( w -- a )  LEN * WORDLE-WORDS + ;
+
+: .WW ( w -- )  WW LEN TYPE SPACE ;
 
 ( show all the words )
 : .WORDS  #WORDS 0 DO  I .WW  LOOP ;
 
 
 ( 2. Lookup a word using binary search )
-: WORD? ( a n -- false | w# true )
+: WORD? ( a n -- false | w true )
   LEN <> IF DROP FALSE EXIT THEN  >R  0 #WORDS ( low high )
   BEGIN 2DUP < WHILE
     2DUP + 2/ ( low high mid )
@@ -54,12 +57,12 @@ HERE WORDLE-WORDS - LEN / CONSTANT #WORDS
 include unit-test.fs
 
 variable word-finder ( so we can try both )  ' word? word-finder !
-: check-valid  ( a n -- a n w# t | a n f )  2dup word-finder @ execute ;
+: check-valid  ( a n -- a n w t | a n f )  2dup word-finder @ execute ;
 
-: expect-valid ( a n -- )  1 tests +!
+: expect-valid ( a n -- )  test
     check-valid 0= if  fail ." expect '" TYPE ." ' valid"
     else  drop 2drop  then ;
-: expect-not-valid ( a n -- )  1 tests +!
+: expect-not-valid ( a n -- )  test
     check-valid if  drop fail  ." expect '" TYPE ." ' not valid"
     else  2drop  then ;
 

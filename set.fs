@@ -6,8 +6,8 @@ create working  #words allot
 : all-words  working #words 1 fill ;
 
 ( no bounds check )
-: has ( n -- f )   working + c@ ;
-: remove ( n -- )  0 swap working + c! ;
+: has ( w -- f )   working + c@ ;
+: remove ( w -- )  0 swap working + c! ;
 
 : remove-all  working #words erase ;
 
@@ -16,20 +16,20 @@ create working  #words allot
 
 
 ( iterator, no wrap )
-: next ( n -- n' true | false )
+: next ( w -- w' true | false )
   begin  1+  dup #words < while
     dup has if true exit then
   repeat drop false ;
 
-: first ( -- n true | false )  -1 next ;
+: first ( -- w true | false )  -1 next ;
 
 
 ( === unit tests === )
 include unit-test.fs
 
-: expect-has ( n -- )  test
+: expect-has ( w -- )  test
   dup has 0= if  fail ." expect " dup . ." found" then drop ;
-: expect-has-not ( n -- )  test
+: expect-has-not ( w -- )  test
   dup has if  fail ." expect " dup . ." not found"  then drop ;
 
 : test-working
@@ -59,14 +59,13 @@ include unit-test.fs
 
   report-unit-tests ;
 
-: expect ( [n'] f n -- )
+: expect ( [w'] f w -- )
   swap 0= if fail ." expected " . ." got none"
   else 2dup <> if fail ." expected " . ." got " . else 2drop then then ;
-: expect-none ( [n] f -- ) if fail ." expected none, got " . then ;
+: expect-none ( [w] f -- ) if fail ." expected none, got " . then ;
 
 : test-iterators
-  cr ." Testing working set interators..."
-  begin-unit-tests
+  cr ." Testing working set interators..." begin-unit-tests
 
   all-words
   first 0 expect
