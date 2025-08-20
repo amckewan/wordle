@@ -1,5 +1,7 @@
 ( Wordle words )
 
+\ There are two lists of words, those that can be solutions and those that can be guesses but not solutions.
+
 \ Build an array of valid Wordle words, 5 chars per entry.
 \ Wordle words are identified by the index into this array.
 \ Use 'w' in stack diagrams.
@@ -11,6 +13,10 @@
 CREATE WORDLE-WORDS   INCLUDE wordle-words.fs
 
 HERE WORDLE-WORDS - LEN / CONSTANT #WORDS
+
+\ Create the list of possible guess. These are allowed as guesses but won't be solutions.
+CREATE GUESSES  INCLUDE guess-words.fs
+HERE GUESSES - LEN / CONSTANT #GUESSES
 
 
 : ASSERT-WORD ( w -- w )  DUP #WORDS U>= ABORT" invalid wordle word" ;
@@ -25,7 +31,8 @@ HERE WORDLE-WORDS - LEN / CONSTANT #WORDS
 
 ( 2. Lookup a word using binary search )
 : WORD? ( a n -- false | w true )
-  LEN <> IF DROP FALSE EXIT THEN  >R  0 #WORDS ( low high )
+  LEN <> IF DROP FALSE EXIT THEN
+  ( a ) >R  0 #WORDS ( low high )
   BEGIN 2DUP < WHILE
     2DUP + 2/ ( low high mid )
     DUP WW  R@ LEN  ROT LEN COMPARE
@@ -33,6 +40,20 @@ HERE WORDLE-WORDS - LEN / CONSTANT #WORDS
     0< IF ( bottom half ) NIP  ELSE ( top half ) ROT DROP  1+ SWAP  THEN
   REPEAT
   2DROP R> DROP FALSE ;
+
+: MATCH ( a1 a2 -- n )  LEN SWAP LEN COMPARE ;
+
+\ Need to refactor so we can use it for both words and guesses
+: FIND-WORD ( a n words #words -- w true | false)
+  ROT LEN = IF  SWAP >R  0 SWAP ( a low high )
+    BEGIN 2DUP < WHILE
+      2DUP + 2/ ( a low high mid )
+      DUP LEN * R@ + ( a low high mid a' ) 4 PICK ( !) MATCH ( a low high mid f )
+      DUP 0= IF ( found ) R> 2DROP NIP NIP NIP  TRUE EXIT  THEN
+      0< IF ( bottom half ) NIP  ELSE ( top half ) ROT DROP  1+ SWAP  THEN
+    REPEAT
+    R> DROP
+  THEN 2DROP DROP FALSE ;
 
 
 ( with factoring )

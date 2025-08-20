@@ -1,5 +1,5 @@
-( Valid wordle solutions - original list )
-( in alphabetical order for binary search )
+\ valid wordle solutions - original list
+\ in alphabetical order for binary search
 
 WW, ABACK
 WW, ABASE
