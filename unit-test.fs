@@ -7,8 +7,7 @@ include unit-test.fs
 : expect-true  test  0= if fail ." expected true" then ;
 
 : test-my-module
-  cr ." Testing my module "
-  begin-unit-tests
+  cr ." Testing my module " begin-unit-tests
 
   4 5 < expect-true
   ...
@@ -20,6 +19,7 @@ test-my-module
 forget-unit-tests
 
 )
+
 
 marker forget-unit-tests
 

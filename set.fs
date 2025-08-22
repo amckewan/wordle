@@ -1,28 +1,27 @@
 ( working set )
 
-( one byte per word, 0=absent, 1=present )
+( The working set has one byte per word, 0=absent, 1=present )
 create working  #words allot
 
 : all-words  working #words 1 fill ;
 
 ( no bounds check )
-: has ( w -- f )   working + c@ ;
-: remove ( w -- )  0 swap working + c! ;
+: has ( n -- f )   working + c@ ;
+: remove ( n -- )  0 swap working + c! ;
 
 : remove-all  working #words erase ;
 
 : #working  ( -- n )  0  #words 0 do  i has +  loop ;
-: .working  #words 0 do  i has if  i .ww  then  loop ;
+: .working  #words 0 do  i has if  i ww w.  then  loop ;
 
 
 ( iterator, no wrap )
-: next ( w -- w' true | false )
+: next ( n -- n' true | false )
   begin  1+  dup #words < while
-    dup has if true exit then
-  repeat drop false ;
+    dup working + c@ if  true exit  then
+  repeat  drop false ;
 
-: first ( -- w true | false )  -1 next ;
-
+: first ( -- n true | false )  -1 next ;
 
 ( === unit tests === )
 include unit-test.fs

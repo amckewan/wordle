@@ -3,11 +3,43 @@
 \ Remove words from the working set that don't have the green letter.
 \ ex: we know the first letter is 'A', remove words that don't start with 'A'
 : prune-green ( char pos -- )
-  first begin while ( char pos w )
-    >r  2dup r@ ww + c@ <> if r@ remove then  r>
+  >r  first begin while ( char n )
+    2dup ww r@ + c@ <> if dup remove then
     next
-  repeat 2drop ;
+  repeat r> 2drop ;
 
+: pg ( char pos n -- char pos )  >r  2dup r@ ww + c@ <> if r@ remove then  r> drop ;
+
+: for-each  ( xt -- )
+    >r first  begin while  r@ execute  next  repeat  r> drop ;
+
+: for-each ( xt -- )
+  #words 0 do  >r  i r@ execute  r>  loop ;
+
+: check-green ( char pos n -- char pos )
+  >r  2dup r@ ww + c@ <> if r@ remove then  r> drop ;
+
+: prune-green ( char pos -- )
+  #words 0 do
+    i has if  2dup i ww + c@ <> if i remove then  then
+  loop 2drop ;
+
+
+: prune-green2 ( char pos -- )  ['] pg for-each  2drop ;
+
+: prune-green ( char pos -- )
+  >r  first begin while ( char n )
+    2dup ww r@ + c@ <> if dup remove then
+    next
+  repeat r> 2drop ;
+
+
+
+: prune-green2 ( char pos -- )
+  #words 0 do  2dup i ww + c@ <> if i remove then  loop 2drop ;
+
+: prune-grey2 ( char -- )
+  #words 0 do  2dup i ww + c@ <> if i remove then  loop 2drop ;
 
 \ For yellow, we want to remove words that don't have that letter,
 \ except if that letter is already green.
