@@ -69,12 +69,11 @@ variable guesses ( up to 6 allowed )
     guesses @ 5 > abort" Too many guesses"
     valid-guess not abort" Guess is not a known word" ;
 
-
 : make-guess ( w -- score )  dup check-guess make-guess-unchecked ;
+
 
 ( === Game UI === )
 : NEW  new-game ;
-: N  new-game [W] FORTH secret w! ; N
 : G  w make-guess  cr guesses ? score w. ;
 
 
@@ -87,7 +86,7 @@ include unit-test.fs
     dup valid-guess if fail ." expected not valid " W. else drop then ;
 
 : test-valid-guess
-  cr ." Testing VALID-GUESS..." begin-unit-tests
+    cr ." Testing VALID-GUESS..." begin-unit-tests
 
     ( wordle words )
     [W] ABACK expect-valid
@@ -103,13 +102,13 @@ include unit-test.fs
     [W] XXXXX expect-not-valid
     [W] ABACC expect-not-valid
 
-  report-unit-tests ;
+    report-unit-tests ;
 
+: bad-score ( score -- ) fail .game ." Expected score " w. ;
 
 : expect-green ( secret guess score -- ) test
     swap guess w!  swap secret w!  clear-score  score-green
-    dup score w= not if fail ." Expected score " w. ." got score " score w.
-    else drop then ;
+    dup score w= not if bad-score else drop then ;
 
 : test-score-green
     cr ." Testing SCORE-GREEN..." begin-unit-tests
@@ -120,7 +119,7 @@ include unit-test.fs
 
 : expect-yellow ( secret guess score -- )
     test  swap guess w! swap secret w! clear-score  score-yellow
-    dup score w= if drop else fail ." Expected yellow score " w. .game then ;
+    dup score w= not if bad-score else drop then ;
 
 : test-score-yellow
     cr ." Testing SCORE-YELLOW..." begin-unit-tests
@@ -146,7 +145,7 @@ include unit-test.fs
                   [W] AxBDx [W] G-GY- expect-score
 
     [W] ABLED s!  [W] ALLEY [W] G-GG- expect-score
-    [W] ABLED s!  [W] ALLEL [W] G-GG- expect-score
+                  [W] ALLEL [W] G-GG- expect-score
     report-unit-tests ;
 
 
@@ -156,3 +155,5 @@ test-score-yellow
 test-make-guess
 
 forget-unit-tests
+
+: N  new-game [W] FORTH secret w! ; N

@@ -1,0 +1,15 @@
+Wordle in Forth - Andrew McKewan 23-Aug-2025
+
+1. Let's play Wordle
+    - Official NYT game
+    - Forth game
+2. Take a look inside (briefly)
+    - words.fs
+    - game.fs
+3. Essentials: git and unit tests
+4. Next steps (solver)
+5. Q&A
+
+
+https://github.com/amckewan/wordle
+

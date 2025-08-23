@@ -1,12 +1,7 @@
 ( Wordle words )
 
-\ There are two lists of words, those that can be solutions and those that can be guesses but not solutions.
-
-\ Build an array of valid Wordle words, 5 chars per entry.
-\ Wordle words are identified by the index into this array.
-
 \ Wordle words are 5 characters long. When passing strings, we only need the address.
-\ This is 'wa' in stack diagrams (word address).
+\ This is 'w' in the stack diagrams.
 
 5 CONSTANT LEN
 
@@ -21,23 +16,25 @@
 : WCOMPARE ( w1 w2 -- -1/0/1 )  LEN SWAP LEN COMPARE ;
 : W= ( w1 w2 -- f )  WCOMPARE 0= ;
 
+
+\ There are two lists of words, those that can be solutions (WORDLE-WORDS)
+\ and those that can be guesses but not solutions (GUESS-WORDS).
+\ The lists are in alphabetical order to allow binary search.
+
 \ Add the next wordle word to the dictionary (to build the word lists).
 : WW,  W W, ;
 
-\ Create the list of valid wordle solutions (sorted).
-\ In stack diagrams, a 'w' is a word number, which is an offset into this array. NO NO
+\ Create the list of valid wordle solutions.
 CREATE WORDLE-WORDS
-  INCLUDE wordle-words.fs
-HERE CONSTANT WORDLE-WORDS-END
+INCLUDE wordle-words.fs
 
-WORDLE-WORDS-END WORDLE-WORDS - LEN / CONSTANT #WORDS
+HERE WORDLE-WORDS - LEN / CONSTANT #WORDS
 
 \ Create the list of possible guesses. These are allowed as guesses but won't be solutions.
 CREATE GUESS-WORDS
-  INCLUDE guess-words.fs
-HERE CONSTANT GUESS-WORDS-END
+INCLUDE guess-words.fs
 
-GUESS-WORDS-END GUESS-WORDS - LEN / CONSTANT #GUESS-WORDS
+HERE GUESS-WORDS - LEN / CONSTANT #GUESS-WORDS
 
 \ get wordle word from word #
 : WW ( w# -- w )  LEN * WORDLE-WORDS + ;
