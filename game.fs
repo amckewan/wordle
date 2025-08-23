@@ -1,63 +1,88 @@
 \ Wordle game
 
-create secret  len allot ( the secret answer we are tryig to guess)
-create guess   len allot ( the current guess )
-create score   len allot ( the score for the guess )
+include random.fs ( gforth )
 
-\ The score is a 5-char string with these three characters:
+\ The score is a 5-char string containing these characters:
 char G constant GREEN
 char Y constant YELLOW
 char - constant GREY
 
-\ check if a guess is valid, in one of the two word lists
-: valid-guess ( w -- f )
-    dup find-wordle-word 0= if find-guess-word ( else drop true ) then ;
+create secret  len allot ( the secret answer we are tryig to guess)
+create guess   len allot ( the current guess )
+create score   len allot ( the score for the guess, string of colors )
 
-: match ( pos -- f )  dup guess + c@  swap secret + c@ = ;
+variable guesses ( up to 6 allowed )
 
+: .guesses  ." (" guesses @ 0 .r ." ) ";
+: .game  ." secret: " secret w. ." guess: " guess w. .guesses ." score: " score w. ;
+
+: clear-score  score len grey fill ; clear-score
+
+: new-game
+    #words random ww secret w!
+    guess len [char] ? fill
+    clear-score  0 guesses ! ;
+
+: secret@ ( pos -- ch ) secret + c@ ;
+: guess@  ( pos -- ch ) guess + c@ ;
+: score@  ( pos -- ch ) score + c@ ;
+: score!  ( ch pos -- ) score + c! ;
+
+: match ( char pos -- f )  secret + c@ = ;
+
+\ Score any green letters first, then we will ignore these
 : score-green ( -- )
-    len 0 do  i match if  green score i + c!  then  loop ;
+    len 0 do  i guess@ i match if  green i score!  then  loop ;
 
-: grey? ( pos -- f ) score + c@ grey = ;
+: grey? ( pos -- f ) score@ grey = ;
 
 \ Ignoring geen letters, score yellow if a letter exists in a different spot
 \ a: RAISE g: ABACE => Y---G ( only score first A )
 
 \ : (score-yellow) ( pos -- )
 
-: score-yellow ( -- )
- \   len 0 do  i (score-yellow)  loop ;
-
-
+\ score yellow for the this position, knowing it's still grey
+: score-yellow-letter ( pos -- )
+    dup guess@
     len 0 do
-        i grey? ( ignore existing greens and yellows )
-        if  ( if the letter exists to the right, mark it yellow )
-            guess i + c@ ( candidate letter )
-            len i 1+ ?do
-                dup secret i + c@ =  i grey? and
-                if
+        dup i secret@ =  i grey? and
+        if  drop  yellow swap score!  ( todo: remember that we found one ) unloop exit  then
+    loop 2drop ;
 
-                then
-            loop drop
-        then
+: score-yellow ( -- )
+    len 0 do
+        i grey? if  i score-yellow-letter  then
     loop ;
 
-: guessit ( w -- score )  ( score is static! )
-    score len grey fill
-    dup score-green  dup score-yellow ;
+\ Make a guess and return the score (static).
+: make-guess-unchecked ( w -- score )
+    guess w!  clear-score  1 guesses +!
+    score-green
+    score-yellow
+    ;
 
-\ W RAISE GUESS W. *..?. ok
-\ W RAISE GUESS W. G--Y- ok
-\ G RAISE
-\ R A I S E
-\ G . . Y .
-\
+\ check if a guess is valid, in one of the two word lists
+: valid-guess ( w -- f )
+    dup find-wordle-word not if find-guess-word ( else drop true ) then ;
+
+: check-guess ( w -- )
+    guesses @ 5 > abort" Too many guesses"
+    valid-guess not abort" Guess is not a known word" ;
+
+
+: make-guess ( w -- score )  dup check-guess make-guess-unchecked ;
+
+( === Game UI === )
+: NEW  new-game ;
+: N  new-game [W] FORTH secret w! ; N
+: G  w make-guess  cr guesses ? score w. ;
+
 
 ( === unit tests === )
 include unit-test.fs
 
 : expect-valid ( w -- ) test
-    dup valid-guess 0= if fail ." expected valid " W. else drop then ;
+    dup valid-guess not if fail ." expected valid " W. else drop then ;
 : expect-not-valid ( w -- ) test
     dup valid-guess if fail ." expected not valid " W. else drop then ;
 
@@ -80,5 +105,54 @@ include unit-test.fs
 
   report-unit-tests ;
 
+
+: expect-green ( secret guess score -- ) test
+    swap guess w!  swap secret w!  clear-score  score-green
+    dup score w= not if fail ." Expected score " w. ." got score " score w.
+    else drop then ;
+
+: test-score-green
+    cr ." Testing SCORE-GREEN..." begin-unit-tests
+    [W] ABACK [W] ABASE [W] GGG-- expect-green
+    [W] ABASE [W] AWASH [W] G-GG- expect-green
+    [W] ABACK [W] DEFER [W] ----- expect-green
+    report-unit-tests ;
+
+: expect-yellow ( secret guess score -- )
+    test  swap guess w! swap secret w! clear-score  score-yellow
+    dup score w= if drop else fail ." Expected yellow score " w. .game then ;
+
+: test-score-yellow
+    cr ." Testing SCORE-YELLOW..." begin-unit-tests
+    [W] AABCD [W] xxxxx [W] ----- expect-yellow
+    [W] AABCD [W] Bxxxx [W] Y---- expect-yellow
+    [W] AABCD [W] xxAxx [W] --Y-- expect-yellow
+    [W] AABCD [W] DDxxx [W] Y---- expect-yellow ( this fails, see above )
+    report-unit-tests ;
+
+: s! secret w! ;
+
+: expect-score ( guess score -- )
+    test clear-score  swap make-guess-unchecked
+    dup score w= if drop else fail .game ." Expected score " w. then ;
+
+: test-make-guess
+    cr ." Testing MAKE-GUESS..." begin-unit-tests
+    [W] AABCD s!  [W] xxxxx [W] ----- expect-score
+                  [W] Axxxx [W] G---- expect-score
+                  [W] Dxxxx [W] Y---- expect-score
+                  [W] xxAxx [W] --Y-- expect-score
+                  [W] xxAAx [W] --Y-- expect-score
+                  [W] AxBDx [W] G-GY- expect-score
+
+    [W] ABLED s!  [W] ALLEY [W] G-GG- expect-score
+    [W] ABLED s!  [W] ALLEL [W] G-GG- expect-score
+    report-unit-tests ;
+
+
 test-valid-guess
+test-score-green
+test-score-yellow
+test-make-guess
+
 forget-unit-tests

@@ -1,5 +1,9 @@
-( Wordle solver )
+( Wordle game & solver )
 
+( preamble )
+: not 0= ;
+
+( game )
 include words.fs
 include game.fs
 

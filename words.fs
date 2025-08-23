@@ -10,14 +10,19 @@
 
 5 CONSTANT LEN
 
+: W! ( w1 w2 -- )  LEN CMOVE ;
+: W, ( w -- )  HERE LEN ALLOT W! ;
 : W. ( w -- )  LEN TYPE SPACE ;
 
 ( literals )
 : W ( -- w )  BL PARSE DROP ;
 : [W] ( -- w at runtime )  BL PARSE  POSTPONE SLITERAL  POSTPONE DROP ; IMMEDIATE
 
+: WCOMPARE ( w1 w2 -- -1/0/1 )  LEN SWAP LEN COMPARE ;
+: W= ( w1 w2 -- f )  WCOMPARE 0= ;
+
 \ Add the next wordle word to the dictionary (to build the word lists).
-: WW,  HERE LEN ALLOT  BL PARSE ( dest src # )  ROT SWAP CMOVE ;
+: WW,  W W, ;
 
 \ Create the list of valid wordle solutions (sorted).
 \ In stack diagrams, a 'w' is a word number, which is an offset into this array. NO NO
@@ -37,19 +42,16 @@ GUESS-WORDS-END GUESS-WORDS - LEN / CONSTANT #GUESS-WORDS
 \ get wordle word from word #
 : WW ( w# -- w )  LEN * WORDLE-WORDS + ;
 
-: .WW ( w# -- )  WW LEN TYPE SPACE ;
+: .WW ( w# -- )  WW W. ;
 
 ( show all the words )
 : .WORDS  #WORDS 0 DO  I .WW  LOOP ;
-
-: WMOVE ( w1 w2 -- )  LEN CMOVE ; ( useful )
 
 
 \ Search a sorted list of words, returning the word and true if found, else false.
 \ The w returned is in the list, not necessarily (and most likely not) the w passed in.
 \ We do that so the returned word is static and we can keep it around if needed.
 
-: WCOMPARE ( w1 w2 -- -1/0/1 )  LEN SWAP LEN COMPARE ;
 : MID ( low high -- mid )  OVER - LEN / ( low n )  2/ LEN * + ;
 
 : FIND-WORD ( w words #words -- w' true | false)   ( binary search )
@@ -60,8 +62,8 @@ GUESS-WORDS-END GUESS-WORDS - LEN / CONSTANT #GUESS-WORDS
         0< IF ( bottom half ) NIP  ELSE ( top half ) ROT DROP  LEN + SWAP  THEN
     REPEAT  2DROP FALSE   R> DROP ;
 
-: FIND-WORDLE-WORD ( w -- w' true | false)  WORDLE-WORDS #WORDS FIND-WORD ;
-: FIND-GUESS-WORD  ( w -- w' true | false)  GUESS-WORDS #GUESS-WORDS FIND-WORD ;
+: FIND-WORDLE-WORD ( w -- w' true | false)  WORDLE-WORDS #WORDS       FIND-WORD ;
+: FIND-GUESS-WORD  ( w -- w' true | false)  GUESS-WORDS  #GUESS-WORDS FIND-WORD ;
 
 
 ( === unit tests === )
@@ -81,14 +83,13 @@ WW, JAPAN
 here test-words - len / constant #test-words
 
 \ : FIND-WORD ( w words #words -- w' true | false)
+: find-test ( w -- w' t | f ) test-words #test-words find-word ;
 
 : expect-found ( w -- )  test
-  dup test-words #test-words find-word
-  if 2drop else fail ." Expected to find " W. then ;
+  dup find-test not if fail ." Expected to find " W. else 2drop then ;
 
 : expect-not-found ( w -- )  test
-  dup test-words #test-words find-word
-  if fail ." Expected not to find " drop W. else drop then ;
+  find-test if fail ." Expected not to find " W. then ;
 
 : test-find-word
   CR ." Testing FIND-WORD..." begin-unit-tests

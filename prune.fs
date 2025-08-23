@@ -48,10 +48,10 @@
 \ Check if a word has this letter in any position, ignoring green letters
 : has-letter ( char w -- f )
   false  len 0 do
-    i green? 0= if ( char w f ) over ww i + c@  3 pick = or  then 
+    i green? not if ( char w f ) over ww i + c@  3 pick = or  then 
   loop nip nip ;
 
-: missing-letter  has-letter 0= ;
+: missing-letter  has-letter not ;
 
 \ remove words that either do or don't have a letter, ignoring greens
 : prune-if ( char xt -- )  >r
@@ -85,7 +85,7 @@ include unit-test.fs
   report-unit-tests ;
 
 
-: expect-has ( w char -- )  test  swap 2dup has-letter 0=
+: expect-has ( w char -- )  test  swap 2dup has-letter not
   if fail ." expected " .ww ." to contain " emit
   else 2drop then ;
 : expect-has-not ( w char -- )  test  swap 2dup has-letter

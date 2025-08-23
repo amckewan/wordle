@@ -6,7 +6,8 @@ create working  #words allot
 : all-words  working #words 1 fill ;
 
 ( no bounds check )
-: has ( n -- f )   working + c@ ;
+: contains ( n -- f )  working + c@ ;
+( todo remove ) : has ( n -- f ) contains ;
 : remove ( n -- )  0 swap working + c! ;
 
 : remove-all  working #words erase ;
@@ -27,7 +28,7 @@ create working  #words allot
 include unit-test.fs
 
 : expect-has ( w -- )  test
-  dup has 0= if  fail ." expect " dup . ." found" then drop ;
+  dup has not if  fail ." expect " dup . ." found" then drop ;
 : expect-has-not ( w -- )  test
   dup has if  fail ." expect " dup . ." not found"  then drop ;
 
@@ -59,7 +60,7 @@ include unit-test.fs
   report-unit-tests ;
 
 : expect ( [w'] f w -- )
-  swap 0= if fail ." expected " . ." got none"
+  swap not if fail ." expected " . ." got none"
   else 2dup <> if fail ." expected " . ." got " . else 2drop then then ;
 : expect-none ( [w] f -- ) if fail ." expected none, got " . then ;
 
