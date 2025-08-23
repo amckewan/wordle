@@ -16,96 +16,65 @@
 : WCOMPARE ( w1 w2 -- -1/0/1 )  LEN SWAP LEN COMPARE ;
 : W= ( w1 w2 -- f )  WCOMPARE 0= ;
 
+\ There are two lists of words, those that can be solutions
+\ and those that can be guesses but not solutions.
 
-\ There are two lists of words, those that can be solutions (WORDLE-WORDS)
-\ and those that can be guesses but not solutions (GUESS-WORDS).
-\ The lists are in alphabetical order to allow binary search.
+: WW,  W W, ;  \ add a word to the dictionary
 
-\ Add the next wordle word to the dictionary (to build the word lists).
-: WW,  W W, ;
-
-\ Create the list of valid wordle solutions.
-CREATE WORDLE-WORDS
+HERE
 INCLUDE wordle-words.fs
-
-HERE WORDLE-WORDS - LEN / CONSTANT #WORDS
-
-\ Create the list of possible guesses. These are allowed as guesses but won't be solutions.
-CREATE GUESS-WORDS
+HERE
 INCLUDE guess-words.fs
+HERE
 
-HERE GUESS-WORDS - LEN / CONSTANT #GUESS-WORDS
+CONSTANT GUESS-END
+CONSTANT WORDS-END
+CONSTANT WORDLE-WORDS
+
+WORDS-END WORDLE-WORDS - LEN / CONSTANT #WORDS
+
+\ check if a guess is valid, in one of the two word lists
+: VALID-GUESS ( w -- f )
+    GUESS-END WORDLE-WORDS DO
+      DUP I W= IF  DROP TRUE  UNLOOP EXIT  THEN
+    LEN +LOOP  DROP FALSE ;
+
 
 \ get wordle word from word #
 : WW ( w# -- w )  LEN * WORDLE-WORDS + ;
-
 : .WW ( w# -- )  WW W. ;
 
 ( show all the words )
 : .WORDS  #WORDS 0 DO  I .WW  LOOP ;
 
 
-\ Search a sorted list of words, returning the word and true if found, else false.
-\ The w returned is in the list, not necessarily (and most likely not) the w passed in.
-\ We do that so the returned word is static and we can keep it around if needed.
-
-: MID ( low high -- mid )  OVER - LEN / ( low n )  2/ LEN * + ;
-
-: LOWER  ( low high mid -- low mid )  NIP ;
-: HIGHER ( low high mid -- mid+1 high)  ROT DROP  LEN + SWAP ;
-
-: FIND-WORD ( w words #words -- w' true | false)   ( binary search )
-    ROT >R  LEN * OVER + ( low high )
-    BEGIN 2DUP U< WHILE
-        2DUP MID  R@ OVER WCOMPARE ( low high mid n )
-        ?DUP 0= IF ( found ) NIP NIP TRUE   R> DROP EXIT THEN
-        0< IF LOWER ELSE HIGHER THEN
-    REPEAT  2DROP FALSE   R> DROP ;
-
-: FIND-WORDLE-WORD ( w -- w' true | false)  WORDLE-WORDS #WORDS       FIND-WORD ;
-: FIND-GUESS-WORD  ( w -- w' true | false)  GUESS-WORDS  #GUESS-WORDS FIND-WORD ;
-
-
 ( === unit tests === )
 include unit-test.fs
 
-create test-words
-WW, ABACK
-WW, BLANK
-WW, CHOIR
-WW, DELTA
-WW, EMCEE
-WW, FORTH
-WW, GRILL
-WW, HOUSE
-WW, IGLOO
-WW, JAPAN
-here test-words - len / constant #test-words
+: expect-valid ( w -- ) test
+    dup valid-guess not if fail ." expect valid " W. then ;
+: expect-not-valid ( w -- ) test
+    dup valid-guess if fail ." expect not valid " W. then ;
 
-\ : FIND-WORD ( w words #words -- w' true | false)
-: find-test ( w -- w' t | f ) test-words #test-words find-word ;
+: test-valid-guess
+    cr ." Testing VALID-GUESS..." begin-unit-tests
 
-: expect-found ( w -- )  test
-  dup find-test not if fail ." Expected to find " W. else 2drop then ;
+    ( wordle words )
+    [W] ABACK expect-valid
+    [W] RAISE expect-valid
+    [W] ZONAL expect-valid
 
-: expect-not-found ( w -- )  test
-  find-test if fail ." Expected not to find " W. then ;
+    ( guess words )
+    [W] ABLOW expect-valid
+    [W] PONGO expect-valid
+    [W] ZYMIC expect-valid
 
-: test-find-word
-  CR ." Testing FIND-WORD..." begin-unit-tests
-  [W] ABACK expect-found
-  [w] BLANK expect-found
-  [w] CHOIR expect-found
-  [w] JAPAN expect-found
-  [w] ZESTY expect-not-found
-  [w] XXXXX expect-not-found
+    ( invalid words )
+    [W] XXXXX expect-not-valid
+    [W] ABACC expect-not-valid
 
-  \ test an empty list
-  test [w] ABACK test-words 0 find-word
-  if fail ." Expect not to find in a empty table" drop then
-
-  report-unit-tests ;
-
-test-find-word
+    report-unit-tests ;
+  
+test-valid-guess
 
 forget-unit-tests

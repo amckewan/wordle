@@ -29,12 +29,22 @@ variable guesses ( up to 6 allowed )
 : score!  ( ch pos -- ) score + c! ;
 
 : match ( char pos -- f )  secret + c@ = ;
+: grey? ( pos -- f ) score@ grey = ;
+
+: score-word ( w -- score )
+    guess w! clear-score
+
+    \ iterate over the letters
+    len 0 do
+
+
+    loop score ;
+
 
 \ Score any green letters first, then we will ignore these
 : score-green ( -- )
     len 0 do  i guess@ i match if  green i score!  then  loop ;
 
-: grey? ( pos -- f ) score@ grey = ;
 
 \ Ignoring geen letters, score yellow if a letter exists in a different spot
 \ a: RAISE g: ABACE => Y---G ( only score first A )
@@ -61,9 +71,9 @@ variable guesses ( up to 6 allowed )
     score-yellow
     ;
 
-\ check if a guess is valid, in one of the two word lists
-: valid-guess ( w -- f )
-    dup find-wordle-word not if find-guess-word ( else drop true ) then ;
+\ \ check if a guess is valid, in one of the two word lists
+\ : valid-guess ( w -- f )
+\     dup find-wordle-word not if find-guess-word ( else drop true ) then ;
 
 : check-guess ( w -- )
     guesses @ 5 > abort" Too many guesses"
@@ -80,29 +90,6 @@ variable guesses ( up to 6 allowed )
 ( === unit tests === )
 include unit-test.fs
 
-: expect-valid ( w -- ) test
-    dup valid-guess not if fail ." expected valid " W. else drop then ;
-: expect-not-valid ( w -- ) test
-    dup valid-guess if fail ." expected not valid " W. else drop then ;
-
-: test-valid-guess
-    cr ." Testing VALID-GUESS..." begin-unit-tests
-
-    ( wordle words )
-    [W] ABACK expect-valid
-    [W] RAISE expect-valid
-    [W] ZONAL expect-valid
-
-    ( guess words )
-    [W] ABLOW expect-valid
-    [W] PONGO expect-valid
-    [W] ZYMIC expect-valid
-
-    ( invalid words )
-    [W] XXXXX expect-not-valid
-    [W] ABACC expect-not-valid
-
-    report-unit-tests ;
 
 : bad-score ( score -- ) fail .game ." Expected score " w. ;
 
@@ -146,14 +133,13 @@ include unit-test.fs
 
     [W] ABLED s!  [W] ALLEY [W] G-GG- expect-score
                   [W] ALLEL [W] G-GG- expect-score
+
+    [W] UNION S!  [W] NOUNS [W] YY--- expect-score
+
     report-unit-tests ;
 
-
-test-valid-guess
 test-score-green
 test-score-yellow
 test-make-guess
 
 forget-unit-tests
-
-: N  new-game [W] FORTH secret w! ; N

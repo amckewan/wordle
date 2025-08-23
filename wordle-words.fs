@@ -1,6 +1,4 @@
-\ valid wordle solutions - original list
-\ in alphabetical order for binary search
-
+\ valid wordle solutions - original list in alphabetical order
 WW, ABACK
 WW, ABASE
 WW, ABATE
