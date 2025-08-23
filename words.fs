@@ -11,7 +11,7 @@
 
 ( literals )
 : W ( -- w )  BL PARSE DROP ;
-: [W] ( -- w at runtime )  BL PARSE  POSTPONE SLITERAL  POSTPONE DROP ; IMMEDIATE
+: [W] ( -- w [at runtime] )  BL PARSE  POSTPONE SLITERAL  POSTPONE DROP ; IMMEDIATE
 
 : WCOMPARE ( w1 w2 -- -1/0/1 )  LEN SWAP LEN COMPARE ;
 : W= ( w1 w2 -- f )  WCOMPARE 0= ;
@@ -51,12 +51,15 @@ HERE GUESS-WORDS - LEN / CONSTANT #GUESS-WORDS
 
 : MID ( low high -- mid )  OVER - LEN / ( low n )  2/ LEN * + ;
 
+: LOWER  ( low high mid -- low mid )  NIP ;
+: HIGHER ( low high mid -- mid+1 high)  ROT DROP  LEN + SWAP ;
+
 : FIND-WORD ( w words #words -- w' true | false)   ( binary search )
     ROT >R  LEN * OVER + ( low high )
     BEGIN 2DUP U< WHILE
         2DUP MID  R@ OVER WCOMPARE ( low high mid n )
         ?DUP 0= IF ( found ) NIP NIP TRUE   R> DROP EXIT THEN
-        0< IF ( bottom half ) NIP  ELSE ( top half ) ROT DROP  LEN + SWAP  THEN
+        0< IF LOWER ELSE HIGHER THEN
     REPEAT  2DROP FALSE   R> DROP ;
 
 : FIND-WORDLE-WORD ( w -- w' true | false)  WORDLE-WORDS #WORDS       FIND-WORD ;
