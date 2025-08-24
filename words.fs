@@ -52,9 +52,9 @@ WORDS-END WORDLE-WORDS - LEN / CONSTANT #WORDS
 include unit-test.fs
 
 : expect-valid ( w -- ) test
-    dup valid-guess not if fail ." Expected valid " W. then ;
+    valid-guess not if fail ." Expected valid " W. then ;
 : expect-not-valid ( w -- ) test
-    dup valid-guess if fail ." Expected not valid " W. then ;
+    valid-guess if fail ." Expected not valid " W. then ;
 
 : test-valid-guess
     cr ." Testing VALID-GUESS..." begin-unit-tests

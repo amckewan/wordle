@@ -1,7 +1,6 @@
 ( Wordle game & solver )
 
-( preamble )
-: not 0= ;
+require preamble.fs
 
 ( game )
 include words.fs

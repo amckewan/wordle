@@ -1,8 +1,5 @@
 \ Wordle game
 
-include random.fs ( gforth )
-: random-word ( -- w )  #words random ww ;
-
 \ The score is a 5-char string containing these characters:
 char G constant GREEN
 char Y constant YELLOW
@@ -11,76 +8,49 @@ char - constant GREY
 create secret  len allot ( the secret answer we are tryig to guess)
 create guess   len allot ( the current guess for debugging )
 create score   len allot ( the score for the guess, string of colors )
+create used    len allot ( a letter used for yellow or zero )
 
-create yellows  len allot ( true if this letter has been used as a yellow )
+: .game  ." secret: " secret w. ." guess: " guess w. ." score: " score w.
+     ." used: " used len bounds do i c@ ?dup 0= if [char] - then emit loop space ;
 
-variable guesses ( up to 6 allowed )
+: clear-score  score len grey fill  used len erase ;
 
-: .guesses  ." (" guesses @ 0 .r ." ) ";
-: .game  ." secret: " secret w. ." guess: " guess w. .guesses ." score: " score w. ;
+: random-word ( -- w )  #words random ww ;
 
-: clear-score
-    score len grey fill
-    yellows len erase ; clear-score
-
-: new-game
-    random-word secret w!
-    guess len [char] ? fill
-    clear-score  0 guesses ! ;
-
-: secret@ ( pos -- ch ) secret + c@ ;
-: score@  ( pos -- ch ) score + c@ ;
-: score!  ( ch pos -- ) score + c! ;
-
-: match ( char pos -- f )  secret@ = ;
-
-: grey? ( pos -- f )  score@ grey = ;
-
-: mark-yellow ( pos -- )  yellows +  1 swap c! ;
-: yellow? ( pos -- f ) yellows + c@ ;
+: new-game  random-word secret w!  guess len blank  clear-score ;  new-game
 
 \ Score any green letters first, then we will ignore these
+: match  ( char pos -- f )  secret + c@ = ;
+: score! ( char pos -- )    score + c! ;
 : score-green ( guess -- )
-    len 0 do
-        count i match if  green i score!  then
-    loop drop ;
+    len 0 do  count i match if  green i score!  then  loop drop ;
 
-\ To score yellows, we check the grey letters
-\ that have not already been used as yellows to avoid double counting.
+\ To score yellows, we check the non-green letters that have
+\ not already been used as yellows (to avoid double counting).
+: green? ( pos -- f ) score + c@ green = ;
+: used? ( pos -- f )  used + c@ ;
+: used! ( ch pos -- )   used + c! ;
+
 : check-yellow ( char pos -- )
     len 0 do
-        over i match  i grey? and  i yellow? not and
-        if  yellow over score!  i mark-yellow  leave then
+        over i match  i green? not and  i used? not and
+        if  yellow over score!  over i used!  leave then
     loop 2drop ;
 
-\ Score the yellow letters, ignoring existing green and yellow ones
 : score-yellow ( guess -- )
     len 0 do
-        i grey? if  count i check-yellow  else 1+ then
+        count  i green? not if  i check-yellow  else drop then
     loop drop ;
 
 \ Score a word returning the score (saves guess and score)
 : score-word ( guess -- score )
     dup guess w! ( we don't use it but good for diagnostics )
-    clear-score dup
-    score-green
-    score-yellow
-    score ;
-
-\ Validate guesses (warnings for now)
-: check-guess ( w -- )
-    valid-guess not if ." Not in the word list. " then \ abort" Not in the word list"
-    guesses @ 5 > if ." Too many guesses. " then \ abort" Too many guesses"
-    ;
-
-\ Make a guess and return the score
-: make-guess ( w -- score )
-    dup check-guess  1 guesses +!  score-word ;
+    clear-score  dup score-green  score-yellow  score ;
 
 
 ( === Game UI === )
 : NEW  new-game ;
-: G  w make-guess  cr guesses ? w. ;
+: G  w score-word  cr 2 spaces w. ;
 
 
 ( === unit tests === )
@@ -120,6 +90,7 @@ test-score-green
     [W] AABCD [W] xxAAx [W] --YY- expect-yellow
     [W] AABCD [W] xxAAA [W] --YY- expect-yellow
     [W] AABCD [W] DDxxx [W] Y---- expect-yellow
+    [W] ALERT [W] RAISE [W] YY--Y expect-yellow \ Y---Y
     report-unit-tests ;
 
 test-score-yellow
@@ -142,7 +113,9 @@ test-score-yellow
     [W] ABLED s!  [W] ALLEY [W] G-GG- expect-score-word
                   [W] ALLEL [W] G-GG- expect-score-word
 
-    [W] UNION S!  [W] NOUNS [W] YY-Y- expect-score-word
+    [W] UNION S!  [W] NOUNS [W] YYYY- expect-score-word
+
+    [W] ALERT S!  [W] RAISE [W] YY--Y expect-score-word \ Y---Y
 
     report-unit-tests ;
 
