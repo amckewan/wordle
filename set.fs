@@ -1,93 +1,99 @@
-( working set )
+( A set of wordle words )
 
-( The working set has one byte per word, 0=absent, 1=present )
-create working  #words allot
+\ One byte per word, 0=absent, 1=present
+: set  create  here #words  dup allot  erase ;
 
-: all-words  working #words 1 fill ;
-
-( no bounds check )
-: contains ( n -- f )  working + c@ ;
-( todo remove ) : has ( n -- f ) contains ;
-: remove ( n -- )  0 swap working + c! ;
-
-: remove-all  working #words erase ;
-
-: #working  ( -- n )  0  #words 0 do  i has +  loop ;
-: .working  #words 0 do  i has if  i ww w.  then  loop ;
+: clear-set ( set -- ) #words erase ;
+: fill-set  ( set -- ) #words 1 fill ;
 
 
-( iterator, no wrap )
-: next ( n -- n' true | false )
-  begin  1+  dup #words < while
-    dup working + c@ if  true exit  then
-  repeat  drop false ;
+\ NOTE: These only work correctly for words in wordle-words (provided by for-each)
+: contains ( w set -- f )  swap w# +  c@ negate ; ( needed? )
+: remove   ( w set -- )    swap w# +  0 swap c! ;
 
-: first ( -- n true | false )  -1 next ;
+\ Execute xt for each element in the set. xt does ( ... w --- ... )
+: for-each ( ... xt set -- ... )
+    #words 0 do
+        dup i + c@ if  i ww  swap >r  swap dup >r execute  r> r>  then
+    loop 2drop ;
+
+\ : .set ( set -- )  0 swap  #words bounds do  i c@ if  dup ww w.  then  1+ loop drop ;
+: .set ( set -- )  ['] w. swap for-each ;
+
+: inc ( n w -- n+1 )  drop 1+ ;
+: set-size ( set -- n )  0 ['] inc rot for-each ;
+
 
 ( === unit tests === )
 include unit-test.fs
 
-: expect-has ( w -- )  test
-  dup has not if  fail ." expect " dup . ." found" then drop ;
-: expect-has-not ( w -- )  test
-  dup has if  fail ." expect " dup . ." not found"  then drop ;
+set testing
 
-: test-working
-  cr ." Testing working set..." begin-unit-tests
+: expect-contains ( w -- )  test
+    dup testing contains not if fail ." Expected to contain " dup w. then drop ;
 
-  remove-all
-  #working if fail ." expected working empty" then
-  0 expect-has-not
-  1 expect-has-not
-  #words 2/ expect-has-not
-  #words 1- expect-has-not
+: expect-contains-not ( w -- )  test
+    dup testing contains if fail ." Expected not to contain " dup w. then drop ;
 
-  all-words
-  #working #words - if fail ." expected working full" then
-  0 expect-has
-  1 expect-has
-  #words 2/ expect-has
-  #words 1- expect-has
+: test-set
+    cr ." Testing set..." begin-unit-tests
 
-  ( remove some )
-  0 dup remove expect-has-not
-  1 dup remove expect-has-not
-  55 dup remove expect-has-not
-  #words 1- dup remove expect-has-not
-  2 expect-has
-  #working 4 + #words - if fail ." expected working paritally full" then
+    testing clear-set
+    0 ww expect-contains-not
+    100 ww expect-contains-not
+    #words 1- ww expect-contains-not
 
-  report-unit-tests ;
+    testing fill-set
+    0 ww expect-contains
+    100 ww expect-contains
+    #words 1- ww expect-contains
 
-: expect ( [w'] f w -- )
-  swap not if fail ." expected " . ." got none"
-  else 2dup <> if fail ." expected " . ." got " . else 2drop then then ;
-: expect-none ( [w] f -- ) if fail ." expected none, got " . then ;
+    \ remove some
+    10 ww  dup testing remove  expect-contains-not
+    20 ww  dup testing remove  expect-contains-not
+    30 ww  dup testing remove  expect-contains-not
+    31 ww                      expect-contains
 
-: test-iterators
-  cr ." Testing working set interators..." begin-unit-tests
-
-  all-words
-  first 0 expect
-  0 next 1 expect
-  100 next 101 expect
-
-  0 remove 1 remove 2 remove
-  first 3 expect
-  0 next 3 expect
-  1 next 3 expect
-  3 next 4 expect
-
-  101 remove 102 remove
-  100 next 103 expect
-
-  remove-all
-  first expect-none
-  0 next expect-none
-
-  report-unit-tests ;
+    report-unit-tests ;
 
 
-test-working
-test-iterators
-forget-unit-tests
+: expect-size ( n -- )  test
+    testing set-size 2dup <> if fail ." Expected " swap . ." got " . else 2drop then ;
+  
+: test-set-size
+    cr ." Testing SET-SIZE..." begin-unit-tests
+
+    testing clear-set  0 expect-size
+    testing fill-set   #words expect-size
+
+    111 ww testing remove
+    222 ww testing remove
+    333 ww testing remove
+    #words 3 - expect-size
+
+    report-unit-tests ;
+
+
+23 constant #Qs \ There are 23 words starting with Q
+
+: count-letters ( n c w -- n' c )  c@ over = if  swap 1+ swap  then ;
+
+: expect-count ( c n -- )  test
+    0 rot ['] count-letters testing for-each drop
+    2dup <> if fail ." Expected " swap . ." got " . else 2drop then ;
+
+: test-for-each
+    cr ." Testing FOR-EACH..." begin-unit-tests
+    
+    \ There are 23 Qs and 3 Zs
+    testing fill-set
+    [char] Q 23 expect-count
+    [char] Z  3 expect-count
+    
+    report-unit-tests ;
+
+test-set
+test-set-size
+test-for-each
+
+\ forget-unit-tests

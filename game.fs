@@ -27,9 +27,9 @@ create used    len allot ( a letter used for yellow or zero )
 
 \ To score yellows, we check the non-green letters that have
 \ not already been used as yellows (to avoid double counting).
-: green? ( pos -- f ) score + c@ green = ;
-: used? ( pos -- f )  used + c@ ;
-: used! ( ch pos -- )   used + c! ;
+: green? ( pos -- f )  score + c@ green = ;
+: used?  ( pos -- f )  used + c@ ;
+: used! ( ch pos -- )  used + c! ;
 
 : check-yellow ( char pos -- )
     len 0 do

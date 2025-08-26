@@ -31,7 +31,9 @@ CONSTANT GUESS-END
 CONSTANT WORDS-END
 CONSTANT WORDLE-WORDS
 
-WORDS-END WORDLE-WORDS - LEN / CONSTANT #WORDS
+: W# ( w -- n )  WORDLE-WORDS - LEN / ;
+
+WORDS-END W# CONSTANT #WORDS
 
 \ check if a guess is valid, in one of the two word lists
 : VALID-GUESS ( w -- f )

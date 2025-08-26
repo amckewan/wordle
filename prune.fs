@@ -1,71 +1,73 @@
 ( Pruning the working set )
+: -green ( char pos w -- char pos )
+    >r  2dup r@ + c@ <> if  r@ working remove  then  r> drop ;
+
+: pg ( char pos -- )  ['] -green working for-each  2drop ;
+
+: prune-green ( char pos -- )
+    #words 0 do
+        i contains if
+            2dup i ww + c@ <> if  i remove  then
+        then
+    loop 2drop ;
+
+
+( The working set has one byte per word, 0=absent, 1=present )
+create working  #words allot
+
+: all-words  working #words 1 fill ;
+
+: contains ( n -- f )  working + c@ ;
+( todo remove ) : has ( n -- f ) contains ;
+: remove ( n -- )  0 swap working + c! ;
+
+: remove-all  working #words erase ;
+
+: #working  ( -- n )  0  #words 0 do  i has +  loop ;
+: .working  #words 0 do  i has if  i ww w.  then  loop ;
+
+
+( iterator, no wrap )
+: next ( n -- n' true | false )
+  begin  1+  dup #words < while
+    dup working + c@ if  true exit  then
+  repeat  drop false ;
+
+: first ( -- n true | false )  -1 next ;
+
+
+: remove# ( n -- )  0 swap working + c! ;
 
 \ Remove words from the working set that don't have the green letter.
 \ ex: we know the first letter is 'A', remove words that don't start with 'A'
 : prune-green ( char pos -- )
-  >r  first begin while ( char n )
-    2dup ww r@ + c@ <> if dup remove then
-    next
-  repeat r> 2drop ;
+    #words 0 do
+        i contains if
+            2dup i ww + c@ <> if  i remove#  then
+        then
+    loop 2drop ;
 
-: pg ( char pos n -- char pos )  >r  2dup r@ ww + c@ <> if r@ remove then  r> drop ;
-
-: for-each  ( xt -- )
-    >r first  begin while  r@ execute  next  repeat  r> drop ;
-
-: for-each ( xt -- )
-  #words 0 do  >r  i r@ execute  r>  loop ;
-
-: check-green ( char pos n -- char pos )
-  >r  2dup r@ ww + c@ <> if r@ remove then  r> drop ;
-
-: prune-green ( char pos -- )
-  #words 0 do
-    i has if  2dup i ww + c@ <> if i remove then  then
-  loop 2drop ;
-
-
-: prune-green2 ( char pos -- )  ['] pg for-each  2drop ;
-
-: prune-green ( char pos -- )
-  >r  first begin while ( char n )
-    2dup ww r@ + c@ <> if dup remove then
-    next
-  repeat r> 2drop ;
-
-
-
-: prune-green2 ( char pos -- )
-  #words 0 do  2dup i ww + c@ <> if i remove then  loop 2drop ;
-
-: prune-grey2 ( char -- )
-  #words 0 do  2dup i ww + c@ <> if i remove then  loop 2drop ;
-
-\ For yellow, we want to remove words that don't have that letter,
-\ except if that letter is already green.
-\ Grey is similar except remove if a word _does_ have the letter
-
-\ Check if a word has this letter in any position, ignoring green letters
+\ Check if a word has this letter in any position, ignoring green letters.
+\ We use 'score' to determine whether a letter is green.
 : has-letter ( char w -- f )
-  false  len 0 do
-    i green? not if ( char w f ) over ww i + c@  3 pick = or  then 
-  loop nip nip ;
+    len 0 do
+        i green? not if
+            2dup i + c@ = if ( found one ) 2drop true  unloop exit then
+        then
+    loop 2drop false ;
 
 : missing-letter  has-letter not ;
 
-\ remove words that either do or don't have a letter, ignoring greens
-: prune-if ( char xt -- )  >r
-  first begin while ( char w )
-    2dup r@ execute if  dup remove  then
-    next
-  repeat r> 2drop ;
+\ Remove any words that do or don't have this letter (ignoring greens)
+: prune-if ( char xt -- )
+    #words 0 do
+        i contains if
+            2dup i ww swap execute if  i remove#  then
+        then
+    loop 2drop ;
 
-\ Remove words that don't have this letter
 : prune-yellow ( char -- )  ['] missing-letter prune-if ;
-
-\ Remove words that _do_ have this letter
-: prune-grey ( char -- )  ['] has-letter prune-if ;
-
+: prune-grey   ( char -- )  ['] has-letter     prune-if ;
 
 
 ( === Unit Tests === )
@@ -86,23 +88,25 @@ include unit-test.fs
 
 
 : expect-has ( w char -- )  test  swap 2dup has-letter not
-  if fail ." expected " .ww ." to contain " emit
-  else 2drop then ;
+  if fail ." expected " w. ." to contain " emit  else 2drop then ;
+
 : expect-has-not ( w char -- )  test  swap 2dup has-letter
-  if fail ." expected " .ww ." to not contain " emit
-  else 2drop then ;
+  if fail ." expected " w. ." not to contain " emit  else 2drop then ;
 
 : test-has-letter
   cr ." Testing has-letter..." begin-unit-tests
 
-  ( first word is ABACK )
-  0 [char] A expect-has
-  0 [char] B expect-has
-  0 [char] C expect-has
-  0 [char] D expect-has-not
+  clear-score ( to avoid side effects )
+  [w] ABCDE [char] A expect-has
+  [w] ABCDE [char] B expect-has
+  [w] ABCDE [char] E expect-has
+  [w] ABCDE [char] M expect-has-not
 
-  ( check a random word )
-  len 0 do  555  dup ww i + c@ expect-has  loop
+  \ make sure we skip greens
+  green score c! ( score the first letter green )
+  [w] ABCDE [char] A expect-has-not
+  [w] ABCDA [char] A expect-has
+  [w] ABCDE [char] B expect-has
 
   report-unit-tests ;
 
