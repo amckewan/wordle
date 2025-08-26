@@ -6,10 +6,12 @@
 
 create working  #words allot
 
-: all-words  working fill-set ;
+: all-words  working #words 1 fill ;
 
 : has ( n -- f )   working + c@ ;
-: remove ( n -- )  working +  0 swap c! ;
+: remove ( n -- )  working + 0 swap c! ;
+
+: #working ( -- n )  0 #words 0 do i has + loop ;
 
 : any-green? ( -- f ) \ true if there are any greens in the score
     false  len 0 do  i green? or  loop ;
@@ -65,8 +67,6 @@ create working  #words allot
 ( === Unit Tests === )
 include unit-test.fs
 
-: #working ( -- n )  working set-size ;
-
 ( === Test green-ok? === )
 : expect-green-ok      test dup green-ok? not if fail ." expect green ok " w. else drop then ;
 : expect-green-not-ok  test dup green-ok?     if fail ." expect green not ok " w. else drop then ;
@@ -94,21 +94,21 @@ test-green-ok
     [W] QUERT guess w!
     [W] G---- score w!
     prune-green
-    working set-size 23 expect-equal
+    #working 23 expect-equal
 
     \ there are 3 Zs
     all-words
     [W] ZUERT guess w!
     [W] G---- score w!
     prune-green
-    working set-size 3 expect-equal
+    #working 3 expect-equal
 
     \ there are 424 words ending in E
     all-words
     [W] ABCDE guess w!
     [W] ----G score w!
     prune-green
-    working set-size 424 expect-equal
+    #working 424 expect-equal
 
     report-unit-tests ;
 test-prune-green
@@ -143,21 +143,21 @@ test-yellow-ok
     [W] QUERT guess w!
     [W] Y---- score w!
     prune-yellow
-    working set-size #words 23 - expect-equal
+    #working #words 23 - expect-equal
 
     \ there are 3 Zs
     all-words
     [W] ZUERT guess w!
     [W] Y---- score w!
     prune-yellow
-    working set-size #words 3 - expect-equal
+    #working #words 3 - expect-equal
 
     \ there are 424 words ending in E
     all-words
     [W] ABCDE guess w!
     [W] ----Y score w!
     prune-yellow
-    working set-size #words 424 - expect-equal
+    #working #words 424 - expect-equal
 
     report-unit-tests ;
 test-prune-yellow

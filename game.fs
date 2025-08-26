@@ -5,9 +5,9 @@ char G constant GREEN
 char Y constant YELLOW
 char - constant GREY
 
-create secret  len allot ( the secret answer we are tryig to guess)
-create guess   len allot ( the current guess for debugging )
-create score   len allot ( the score for the guess, string of colors )
+create secret  len allot ( the secret answer )
+create guess   len allot ( current guess )
+create score   len allot ( score for the guess, string of colors )
 create used    len allot ( a letter used for yellow or zero )
 
 : .game  ." secret: " secret w. ." guess: " guess w. ." score: " score w.
@@ -48,8 +48,7 @@ create used    len allot ( a letter used for yellow or zero )
 
 \ Score a word returning the score (saves guess and score)
 : score-word ( guess -- score )
-    dup guess w! ( we don't use it but good for diagnostics )
-    clear-score  dup score-green  score-yellow  score ;
+    guess w! clear-score  guess score-green  guess score-yellow  score ;
 
 
 ( === Game UI === )
