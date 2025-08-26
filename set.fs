@@ -3,9 +3,9 @@
 \ One byte per word, 0=absent, 1=present
 : set  create  here #words  dup allot  erase ;
 
-: clear-set ( set -- ) #words erase ;
-: fill-set  ( set -- ) #words 1 fill ;
-
+: clear-set ( set -- )    #words erase ;
+: fill-set  ( set -- )    #words 1 fill ;
+: copy-set  ( s1 s2 -- )  #words cmove ;
 
 \ NOTE: These only work correctly for words in wordle-words (provided by for-each)
 : contains ( w set -- f )  swap w# +  c@ negate ; ( needed? )
@@ -14,14 +14,14 @@
 \ Execute xt for each element in the set. xt does ( ... w --- ... )
 : for-each ( ... xt set -- ... )
     #words 0 do
-        dup i + c@ if  i ww  swap >r  swap dup >r execute  r> r>  then
+        dup i + c@ if  i ww  swap >r swap  dup >r execute  r> r>  then
     loop 2drop ;
-
-\ : .set ( set -- )  0 swap  #words bounds do  i c@ if  dup ww w.  then  1+ loop drop ;
-: .set ( set -- )  ['] w. swap for-each ;
 
 : inc ( n w -- n+1 )  drop 1+ ;
 : set-size ( set -- n )  0 ['] inc rot for-each ;
+
+: .set ( set -- )  ['] w. swap for-each ;
+
 
 
 ( === unit tests === )
@@ -35,7 +35,7 @@ set testing
 : expect-contains-not ( w -- )  test
     dup testing contains if fail ." Expected not to contain " dup w. then drop ;
 
-: test-set
+: test-contains
     cr ." Testing set..." begin-unit-tests
 
     testing clear-set
@@ -56,6 +56,16 @@ set testing
 
     report-unit-tests ;
 
+: test-remove
+    cr ." Testing remove..." begin-unit-tests
+
+    testing fill-set
+    0 ww testing remove
+    100 ww testing remove
+    #words 1- ww testing remove
+    testing set-size #words 3 - expect-equal
+
+    report-unit-tests ;
 
 : expect-size ( n -- )  test
     testing set-size 2dup <> if fail ." Expected " swap . ." got " . else 2drop then ;
@@ -92,7 +102,8 @@ set testing
     
     report-unit-tests ;
 
-test-set
+test-contains
+test-remove
 test-set-size
 test-for-each
 

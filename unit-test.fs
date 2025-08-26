@@ -1,26 +1,5 @@
 ( unit test harness )
 
-( how to use:
-
-include unit-test.fs
-
-: expect-true  test  not if fail ." expected true" then ;
-
-: test-my-module
-  cr ." Testing my module " begin-unit-tests
-
-  4 5 < expect-true
-  ...
-
-  report-unit-tests ;
-
-test-my-module
-
-forget-unit-tests
-
-)
-
-
 marker forget-unit-tests
 
 variable tests
@@ -33,3 +12,28 @@ variable fails
 
 : report-unit-tests  cr ." ==> " tests ? ." TESTS " 
   fails @ if fails ? ." FAIL " else ." PASS " then ;
+
+\ common tests
+: expect-equal ( n expected --  )  test
+  2dup <> if fail ." Expected ". ." got ". else 2drop then ;
+
+
+( How to use:
+
+include unit-test.fs
+
+: expect-true  test  not if fail ." expected true" then ;
+
+: test-my-module
+  cr ." Testing my module " begin-unit-tests
+
+  4 5 < expect-true
+  ...
+  answer 42 expect-equal
+
+  report-unit-tests ;
+
+test-my-module
+
+forget-unit-tests
+)
