@@ -17,11 +17,10 @@ create working   #words allot
 : #greens ( -- f )  0  len 0 do i green? 1 and + loop ;
 : green-ok? ( w -- f )  true ( unless we miss a green letter )
     len 0 do  i green? if  over i + c@  i guess + c@ =  and  then loop  nip ;
-
 : prune-green ( -- )
     #greens if ( otherwise don't bother )
       #words 0 do  i has if
-          i ww green-ok? not if  i remove  then
+        i ww green-ok? not if  i remove  then
     then loop then ;
 
 \ For a yellow score, we remove words that either have the letter
@@ -41,27 +40,16 @@ create working   #words allot
 \ that have a match in the yellow position (which otherwise would be green).
 : yellow-ok? ( w -- f ) 
     true  len 0 do  i yellow? if  over i + c@  guess i + c@ <>  and  then loop  nip ;
-
 : prune-yellow
     #words 0 do  i has if
         i ww yellow-ok? not if  i remove  then
     then loop ;
 
-
-\ : -yellow ( char pos w -- char pos )
-\     >r 2dup r@ + c@ <> if  over r@ has-letter if ( ok) r> drop exit  then then
-\     r> working remove ;
-
-\ : prune-yellow ( char pos -- )  ['] -yellow working for-each  2drop ;
-
-\ For grey, we remove words that do have that letter.
-
-\ : -grey ( char w -- char )  2dup has-letter if working remove else drop then ;
-
-\ : prune-grey ( char -- )  ['] -grey working for-each  drop ;
-
+\ For grey, we will need to remember our yellow guesses so we don't remove
+\ words that have the grey letter if it scored yellow.
 : prune-grey ( todo ) ;
 
+: prune  prune-green  prune-yellow  prune-grey ;
 
 ( === Unit Tests === )
 include unit-test.fs
@@ -74,16 +62,6 @@ include unit-test.fs
     working #words erase                #working 0 expect-equal
     report-unit-tests ;
 test-#working
-
-: test-green-ok?
-    s" green-ok?" begin-unit-tests
-    [W] AxxAx secret w!  [W] G--G- score w!
-    [W] AxxAx green-ok? expect-true
-    [W] AAAAA green-ok? expect-true
-    [W] AxxBx green-ok? expect-false
-    [W] xxxxx green-ok? expect-false
-    report-unit-tests ;
-test-green-ok
 
 ( === Test green-ok? === )
 : expect-green-ok      test dup green-ok? not if fail ." expect green ok " w. else drop then ;

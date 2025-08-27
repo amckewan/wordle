@@ -7,6 +7,7 @@ include words.fs
 include game.fs
 
 ( solver )
-\ include set.fs
+include history.fs
 include prune.fs
+
 \ include guess.fs
