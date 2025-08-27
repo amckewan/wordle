@@ -1,8 +1,8 @@
 \ Wordle game
 
 \ The score is a 5-char string containing these characters:
-char G constant GREEN
-char Y constant YELLOW
+char * constant GREEN
+char ? constant YELLOW
 char - constant GREY
 
 create secret  len allot ( the secret answer )
@@ -50,11 +50,6 @@ create used    len allot ( a letter used for yellow or zero )
 \ Score a word returning the score (saves guess and score)
 : score-word ( guess -- )
     guess w!  clear-score  score-green  score-yellow ;
-
-
-( === Game UI === )
-: NEW  new-game ;
-: G  w score-word  cr 2 spaces w. ;
 
 
 ( === unit tests === )

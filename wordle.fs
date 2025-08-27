@@ -5,9 +5,11 @@ require preamble.fs
 ( game )
 include words.fs
 include game.fs
+include history.fs
+include game-ui.fs
 
 ( solver )
-include history.fs
-include prune.fs
-
+\ include prune.fs
 \ include guess.fs
+\ include solve.fs
+
