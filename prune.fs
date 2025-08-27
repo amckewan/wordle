@@ -49,7 +49,14 @@ create working   #words allot
 
 \ For grey, we will need to remember our yellow guesses so we don't remove
 \ words that have the grey letter if it scored yellow.
-: prune-grey ( todo ) ;
+\ For now, just remove the word with the letter in the grey position.
+: grey-ok? ( w -- f ) 
+    true  len 0 do  i grey? if  over i + c@  guess i + c@ <>  and  then loop  nip ;
+: prune-grey
+    #words 0 do  i has if
+        i ww grey-ok? not if  i remove  then
+    then loop ;
+
 
 : prune  prune-green  prune-yellow  prune-grey ;
 
