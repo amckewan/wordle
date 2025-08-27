@@ -9,7 +9,7 @@ include history.fs
 include game-ui.fs
 
 ( solver )
-\ include prune.fs
-\ include guess.fs
-\ include solve.fs
+include prune.fs
+include guess.fs
+include solve.fs
 

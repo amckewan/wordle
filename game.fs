@@ -1,8 +1,8 @@
 \ Wordle game
 
 \ The score is a 5-char string containing these characters:
-char * constant GREEN
-char ? constant YELLOW
+char G constant GREEN
+char Y constant YELLOW
 char - constant GREY
 
 create secret  len allot ( the secret answer )

@@ -12,6 +12,8 @@ create working   #words allot
 : remove ( n -- )  working + 0 swap c! ;
 
 : #working ( -- n )  0 #words 0 do i has + loop ;
+\ : .() ( n -- )  ." (" 0 .r ." ) " ;
+: .working  0  #words 0 do i has if i ww w. 1+ then loop  ." (" 0 .r ." ) " ;
 
 \ Prune the working set based on the screen letters
 : #greens ( -- f )  0  len 0 do i green? 1 and + loop ;

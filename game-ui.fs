@@ -1,13 +1,16 @@
 ( game UI )
 
+: solved ( -- f )  #greens len = ;
+: failed ( -- f )  guesses @ max-guesses < not ;
+
 : NEW  new-game  clear-history ;
 
 : G ( -- ) \ "G RAISE" etc.
     w score-word  save-guess  cr .history
-    #greens len = if ." You WIN! " else
-    guesses @ max-guesses = if ." You LOSE! " then then ;
+    solved if ." You WIN! " else
+    failed if ." You LOSE! " then then ;
 
-
+: H .history ;
 
 \ \ Validate guesses (warnings for now)
 \ : check-guess ( w -- )
