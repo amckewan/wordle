@@ -19,7 +19,7 @@ variable guess# ( 0 to 5 )
     guess# @ 5 > if ." Too many guesses. " then \ abort" Too many guesses"
     ;
 
-\ Make a guess (with checks) and return the score
-: make-guess ( w -- score )
+\ Make a guess (with checks)
+: make-guess ( w -- )
     dup check-guess  1 guess# +!  score-word ;
 

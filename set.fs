@@ -36,7 +36,7 @@ set testing
     dup testing contains if fail ." Expected not to contain " dup w. then drop ;
 
 : test-contains
-    cr ." Testing set..." begin-unit-tests
+    s" contains" begin-unit-tests
 
     testing clear-set
     0 ww expect-contains-not
@@ -57,7 +57,7 @@ set testing
     report-unit-tests ;
 
 : test-remove
-    cr ." Testing remove..." begin-unit-tests
+    s" remove" begin-unit-tests
 
     testing fill-set
     0 ww testing remove
@@ -71,7 +71,7 @@ set testing
     testing set-size 2dup <> if fail ." Expected " swap . ." got " . else 2drop then ;
   
 : test-set-size
-    cr ." Testing SET-SIZE..." begin-unit-tests
+    s" set-size" begin-unit-tests
 
     testing clear-set  0 expect-size
     testing fill-set   #words expect-size
@@ -93,7 +93,7 @@ set testing
     2dup <> if fail ." Expected " swap . ." got " . else 2drop then ;
 
 : test-for-each
-    cr ." Testing FOR-EACH..." begin-unit-tests
+    s" for-each" begin-unit-tests
     
     \ There are 23 Qs and 3 Zs
     testing fill-set
@@ -107,4 +107,4 @@ test-remove
 test-set-size
 test-for-each
 
-\ forget-unit-tests
+forget-unit-tests

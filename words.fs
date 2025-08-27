@@ -59,7 +59,7 @@ include unit-test.fs
     valid-guess if fail ." Expected not valid " W. then ;
 
 : test-valid-guess
-    cr ." Testing VALID-GUESS..." begin-unit-tests
+    s" valid-guess" begin-unit-tests
 
     ( wordle words )
     [W] ABACK expect-valid

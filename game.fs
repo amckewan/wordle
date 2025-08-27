@@ -24,11 +24,13 @@ create used    len allot ( a letter used for yellow or zero )
 : yellow? ( pos -- f )  yellow color? ;
 : grey?   ( pos -- f )  grey color? ;
 
+: #greens ( -- n )  0  len 0 do  i green? 1 and +  loop ;
+
 \ Score any green letters first, then we will ignore these
 : match  ( char pos -- f )  secret + c@ = ;
 : score! ( char pos -- )    score + c! ;
-: score-green ( guess -- )
-    len 0 do  count i match if  green i score!  then  loop drop ;
+: score-green ( -- )
+    len 0 do  i guess + c@  i match if  green i score!  then  loop ;
 
 \ To score yellows, we check the non-green letters that have
 \ not already been used as yellows (to avoid double counting).
@@ -41,14 +43,13 @@ create used    len allot ( a letter used for yellow or zero )
         if  yellow over score!  over i used!  leave then
     loop 2drop ;
 
-: score-yellow ( guess -- )
-    len 0 do
-        count  i green? not if  i check-yellow  else drop then
-    loop drop ;
+: score-yellow ( -- )
+    len 0 do  i green? not if  i guess + c@  i check-yellow  then  loop ;
+
 
 \ Score a word returning the score (saves guess and score)
-: score-word ( guess -- score )
-    guess w! clear-score  guess score-green  guess score-yellow  score ;
+: score-word ( guess -- )
+    guess w!  clear-score  score-green  score-yellow ;
 
 
 ( === Game UI === )
@@ -64,17 +65,17 @@ include unit-test.fs
 : t1 [w] ----- [w] ----- ;
 : t2 [w] ----- [w] ----G ;
 
-: setup ( secret guess score -- score guess )
-    test  rot secret w!  swap  dup guess w!  clear-score ;
+: setup ( secret guess score -- score )
+    test  swap guess w!  swap secret w!  clear-score ;
 
 : expect-score ( score -- )
-    dup score wcompare if fail .game ." Expected score " w. else drop then ;
+    dup score wcompare if fail ." Expected score " w. ." got " .game else drop then ;
 
 : expect-green ( secret guess score -- )
     setup  score-green  expect-score ;
 
 : test-score-green
-    cr ." Testing SCORE-GREEN..." begin-unit-tests
+    s" score-green" begin-unit-tests
     [W] ABACK [W] ABASE [W] GGG-- expect-green
     [W] ABASE [W] AWASH [W] G-GG- expect-green
     [W] ABACK [W] XXXXX [W] ----- expect-green
@@ -82,11 +83,12 @@ include unit-test.fs
 
 test-score-green
 
+
 : expect-yellow ( secret guess score -- )
     setup  score-yellow  expect-score ;
 
 : test-score-yellow
-    cr ." Testing SCORE-YELLOW..." begin-unit-tests
+    s" score-yellow" begin-unit-tests
     [W] AABCD [W] xxxxx [W] ----- expect-yellow
     [W] AABCD [W] Bxxxx [W] Y---- expect-yellow
     [W] AABCD [W] xxAxx [W] --Y-- expect-yellow
@@ -98,11 +100,12 @@ test-score-green
 
 test-score-yellow
 
+
 : expect-score-word ( guess score -- )
-    test  swap score-word drop  expect-score ;
+    test  swap score-word  expect-score ;
 
 : test-score-word
-    cr ." Testing SCORE-WORD..." begin-unit-tests
+    s" score-word" begin-unit-tests
     [W] AABCD s!  [W] xxxxx [W] ----- expect-score-word
                   [W] Axxxx [W] G---- expect-score-word
                   [W] Dxxxx [W] Y---- expect-score-word
@@ -124,4 +127,4 @@ test-score-yellow
 
 test-score-word
 
-\ forget-unit-tests
+forget-unit-tests

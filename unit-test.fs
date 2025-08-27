@@ -5,7 +5,8 @@ marker forget-unit-tests
 variable tests
 variable fails
 
-: begin-unit-tests  0 tests !  0 fails ! ;
+: begin-unit-tests ( a n -- )
+    cr ." TESTING " type ." ... "  0 tests !  0 fails ! ;
 
 : test  1 tests +! ;
 : fail  cr ." [FAIL] "  1 fails +! ;
@@ -14,18 +15,20 @@ variable fails
   fails @ if fails ? ." FAIL " else ." PASS " then ;
 
 \ common tests
-: expect-equal ( n expected --  )  test
-  2dup <> if fail ." Expected ". ." got ". else 2drop then ;
+: expect-true  ( f -- )  test not if fail ." Expected TRUE "  then ;
+: expect-false ( f -- )  test     if fail ." Expected FALSE " then ;
+: expect-equal ( n expected --  )
+    test  2dup <> if fail ." Expected ". ." got ". else 2drop then ;
 
 
-( How to use:
+( === How to use ===
 
 include unit-test.fs
 
 : expect-true  test  not if fail ." expected true" then ;
 
 : test-my-module
-  cr ." Testing my module " begin-unit-tests
+  s" my module" begin-unit-tests
 
   4 5 < expect-true
   ...

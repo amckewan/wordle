@@ -1,10 +1,10 @@
 ( Pruning the working set )
 
 \ The working set contains the words that could be the solution.
-\ One byte per word, 0=absent, 1=present
-\ We start with all the words then prune the set based on each score.
+\ One byte per word, 0=absent, 1=present.
+\ We start with all the words then prune the set after each score.
 
-create working  #words allot
+create working   #words allot
 
 : all-words  working #words 1 fill ;
 
@@ -13,14 +13,13 @@ create working  #words allot
 
 : #working ( -- n )  0 #words 0 do i has + loop ;
 
-: any-green? ( -- f ) \ true if there are any greens in the score
-    false  len 0 do  i green? or  loop ;
+\ Prune the working set based on the screen letters
+: #greens ( -- f )  0  len 0 do i green? 1 and + loop ;
+: green-ok? ( w -- f )  true ( unless we miss a green letter )
+    len 0 do  i green? if  over i + c@  i guess + c@ =  and  then loop  nip ;
 
-: green-ok? ( w -- f ) \ w must match the green guess letters
-    true  len 0 do  i green? if  over i + c@  guess i + c@ =  and  then loop  nip ;
-
-: prune-green
-    any-green? if ( otherwise don't bother )
+: prune-green ( -- )
+    #greens if ( otherwise don't bother )
       #words 0 do  i has if
           i ww green-ok? not if  i remove  then
     then loop then ;
@@ -67,13 +66,31 @@ create working  #words allot
 ( === Unit Tests === )
 include unit-test.fs
 
+: test-#working
+    s" #working" begin-unit-tests
+    all-words                           #working #words expect-equal
+    working 10 bounds do  0 i c!  loop  #working #words 10 - expect-equal
+    0 working #words + 1- c!            #working #words 11 - expect-equal
+    working #words erase                #working 0 expect-equal
+    report-unit-tests ;
+test-#working
+
+: test-green-ok?
+    s" green-ok?" begin-unit-tests
+    [W] AxxAx secret w!  [W] G--G- score w!
+    [W] AxxAx green-ok? expect-true
+    [W] AAAAA green-ok? expect-true
+    [W] AxxBx green-ok? expect-false
+    [W] xxxxx green-ok? expect-false
+    report-unit-tests ;
+test-green-ok
+
 ( === Test green-ok? === )
 : expect-green-ok      test dup green-ok? not if fail ." expect green ok " w. else drop then ;
 : expect-green-not-ok  test dup green-ok?     if fail ." expect green not ok " w. else drop then ;
 
 : test-green-ok
-    cr ." Testing green-ok?..." begin-unit-tests
-
+    s" green-ok?" begin-unit-tests
     [W] ABCDE guess w!
     [W] GG--- score w!
     [W] ABxyz expect-green-ok
@@ -81,13 +98,12 @@ include unit-test.fs
     [W] Axxxx expect-green-not-ok
     [W] xBxxx expect-green-not-ok
     [W] xxxxx expect-green-not-ok
-
     report-unit-tests ;
 test-green-ok
 
 ( === Test prune-green === )
 : test-prune-green
-    cr ." Testing prune-green..." begin-unit-tests
+    s" prune-green" begin-unit-tests
 
     \ remove all but the 23 words that start with Q
     all-words
@@ -118,7 +134,7 @@ test-prune-green
 : expect-yellow-not-ok  test dup yellow-ok?     if fail ." expect yellow not ok " w. else drop then ;
 
 : test-yellow-ok
-    cr ." Testing yellow-ok?..." begin-unit-tests
+    s" yellow-ok?" begin-unit-tests
 
     [W] ABCDE guess w!
     [W] YY--- score w!
@@ -136,7 +152,7 @@ test-yellow-ok
 
 ( === Test prune-yellow === )
 : test-prune-yellow
-    cr ." Testing prune-yellow..." begin-unit-tests
+    s" prune-yellow" begin-unit-tests
 
     \ remove the 23 words that start with Q
     all-words
@@ -171,7 +187,7 @@ test-prune-yellow
   if fail ." expected " w. ." not to contain " emit  else 2drop then ;
 
 : test-has-letter
-  cr ." Testing has-letter..." begin-unit-tests
+  s" has-letter" begin-unit-tests
 
   clear-score ( to avoid side effects )
   [w] ABCDE [char] A expect-has
@@ -192,7 +208,7 @@ test-has-letter
 0 [if]
 ( === Test prune-grey === )
 : test-prune-grey
-    cr ." Testing prune-grey..." begin-unit-tests
+    s" prune-grey" begin-unit-tests
 
     all-words
     clear-score
