@@ -19,12 +19,14 @@ create used    len allot ( a letter used for yellow or zero )
 
 : new-game  random-word secret w!  guess len blank  clear-score ;  new-game
 
-: color?  ( pos color -- f )  swap score + c@ = ;
-: green?  ( pos -- f )  green color? ;
-: yellow? ( pos -- f )  yellow color? ;
-: grey?   ( pos -- f )  grey color? ;
+: guess@  ( pos -- c )  guess + c@ ;
 
-: #greens ( -- n )  0  len 0 do  i green? 1 and +  loop ;
+: score@  ( pos -- c )  score + c@ ;
+: green?  ( pos -- f )  score@ green = ;
+: yellow? ( pos -- f )  score@ yellow = ;
+: grey?   ( pos -- f )  score@ grey = ;
+
+: #greens ( -- n )  0  len 0 do  i green? -  loop ;
 
 \ Score any green letters first, then we will ignore these
 : match  ( char pos -- f )  secret + c@ = ;

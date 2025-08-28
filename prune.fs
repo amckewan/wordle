@@ -15,6 +15,35 @@ create working   #words allot
 \ : .() ( n -- )  ." (" 0 .r ." ) " ;
 : .working  0  #words 0 do i has if i ww w. 1+ then loop  ." (" 0 .r ." ) " ;
 
+: prune-green ( w pos -- w/0 )
+    2dup + c@  swap guess@ = if ( ok ) drop 0 then ;
+
+: prune-yellow ( w pos -- w/0 )
+    2dup + c@  swap guess@ <> if ( ok ) drop 0 then ;
+
+: prune-grey ( w pos -- w/0 )
+    2dup + c@  swap guess@ <> if ( ok ) drop 0 then ;
+
+: prune-letter ( w pos -- w/0 )
+    dup green?  if  prune-green  else
+    dup yellow? if  prune-yellow else
+                    prune-grey   then then ;
+
+: prune-word ( w -- w/0 )
+    len 0 do
+      dup i prune-letter if  unloop exit  then
+    loop ( keep it ) drop 0 ;
+
+: prune ( -- )
+    #words 0 do  i has if
+        i ww prune-word if  i remove  then
+    then loop ;
+
+
+
+
+
+0 [if]
 \ Check if a word matches the greens, return true if it doesn't
 : -green ( w -- f )  true ( unless we miss a green letter )
     len 0 do  i green? if  over i + c@  i guess + c@ =  and  then loop  nip not ;
@@ -334,3 +363,4 @@ test-prune-grey
 [then]
 
 \ forget-unit-tests
+[then]
