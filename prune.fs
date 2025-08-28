@@ -15,6 +15,11 @@ create working   #words allot
 \ : .() ( n -- )  ." (" 0 .r ." ) " ;
 : .working  0  #words 0 do i has if i ww w. 1+ then loop  ." (" 0 .r ." ) " ;
 
+\ Check if a word matches the greens, return true if it doesn't
+: -green ( w -- f )  true ( unless we miss a green letter )
+    len 0 do  i green? if  over i + c@  i guess + c@ =  and  then loop  nip not ;
+
+
 \ Prune the working set based on the screen letters
 : #greens ( -- f )  0  len 0 do i green? 1 and + loop ;
 : green-ok? ( w -- f )  true ( unless we miss a green letter )
@@ -38,6 +43,24 @@ create working   #words allot
         then
     loop 2drop false ;
 
+: #letters ( c w -- n )  0 swap  len bounds do ( c n ) over i c@ = 1 and +  loop  nip ;
+
+: non-green-letters ( c w -- n )
+    0   len 0 do  >r  2dup i + c@ =  i green? not and  1 and  r> +  loop  nip nip ;
+
+
+: -yellow ( w -- f )
+    len 0 do  i yellow? if
+      \ check that we don't match the guess at that position (otherwise it would be greeen)
+      dup i + c@  guess i + c@ = if  drop true  unloop exit then
+
+      \ make sure there is at least one of those letters somewhere else in the word
+      \ ignore green letters since they can't satisfy the yellow score
+      dup i + c@  over non-green-letters 1 < if  drop true  unloop exit then
+
+    then loop drop false ;
+
+
 \ Since we don't track yellows yet, we can only remove those words
 \ that have a match in the yellow position (which otherwise would be green).
 : yellow-ok? ( w -- f ) 
@@ -52,9 +75,30 @@ create working   #words allot
 \ For now, just remove the word with the letter in the grey position.
 : grey-ok? ( w -- f ) 
     true  len 0 do  i grey? if  over i + c@  guess i + c@ <>  and  then loop  nip ;
+
+\ count occurrances of each letter (used for grey pruning)
+create letters 26 allot
+: >letter ( c -- a )  [char] A -  letters + ;
+: count-letters ( w -- )  letters 26 erase
+    len bounds do  i c@ >letter  dup c@ 1+ swap c!  loop ;
+
+\ This has the number of green and yellow letters also in the guess
+create greys len allot
+: prepare-greys ( -- ) ;
+
+: -grey ( w -- f )
+    len 0 do  i grey? if
+      dup c@ guess i + c@ = if  drop true  unloop exit then
+      ( todo... )
+    then 1+ loop drop false ;
+
+
+
+
+
 : prune-grey
     #words 0 do  i has if
-        i ww grey-ok? not if  i remove  then
+        i ww -grey if  i remove  then
     then loop ;
 
 
@@ -190,6 +234,64 @@ test-prune-yellow
 
   report-unit-tests ;
 test-has-letter
+
+( === Test -yellow === )
+: expect-something ( w f a n -- )  rot if 2drop drop exit then
+    fail ." guess " guess w. ." score " score w. ." word " rot w. ." Expected " type space ;
+
+: expect-yellow-ok      dup -yellow not s" yellow ok"     expect-something ;
+: expect-yellow-not-ok  dup -yellow     s" yellow not ok" expect-something ;
+
+: expect-grey-ok        dup -grey not   s" grey ok"       expect-something ;
+: expect-grey-not-ok    dup -grey       s" grey not ok"   expect-something ;
+
+: test-yellow  s" -yellow" begin-unit-tests
+    [w] AOONA guess w!
+    [w] G---Y score w!
+    [w] AAxxx expect-yellow-ok
+    [w] AAAxx expect-yellow-ok
+    [w] xxxxx expect-yellow-not-ok
+    [w] Axxxx expect-yellow-not-ok ( need 1 more yellow )
+    [w] xxxxA expect-yellow-not-ok ( should be green )
+
+    [w] AAOOA guess w!
+    [w] GY--- score w!
+    [w] Axxxx expect-yellow-not-ok
+    [w] AAxxx expect-yellow-not-ok
+    [w] AxAxx expect-yellow-not-ok
+    [w] AxAAx expect-yellow-ok
+
+    report-unit-tests ;
+test-yellow
+
+
+( === Test -grey === )
+: test-grey  s" -grey" begin-unit-tests
+    \ NOTE: scores must be correct for G and Y which we do first
+\   [w] ABACK secret w!
+    [w] AOONA guess w!
+    [w] G---Y score w!
+    [w] xxxxx expect-grey-ok
+    [w] Axxxx expect-grey-ok
+    [w] AAxxx expect-grey-ok
+    [w] AAAxx expect-grey-ok
+    [w] xxxxA expect-grey-not-ok
+
+    [w] xOxxx expect-grey-not-ok
+    [w] xxxOx expect-grey-ok
+    [w] xxxxO expect-grey-not-ok ( should score 1 yellow )
+
+\   [w] AxAxx secret w!
+    [w] AAOOA guess w!
+    [w] GY--- score w!
+    [w] Axxxx expect-grey-ok
+    [w] AAxxx expect-grey-not-ok
+    [w] AxAxx expect-grey-ok
+    [w] AxAAx expect-grey-not-ok
+
+
+    report-unit-tests ;
+test-grey
 
 
 0 [if]

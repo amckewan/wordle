@@ -2,14 +2,14 @@
 
 : round  make-guess  score-word  save-guess ;
 
-: intro cr ." === Guess " guesses @ 1+ . ." Working " #working . ." === " ;
+\ : intro cr ." === Guess " guesses @ 1+ . ." Working " #working . ." === " ;
 
 : solve
     all-words
     begin
-        intro round .history
-        solved if ." Solved " exit then
-        failed if ." Failed " exit then
+        round
+        solved if .history ." Solved " exit then
+        failed if .history ." Failed " exit then
         prune
     again ;
 
