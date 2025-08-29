@@ -26,7 +26,8 @@ create used    len allot ( a letter used for yellow or zero )
 : yellow? ( pos -- f )  score@ yellow = ;
 : grey?   ( pos -- f )  score@ grey = ;
 
-: #greens ( -- n )  0  len 0 do  i green? -  loop ;
+: #greens  ( -- n )  0  len 0 do  i green? -  loop ;
+: #yellows ( -- n )  0  score len bounds do i c@ yellow = - loop ;
 
 \ Score any green letters first, then we will ignore these
 : match  ( char pos -- f )  secret + c@ = ;

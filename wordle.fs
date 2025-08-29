@@ -10,6 +10,6 @@ include game-ui.fs
 
 ( solver )
 include prune.fs
-\ include guess.fs
-\ include solve.fs
+include guess.fs
+include solve.fs
 

@@ -15,14 +15,24 @@ create working   #words allot
 \ : .() ( n -- )  ." (" 0 .r ." ) " ;
 : .working  0  #words 0 do i has if i ww w. 1+ then loop  ." (" 0 .r ." ) " ;
 
-: prune-green ( w pos -- w/0 )
-    2dup + c@  swap guess@ = if ( ok ) drop 0 then ;
+\ Prune green if the letter at pos doesn't match the guess
+: match-guess ( w pos -- w f )  2dup + c@  swap guess@ = ;
+: prune-green ( w pos -- w/0 )  match-guess not and ;
+
+\ For yellow, we first check to make sure the letter is not at that position.
+\ Then look at the whole word check that there are enough greys to satisfy
+\ the yellow scores.
+
+: grey-matches ( c -- n ) \ count grey matches in the guess
+    0  len 0 do  i grey? if over i guess@ = - then  loop nip ;
 
 : prune-yellow ( w pos -- w/0 )
-    2dup + c@  swap guess@ <> if ( ok ) drop 0 then ;
+    2dup match-guess if ( prune) 2drop else + c@ grey-matches #yellows < and then ;
 
+\ For a grey score, check that this letter doesn't match (score green) and
+\ there are none of this letter in other grey spots (score yellow)
 : prune-grey ( w pos -- w/0 )
-    2dup + c@  swap guess@ <> if ( ok ) drop 0 then ;
+    2dup match-guess if ( prune) 2drop else + c@ grey-matches 0> and then ;
 
 : prune-letter ( w pos -- w/0 )
     dup green?  if  prune-green  else
@@ -32,7 +42,7 @@ create working   #words allot
 : prune-word ( w -- w/0 )
     len 0 do
       dup i prune-letter if  unloop exit  then
-    loop ( keep it ) drop 0 ;
+    loop ( ok ) drop 0 ;
 
 : prune ( -- )
     #words 0 do  i has if

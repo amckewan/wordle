@@ -14,19 +14,15 @@ variable guesses
 
 : +history ( guess score -- )
     guesses @ max-guesses u< not abort" History full"
-    score guesses @ >score w!
-    guess guesses @ >guess w!
+    guesses @ >score w!
+    guesses @ >guess w!
     1 guesses +! ;
 
 : save-guess  guess score +history ; \ save most recent guess & score
 
 : .history ( -- )
-    max-guesses 0 do
-        cr i 1+ .  i guesses @ <
-        if  i >guess w.  cr 2 spaces i >score w.  else ." ----- " then
+    guesses @ 0 ?do
+        cr i 1+ .   i >guess w.
+        cr 2 spaces i >score w.
     loop ;
-    \ guesses @ 0 ?do
-    \     cr i 1+ .   i >guess w.
-    \     cr 2 spaces i >score w.
-    \ loop ;
 
