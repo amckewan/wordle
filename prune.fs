@@ -3,6 +3,7 @@
 \ The working set contains the words that could be the solution.
 \ One byte per word, 0=absent, 1=present.
 \ We start with all the words then prune the set after each score.
+\ This code uses 'guess' and 'score' from the game.
 
 create working   #words allot
 
@@ -12,27 +13,36 @@ create working   #words allot
 : remove ( n -- )  working + 0 swap c! ;
 
 : #working ( -- n )  0 #words 0 do i has + loop ;
-\ : .() ( n -- )  ." (" 0 .r ." ) " ;
-: .working  0  #words 0 do i has if i ww w. 1+ then loop  ." (" 0 .r ." ) " ;
+: .working  0  #words 0 do i has if i ww w. 1+ then loop  . ." words " ;
 
 \ Prune green if the letter at pos doesn't match the guess
-: match-guess ( w pos -- w f )  2dup + c@  swap guess@ = ;
-: prune-green ( w pos -- w/0 )  match-guess not and ;
+: match-guess ( w pos -- f )    swap over + c@  swap guess@ = ;
+: prune-green ( w pos -- w/0 )  over swap match-guess not and ;
 
 \ For yellow, we first check to make sure the letter is not at that position.
-\ Then look at the whole word check that there are enough greys to satisfy
+\ Then look at the whole word and check that there are enough greys to satisfy
 \ the yellow scores.
 
-: grey-matches ( c -- n ) \ count grey matches in the guess
-    0  len 0 do  i grey? if over i guess@ = - then  loop nip ;
+: yellow-scores ( c -- n )
+    0  len 0 do  i yellow? if over i guess@ = - then  loop nip ;
+
+: grey-guesses ( w c -- n )
+    0  len 0 do
+      i grey? if  i 2>r  over r> + c@ over = negate  r> +   then
+    loop nip nip ;
 
 : prune-yellow ( w pos -- w/0 )
-    2dup match-guess if ( prune) 2drop else + c@ grey-matches #yellows < and then ;
+    2dup match-guess if ( prune ) drop exit then
+    ( w pos ) guess@
+    ( w c ) 2dup grey-guesses
+    ( w c grey ) over yellow-scores
+    ( w c grey yellow ) < nip and ;
+
 
 \ For a grey score, check that this letter doesn't match (score green) and
 \ there are none of this letter in other grey spots (score yellow)
 : prune-grey ( w pos -- w/0 )
-    2dup match-guess if ( prune) 2drop else + c@ grey-matches 0> and then ;
+    2dup match-guess if ( prune) drop else ( w pos ) over swap guess@ ( w w c ) grey-guesses 0> and then ;
 
 : prune-letter ( w pos -- w/0 )
     dup green?  if  prune-green  else
@@ -50,99 +60,6 @@ create working   #words allot
     then loop ;
 
 
-
-
-
-0 [if]
-\ Check if a word matches the greens, return true if it doesn't
-: -green ( w -- f )  true ( unless we miss a green letter )
-    len 0 do  i green? if  over i + c@  i guess + c@ =  and  then loop  nip not ;
-
-
-\ Prune the working set based on the screen letters
-: #greens ( -- f )  0  len 0 do i green? 1 and + loop ;
-: green-ok? ( w -- f )  true ( unless we miss a green letter )
-    len 0 do  i green? if  over i + c@  i guess + c@ =  and  then loop  nip ;
-: prune-green ( -- )
-    #greens if ( otherwise don't bother )
-      #words 0 do  i has if
-        i ww green-ok? not if  i remove  then
-    then loop then ;
-
-\ For a yellow score, we remove words that either have the letter
-\ at that position (would be scored green) or don't have that letter at all.
-
-\ Check if a word has this letter in any position.
-\ Ignore green and yellow letters.
-: has-letter ( char w -- f ) \ FLAWED!
-    len 0 do
-        over i used + c@ =  i green? or  not if
-\        i grey? if
-            2dup i + c@ = if ( found one ) 2drop true  unloop exit then
-        then
-    loop 2drop false ;
-
-: #letters ( c w -- n )  0 swap  len bounds do ( c n ) over i c@ = 1 and +  loop  nip ;
-
-: non-green-letters ( c w -- n )
-    0   len 0 do  >r  2dup i + c@ =  i green? not and  1 and  r> +  loop  nip nip ;
-
-
-: -yellow ( w -- f )
-    len 0 do  i yellow? if
-      \ check that we don't match the guess at that position (otherwise it would be greeen)
-      dup i + c@  guess i + c@ = if  drop true  unloop exit then
-
-      \ make sure there is at least one of those letters somewhere else in the word
-      \ ignore green letters since they can't satisfy the yellow score
-      dup i + c@  over non-green-letters 1 < if  drop true  unloop exit then
-
-    then loop drop false ;
-
-
-\ Since we don't track yellows yet, we can only remove those words
-\ that have a match in the yellow position (which otherwise would be green).
-: yellow-ok? ( w -- f ) 
-    true  len 0 do  i yellow? if  over i + c@  guess i + c@ <>  and  then loop  nip ;
-: prune-yellow
-    #words 0 do  i has if
-        i ww yellow-ok? not if  i remove  then
-    then loop ;
-
-\ For grey, we will need to remember our yellow guesses so we don't remove
-\ words that have the grey letter if it scored yellow.
-\ For now, just remove the word with the letter in the grey position.
-: grey-ok? ( w -- f ) 
-    true  len 0 do  i grey? if  over i + c@  guess i + c@ <>  and  then loop  nip ;
-
-\ count occurrances of each letter (used for grey pruning)
-create letters 26 allot
-: >letter ( c -- a )  [char] A -  letters + ;
-: count-letters ( w -- )  letters 26 erase
-    len bounds do  i c@ >letter  dup c@ 1+ swap c!  loop ;
-
-\ This has the number of green and yellow letters also in the guess
-create greys len allot
-: prepare-greys ( -- ) ;
-
-: -grey ( w -- f )
-    len 0 do  i grey? if
-      dup c@ guess i + c@ = if  drop true  unloop exit then
-      ( todo... )
-    then 1+ loop drop false ;
-
-
-
-
-
-: prune-grey
-    #words 0 do  i has if
-        i ww -grey if  i remove  then
-    then loop ;
-
-
-: prune  prune-green  prune-yellow  prune-grey ;
-
 ( === Unit Tests === )
 include unit-test.fs
 
@@ -155,22 +72,47 @@ include unit-test.fs
     report-unit-tests ;
 test-#working
 
-( === Test green-ok? === )
-: expect-green-ok      test dup green-ok? not if fail ." expect green ok " w. else drop then ;
-: expect-green-not-ok  test dup green-ok?     if fail ." expect green not ok " w. else drop then ;
+( === Test prune-green === )
+: expect-green-ok    ( w pos -- )  test 2dup prune-green     if s" green ok"    expected swap w. . else 2drop then ;
+: expect-green-prune ( w pos -- )  test 2dup prune-green not if s" green prune" expected swap w. . else 2drop then ;
 
-: test-green-ok
-    s" green-ok?" begin-unit-tests
+: test-prune-green
+    s" prune-green" begin-unit-tests
     [W] ABCDE guess w!
     [W] GG--- score w!
-    [W] ABxyz expect-green-ok
-    [W] ABCDE expect-green-ok
-    [W] Axxxx expect-green-not-ok
-    [W] xBxxx expect-green-not-ok
-    [W] xxxxx expect-green-not-ok
+    [W] ABxxx 0 expect-green-ok
+    [W] ABxxx 1 expect-green-ok
+    [W] Axxxx 1 expect-green-prune
+    [W] xBxxx 0 expect-green-prune
+    [W] ABCDE 3 expect-green-ok
     report-unit-tests ;
-test-green-ok
+test-prune-green
 
+( === Test prune-yellow === )
+: expect-yellow-ok     test 2dup prune-yellow     if s" yellow ok"    expected swap w. . else 2drop then ;
+: expect-yellow-prune  test 2dup prune-yellow not if s" yellow prune" expected swap w. . else 2drop then ;
+
+: test-prune-yellow
+    s" prune-yellow" begin-unit-tests
+
+    [W] ABCDE guess w!
+    [W] YY--- score w!
+    [W] Axxxx 0 expect-yellow-prune
+    [W] xBxxx 1 expect-yellow-prune
+    [W] xxAxx 0 expect-yellow-ok
+    [W] xxAAA 0 expect-yellow-ok
+    [W] xxxxB 1 expect-yellow-ok
+
+    [W] AACDE guess w!
+    [W] YY--- score w!
+    [W] xxAxx 0 expect-yellow-prune
+    [W] xxAAx 0 expect-yellow-ok
+
+    report-unit-tests ;
+test-prune-yellow
+
+
+0 [if]
 ( === Test prune-green === )
 : test-prune-green
     s" prune-green" begin-unit-tests
@@ -198,26 +140,6 @@ test-green-ok
 
     report-unit-tests ;
 test-prune-green
-
-( === Test yellow-ok? === )
-: expect-yellow-ok      test dup yellow-ok? not if fail ." expect yellow ok " w. else drop then ;
-: expect-yellow-not-ok  test dup yellow-ok?     if fail ." expect yellow not ok " w. else drop then ;
-
-: test-yellow-ok
-    s" yellow-ok?" begin-unit-tests
-
-    [W] ABCDE guess w!
-    [W] YY--- score w!
-    [W] xxAxx expect-yellow-ok
-    [W] xxBxx expect-yellow-ok
-    [W] xxBxx expect-yellow-ok
-    [W] xxxAB expect-yellow-ok
-    [W] Axxxx expect-yellow-not-ok
-    [W] xBxxx expect-yellow-not-ok
-    [W] ABxxx expect-yellow-not-ok
-
-    report-unit-tests ;
-test-yellow-ok
 
 
 ( === Test prune-yellow === )
@@ -333,7 +255,7 @@ test-yellow
 test-grey
 
 
-0 [if]
+
 ( === Test prune-grey === )
 : test-prune-grey
     s" prune-grey" begin-unit-tests
@@ -370,7 +292,6 @@ test-grey
 
     report-unit-tests ;
 test-prune-grey
-[then]
 
-\ forget-unit-tests
+forget-unit-tests
 [then]

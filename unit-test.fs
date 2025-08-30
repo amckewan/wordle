@@ -15,10 +15,11 @@ variable fails
   fails @ if fails ? ." FAIL " else ." PASS " then ;
 
 \ common tests
-: expect-true  ( f -- )  test not if fail ." Expected TRUE "  then ;
-: expect-false ( f -- )  test     if fail ." Expected FALSE " then ;
+: expected ( a n -- )  fail ." Expected " type space ;
+: expect-true  ( f -- )  test not if s" TRUE" expected  then ;
+: expect-false ( f -- )  test     if s" FALSE" expected then ;
 : expect-equal ( n expected --  )
-    test  2dup <> if fail ." Expected ". ." got ". else 2drop then ;
+    test  2dup <> if 0 0 expected . ." got " . else 2drop then ;
 
 
 ( === How to use ===
