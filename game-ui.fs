@@ -1,7 +1,7 @@
 ( game UI )
 
 : solved ( -- f )  #greens len = ;
-: failed ( -- f )  guesses @ max-guesses < not ;
+: failed ( -- f )  guesses @ #guesses >= ; ( assuming not solved )
 
 : NEW  new-game  clear-history ;
 

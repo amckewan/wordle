@@ -1,9 +1,9 @@
 ( save history of guesses and scores )
 
-6 constant max-guesses ( and thus will ever be )
+6 constant #guesses ( and thus will ever be )
 
 \ The history has 6 entries of guess+score
-create history  len 2* max-guesses * allot
+create history  len 2* #guesses * allot
 
 variable guesses
 
@@ -13,7 +13,7 @@ variable guesses
 : >score ( n -- w )  >guess len + ;
 
 : +history ( guess score -- )
-    guesses @ max-guesses u< not abort" History full"
+    guesses @ #guesses u< not abort" History full"
     guesses @ >score w!
     guesses @ >guess w!
     1 guesses +! ;

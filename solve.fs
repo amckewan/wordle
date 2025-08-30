@@ -20,13 +20,13 @@
 : p prune #working . ;
 
 \ exhaustive test
-create results  max-guesses 1+ cells allot
+create results  #guesses 1+ cells allot
 : >result  cells results + ;
 : .results
-    max-guesses 1+ 1 do  cr i >result @ 4 .r ."  Solved in " i . loop
+    #guesses 1+ 1 do  cr i >result @ 4 .r ."  Solved in " i . loop
     cr results @ 4 .r ."  Failed " ;
 : solver 
-    results max-guesses 1+ cells erase
+    results #guesses 1+ cells erase
     #words 0 do
         i ww secret w!
         solve? if  1 guesses @ >result +!  else  1 results +!  then

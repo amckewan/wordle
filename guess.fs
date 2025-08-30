@@ -1,9 +1,9 @@
 ( make a guess )
 
 \ A copy of the working set that we whittle down to pick a guess
-create guessing  #words allot
+create guessing  #words allot  guessing #words 1 fill ( sane default )
 
-: start-guess  working guessing #words cmove ; ( copy working set )
+: start-guessing  working guessing #words cmove ; ( copy working set )
 
 : guess? ( n -- f )  guessing + c@ ;
 : -guess ( n -- )    guessing + 0 swap c! ;
@@ -28,21 +28,28 @@ char A constant A
         ( pos c ) over i ww + c@  over <> if i -guess then
     then loop 2drop ;
 
-: trim ( -- )  len 0 do  i trim-guesses  loop ;
+: trim ( -- )  len 0 do  i trim-guesses  #guessing .  loop ;
 
 
-: t all-words start-guess ;
-
-
-
+: t all-words start-guessing ;
 
 
 
-\ pick a random word from the working set
+\ pick a random word from the guessing set
 : random-guess ( -- w )
-    #working random  #words 0 do
-      i has if  1- dup 0< if drop i leave  then then
+    #guessing random  #words 0 do
+      i guess? if  1- dup 0< if drop i leave  then then
+    loop  ww ;
+
+: first-guess ( --- w )
+    0  #words 0 do
+      i guess? if  drop i leave  then
     loop  ww ;
 
 
-: make-guess ( -- w )  start-guess random-guess ;
+: make-guess ( -- w )
+    start-guessing
+\    trim
+    first-guess
+\    random-guess
+    ;
