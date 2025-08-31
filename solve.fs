@@ -1,6 +1,6 @@
 ( solver )
 
-: round  make-guess  score-word  save-guess ;
+: round  make-guess  score-word  save-history ;
 
 \ : intro cr ." === Guess " guesses @ 1+ . ." Working " #working . ." === " ;
 

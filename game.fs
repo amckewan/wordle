@@ -10,13 +10,14 @@ create guess   len allot ( current guess )
 create score   len allot ( score for the guess, string of colors )
 create used    len allot ( a letter used for yellow or zero )
 
+char A constant A   \ useful for letter sets
+
 : .game  ." secret: " secret w. ." guess: " guess w. ." score: " score w.
      ." used: " used len bounds do i c@ ?dup 0= if [char] - then emit loop space ;
 
 : clear-score  score len grey fill  used len erase ;
 
-: random-word ( -- w )  #words random ww ;
-
+: random-word ( -- w )  #solution-words random ww ;
 : new-game  random-word secret w!  guess len blank  clear-score ;  new-game
 
 : guess@  ( pos -- c )  guess + c@ ;
@@ -56,73 +57,33 @@ create used    len allot ( a letter used for yellow or zero )
 
 
 ( === unit tests === )
-include unit-test.fs
+marker tests
 
-: s! secret w! ;
+: setup ( secret guess score -- score )  swap guess w! swap secret w! clear-score ;
 
-: t1 [w] ----- [w] ----- ;
-: t2 [w] ----- [w] ----G ;
+TESTING SCORE-GREEN
+T{ W ABACK W ABASE w GGG-- setup  score-green  score w= -> true }T
+T{ W ABACK W XXXXX w ----- setup  score-green  score w= -> true }T
+T{ W ABACK W XBXCX w -G-G- setup  score-green  score w= -> true }T
 
-: setup ( secret guess score -- score )
-    test  swap guess w!  swap secret w!  clear-score ;
+TESTING SCORE-YELLOW
+T{ w AABCD w xxxxx w ----- setup  score-yellow  score w= -> true }T
+T{ w AABCD w Bxxxx w Y---- setup  score-yellow  score w= -> true }T
+T{ w AABCD w xxAxx w --Y-- setup  score-yellow  score w= -> true }T
+T{ w AABCD w xxAAx w --YY- setup  score-yellow  score w= -> true }T
+T{ w AABCD w xxAAA w --YY- setup  score-yellow  score w= -> true }T
+T{ w AABCD w DDxxx w Y---- setup  score-yellow  score w= -> true }T
+T{ w ALERT w RAISE w YY--Y setup  score-yellow  score w= -> true }T
 
-: expect-score ( score -- )
-    dup score wcompare if fail ." Expected score " w. ." got " .game else drop then ;
+TESTING SCORE-WORD
+T{ w AABCD w xxxxx w ----- setup  guess score-word  score w= -> true }T
+T{ w AABCD w Axxxx w G---- setup  guess score-word  score w= -> true }T
+T{ w AABCD w Dxxxx w Y---- setup  guess score-word  score w= -> true }T
+T{ w AABCD w DDDDx w Y---- setup  guess score-word  score w= -> true }T
+T{ w AABCD w xxAxx w --Y-- setup  guess score-word  score w= -> true }T
+T{ w AABCD w xxAAx w --YY- setup  guess score-word  score w= -> true }T
+T{ w AABCD w xxAAA w --YY- setup  guess score-word  score w= -> true }T
+T{ w AABCD w AxBDx w G-GY- setup  guess score-word  score w= -> true }T
+T{ w AABCD w AxAxA w G-Y-- setup  guess score-word  score w= -> true }T
 
-: expect-green ( secret guess score -- )
-    setup  score-green  expect-score ;
-
-: test-score-green
-    s" score-green" begin-unit-tests
-    [W] ABACK [W] ABASE [W] GGG-- expect-green
-    [W] ABASE [W] AWASH [W] G-GG- expect-green
-    [W] ABACK [W] XXXXX [W] ----- expect-green
-    report-unit-tests ;
-
-test-score-green
-
-
-: expect-yellow ( secret guess score -- )
-    setup  score-yellow  expect-score ;
-
-: test-score-yellow
-    s" score-yellow" begin-unit-tests
-    [W] AABCD [W] xxxxx [W] ----- expect-yellow
-    [W] AABCD [W] Bxxxx [W] Y---- expect-yellow
-    [W] AABCD [W] xxAxx [W] --Y-- expect-yellow
-    [W] AABCD [W] xxAAx [W] --YY- expect-yellow
-    [W] AABCD [W] xxAAA [W] --YY- expect-yellow
-    [W] AABCD [W] DDxxx [W] Y---- expect-yellow
-    [W] ALERT [W] RAISE [W] YY--Y expect-yellow \ Y---Y
-    report-unit-tests ;
-
-test-score-yellow
-
-
-: expect-score-word ( guess score -- )
-    test  swap score-word  expect-score ;
-
-: test-score-word
-    s" score-word" begin-unit-tests
-    [W] AABCD s!  [W] xxxxx [W] ----- expect-score-word
-                  [W] Axxxx [W] G---- expect-score-word
-                  [W] Dxxxx [W] Y---- expect-score-word
-                  [W] DDDDx [W] Y---- expect-score-word
-                  [W] xxAxx [W] --Y-- expect-score-word
-                  [W] xxAAx [W] --YY- expect-score-word
-                  [W] xxAAA [W] --YY- expect-score-word
-                  [W] AxBDx [W] G-GY- expect-score-word 
-                  [W] AxAxA [W] G-Y-- expect-score-word
-
-    [W] ABLED s!  [W] ALLEY [W] G-GG- expect-score-word
-                  [W] ALLEL [W] G-GG- expect-score-word
-
-    [W] UNION S!  [W] NOUNS [W] YYYY- expect-score-word
-
-    [W] ALERT S!  [W] RAISE [W] YY--Y expect-score-word \ Y---Y
-
-    report-unit-tests ;
-
-test-score-word
-
-forget-unit-tests
+tests

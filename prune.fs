@@ -4,6 +4,8 @@
 \ One byte per word, 0=absent, 1=present.
 \ We start with all the words then prune the set after each score.
 
+#solution-words constant #words ( start easy )
+
 create working   #words allot
 
 : all-words  working #words 1 fill ;
@@ -46,56 +48,36 @@ create working   #words allot
 
 
 ( === Unit Tests === )
-include unit-test.fs
 
-( === Test #working === )
-: test-#working
-    s" #working" begin-unit-tests
-    all-words                           #working #words expect-equal
-    working 10 bounds do  0 i c!  loop  #working #words 10 - expect-equal
-    0 working #words + 1- c!            #working #words 11 - expect-equal
-    working #words erase                #working 0 expect-equal
-    report-unit-tests ;
-test-#working
+TESTING #WORKING
+T{ all-words #working -> #words }T
+T{ working 10 erase  #working -> #words 10 - }T
+T{ 0 working #words + 1- c!  #working -> #words 11 - }T
+T{ working #words erase  #working -> 0 }T
 
-( === Test prune-green === )
-: expect-green-ok    ( w pos -- )  test 2dup prune-green     if s" green ok"    expected swap w. . else 2drop then ;
-: expect-green-prune ( w pos -- )  test 2dup prune-green not if s" green prune" expected swap w. . else 2drop then ;
+TESTING PRUNE-GREEN
+   w ABCDE guess w!
+   w GG--- score w!
+T{ w ABCDE 0 prune-green -> 0 }T
+T{ w ABxxx 0 prune-green -> 0 }T
+T{ w xBxxx 0 prune-green 0= -> 0 }T
+T{ w Axxxx 1 prune-green 0= -> 0 }T
 
-: test-prune-green
-    s" prune-green" begin-unit-tests
-    [W] ABCDE guess w!
-    [W] GG--- score w!
-    [W] ABxxx 0 expect-green-ok
-    [W] ABxxx 1 expect-green-ok
-    [W] Axxxx 1 expect-green-prune
-    [W] xBxxx 0 expect-green-prune
-    [W] ABCDE 3 expect-green-ok
-    report-unit-tests ;
-test-prune-green
+TESTING PRUNE-YELLOW
+   w ABCDE guess w!
+   w YY--- score w!
+T{ w AAAAA 0 prune-yellow 0= -> 0 }T
+T{ w xAAAA 0 prune-yellow -> 0 }T
+T{ w xxAxx 0 prune-yellow -> 0 }T
+T{ w xBxxx 1 prune-yellow 0= -> 0 }T
+T{ w xxxxB 1 prune-yellow -> 0 }T
 
-( === Test prune-yellow === )
-: expect-yellow-ok     test 2dup prune-yellow     if s" yellow ok"    expected swap w. . else 2drop then ;
-: expect-yellow-prune  test 2dup prune-yellow not if s" yellow prune" expected swap w. . else 2drop then ;
+   w AACDE guess w!
+   w YY--- score w!
+T{ w xxAxx 0 prune-yellow 0= -> 0 }T
+T{ w xxAAx 0 prune-yellow -> 0 }T
 
-: test-prune-yellow
-    s" prune-yellow" begin-unit-tests
-
-    [W] ABCDE guess w!
-    [W] YY--- score w!
-    [W] Axxxx 0 expect-yellow-prune
-    [W] xBxxx 1 expect-yellow-prune
-    [W] xxAxx 0 expect-yellow-ok
-    [W] xxAAA 0 expect-yellow-ok
-    [W] xxxxB 1 expect-yellow-ok
-
-    [W] AACDE guess w!
-    [W] YY--- score w!
-    [W] xxAxx 0 expect-yellow-prune
-    [W] xxAAx 0 expect-yellow-ok
-
-    report-unit-tests ;
-test-prune-yellow
+0 [if]
 
 ( === Test prune-grey === )
 : expect-grey-ok     test 2dup prune-grey     if s" grey ok"    expected swap w. . else 2drop then ;
@@ -116,3 +98,4 @@ test-prune-yellow
 test-prune-grey
 
 forget-unit-tests
+[then]

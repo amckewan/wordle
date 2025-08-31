@@ -23,7 +23,6 @@ create guessing  #words allot  guessing #words 1 fill ( sane default )
 
 \ number of occurances of each letter
 create letters  26 cells allot
-char A constant A
 : >letter ( n -- a )  cells letters + ;
 : .letters  26 0 do  i A + emit ." ="  i >letter ?  loop ;
 

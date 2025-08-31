@@ -18,7 +18,7 @@ variable guesses
     guesses @ >guess w!
     1 guesses +! ;
 
-: save-guess  guess score +history ; \ save most recent guess & score
+: save-history  guess score +history ; \ save most recent guess & score
 
 : .history ( -- )
     guesses @ 0 ?do
