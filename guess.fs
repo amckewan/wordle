@@ -28,22 +28,21 @@ char A constant A
     #words 0 do  i guess? if
         i ww tally 2dup < if ( replace ) nip nip i ww swap else drop then
     then loop ;
-
 : tally-guess ( -- w ) largest-tally drop ;
 
-\ 
-: count-letters ( pos -- )  letters 26 cells erase
+\ count the occurances of each letter at a given position
+: count-pos ( pos -- )  letters 26 cells erase
     #words 0 do  i guess? if  1 over i ww + c@ A - >letter +!  then loop drop ;
 : find-max ( -- n )  0 ( max )
     26 0 do  i >letter @ over >letter @ > if  drop i  then loop ;
 
 : trim-guesses ( pos -- )
-    dup count-letters find-max A +
+    dup count-pos find-max A +
     #words 0 do  i guess? if
         ( pos c ) over i ww + c@  over <> if i -guess then
     then loop 2drop ;
 
-: trim ( -- )  len 0 do  i trim-guesses  #guessing .  loop ;
+: trim ( -- )  len 0 do  i trim-guesses  loop ;
 
 
 : t all-words start-guess ;
@@ -64,8 +63,8 @@ char A constant A
 
 : make-guess ( -- w )
     start-guess
-\    trim
-\    first-guess
+    trim
+    first-guess
 \    random-guess
-    tally-guess
+\    tally-guess
     ;
