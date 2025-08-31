@@ -1,6 +1,7 @@
 ( preamble )
 
 : not 0= ;
-\ : bounds over + swap ;
+\ : bounds over + swap ; ( gforth has )
 
-include random.fs ( gforth )
+include utils/random.fs
+include utils/tester.fs
