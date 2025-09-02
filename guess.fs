@@ -65,6 +65,6 @@ use first-guess
 : fixed-guess ( -- w )
     guesses @ 0=  if [w] RAISE else
     guesses @ 1 = if [w] COUNT else
-    tally-guess then then ;
+    trim-guess then then ;
 
 use fixed-guess

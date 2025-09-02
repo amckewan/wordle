@@ -24,11 +24,12 @@
 create results  #guesses 1+ cells allot
 : >result  cells results + ;
 : .results
-    #guesses 1+ 1 do  cr i >result @ 4 .r ."  Solved in " i . loop
-    cr results @ 4 .r ."  Failed " ;
-: solver 
+    #guesses 1+ 1 do  cr i >result @ 5 .r ."  Solved in " i . loop
+    cr results @ 5 .r ."  Failed " ;
+variable explain
+: solver ( try all words )
     results #guesses 1+ cells erase
     #words 0 do
         i ww secret w!
-        solve? if guesses @ >result else results then 1 swap +!
+        solve? if guesses @ >result else explain @ if .history then results then 1 swap +!
     loop .results ;

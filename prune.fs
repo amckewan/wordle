@@ -4,7 +4,7 @@
 \ We start with all the words then prune the set after each score
 \ by removing words that couldn't have got that score.
 
-#solution-words constant #words ( start easy )
+#guess-words constant #words ( start easy )
 
 create working  #words allot  \ one byte per word, 0=absent, 1=present
 
