@@ -1,7 +1,7 @@
 ( make a guess )
 
 \ A copy of the working set that we whittle down to pick a guess
-create guessing  #words allot  guessing #words 1 fill ( sane default )
+create guessing  #words allot
 
 : start-guess  working guessing #words cmove ; ( copy working set )
 
@@ -23,24 +23,25 @@ create guessing  #words allot  guessing #words 1 fill ( sane default )
 
 \ number of occurances of each letter
 create letters  26 cells allot
-: >letter ( n -- a )  cells letters + ;
-: .letters  26 0 do  i A + emit ." ="  i >letter ?  loop ;
+: >letter ( c -- a )  A - cells letters + ;
+: .letters  A 26 bounds do  i emit ." ="  i >letter ?  loop ;
 
 \ GUESS: pick the word with the largest letter tally
-: count-word ( w -- )  len bounds do  1 i c@ A - >letter +!  loop ;
+: count-word ( w -- )  len bounds do  1 i c@ >letter +!  loop ;
 : count-all ( -- )  letters 26 cells erase
     #words 0 do  i guess? if  i ww count-word  then loop ;
-: tally ( w -- n )  0 swap  len bounds do  i c@ A - >letter @ +  loop ;
+: tally ( w -- n )  0 swap  len bounds do  i c@ >letter @ +  loop ;
 : tally-guess ( -- w )
-    0 ww 0  #words 0 do  i guess? if
+    count-all  0 ww 0 ( w tally )
+    #words 0 do  i guess? if
         i ww tally 2dup < if ( replace ) nip nip i ww swap else drop then
     then loop drop ;
 
 \ GUESS: trim guesses a letter at a time
 : count-letters ( pos -- )  letters 26 cells erase
-    #words 0 do  i guess? if  1 over i ww + c@ A - >letter +!  then loop drop ;
-: most-popular ( -- c )  0 ( max )
-    26 0 do  i >letter @ over >letter @ > if  drop i  then loop  A + ;
+    #words 0 do  i guess? if  dup i ww + c@ >letter  1 swap +!  then loop drop ;
+: most-popular ( -- c )
+    A ( max ) dup 26 bounds do  i >letter @ over >letter @ > if  drop i  then loop ;
 : trim ( pos -- )  dup count-letters most-popular
     #words 0 do  i guess? if
         ( pos c ) over i ww + c@  over <> if i -guess then
@@ -52,10 +53,18 @@ create letters  26 cells allot
 variable guesser
 : make-guess ( -- w )  start-guess  guesser @ execute ;
 
-' first-guess guesser !
-\ ' random-guess guesser !
-\ ' tally-guess guesser !
-\ ' trim-guess guesser !
+: use ' guesser ! ;
+use first-guess
+\ use random-guess guesser !
+\ use tally-guess guesser !
+\ use trim-guess guesser !
 
 : t all-words start-guess ;
 
+\ Guesser that starts with RAISE and COUNT
+: fixed-guess ( -- w )
+    guesses @ 0=  if [w] RAISE else
+    guesses @ 1 = if [w] COUNT else
+    tally-guess then then ;
+
+use fixed-guess

@@ -7,6 +7,7 @@
 : solve? ( -- f )
     all-words clear-history
     begin
+        \ cr ." Round " guesses @ 1+ . ." #working=" #working .
         round
         solved if true  exit then
         failed if false exit then
@@ -29,5 +30,5 @@ create results  #guesses 1+ cells allot
     results #guesses 1+ cells erase
     #words 0 do
         i ww secret w!
-        solve? if  1 guesses @ >result +!  else  1 results +!  then
+        solve? if guesses @ >result else results then 1 swap +!
     loop .results ;
