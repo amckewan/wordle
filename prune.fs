@@ -4,7 +4,8 @@
 \ We start with all the words then prune the set after each score
 \ by removing words that couldn't have got that score.
 
-#guess-words constant #words ( start easy )
+\ #guess-words constant #words ( use them all )
+#wordle-words constant #words ( faster and easier to test )
 
 create working  #words allot  \ one byte per word, 0=absent, 1=present
 
@@ -16,29 +17,29 @@ create working  #words allot  \ one byte per word, 0=absent, 1=present
 : #working ( -- n )  0 #words 0 do i has + loop ;
 : .working  0  #words 0 do i has if i ww w. 1+ then loop  . ." words " ;
 
-: prune-green  ( w -- f )  false ( assume ok )
+: prune-green  ( w -- f )  false ( default ok )
     len 0 do i green? if
-        \ prune if the green letters don't match the guess, mark the greens used
-        over i + c@ i guess@ = if ( ok ) i used! else ( prune ) invert leave then
+        \ prune if the green letters don't match the guess, marking the greens used
+        over i + c@ i guess@ = if i used! else ( prune ) invert leave then
     then loop nip ;
 
-: find-unused ( w c -- pos t | f )
+: find-unused ( w c -- pos t | f ) \ find the first unused pos in w that matches c
     len 0 do i used? not if
         over i + c@ over = if 2drop i true unloop exit then
     then loop 2drop false ;
 
-: prune-yellow ( w -- f )  false ( ok )
+: prune-yellow ( w -- f )  false ( default ok )
     len 0 do i yellow? if
         \ prune if the word has the guessed letter at this position
         over i + c@ i guess@ = if ( prune ) invert leave then
         \ prune if we can't find a matching unused letter (else mark it used)
-        over i guess@ find-unused if used! else invert leave then
+        over i guess@ find-unused if used! else ( prune ) invert leave then
     then loop nip ;
 
 : prune-grey ( w -- f )  false ( ok )
     len 0 do i grey? if
         \ prune if there are any of this letter in the unused positions
-        over i guess@ find-unused if drop invert leave then
+        over i guess@ find-unused if ( prune ) drop invert leave then
     then loop nip ;
 
 : prune-word ( w -- f )  used len erase

@@ -17,7 +17,7 @@ char A constant A   \ useful for letter sets
 
 : clear-score  score len grey fill  used len erase ;
 
-: random-word ( -- w )  #solution-words random ww ;
+: random-word ( -- w )  #wordle-words random ww ;
 : new-game  random-word secret w!  guess len blank  clear-score ;  new-game
 
 : guess@  ( pos -- c )  guess + c@ ;

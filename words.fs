@@ -9,13 +9,13 @@
 : W. ( w -- )  LEN TYPE SPACE ;
 
 ( literals )
-: W ( "w" -- w )  BL PARSE DROP ;
+: W   ( "w" -- w )               BL PARSE  DROP ;
 : [W] ( "w" -- w [at runtime] )  BL PARSE  POSTPONE SLITERAL  POSTPONE DROP ; IMMEDIATE
 
 : WCOMPARE ( w1 w2 -- -1/0/1 )  LEN SWAP LEN COMPARE ;
 : W= ( w1 w2 -- f )  WCOMPARE 0= ;
 
-\ There are two lists of words, those that can be solutions
+\ There are two lists of words, those that can be solutions (wordle words)
 \ and those that can be guesses but not solutions.
 : WW, ( "w" -- )  W W, ;
 
@@ -26,13 +26,13 @@ INCLUDE guess-words.fs
 HERE
 
 WORDLE-WORDS - LEN / CONSTANT #GUESS-WORDS
-WORDLE-WORDS - LEN / CONSTANT #SOLUTION-WORDS
+WORDLE-WORDS - LEN / CONSTANT #WORDLE-WORDS
 
 \ get wordle word from word #
 : WW ( w# -- w )  LEN * WORDLE-WORDS + ;
 
 \ print all possible solutions
-: .SOLUTIONS  #SOLUTION-WORDS 0 DO  I WW W.  LOOP ;
+: .SOLUTIONS  #WORDLE-WORDS 0 DO  I WW W.  LOOP ;
 
 \ check if a guess is valid, in one of the two word lists
 : VALID-GUESS ( w -- f )
