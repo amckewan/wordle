@@ -12,11 +12,7 @@ create guessing  #words allot   guessing #words 1 fill ( for test )
 : #guessing ( -- n )  0 #words 0 do i guess? + loop ;
 : .guessing  0  #words 0 do i guess? if i ww w. 1+ then loop  . ." words " ;
 
-\ GUESS: pick the first guessing word
-: first-guess ( --- w )
-    0  #words 0 do  i guess? if  drop i leave  then loop  ww ;
-
-\ GUESS: pick a random word from the guessing set
+\ RANDOM-GUESS: pick a random word from the guessing set
 : random-guess ( -- w )
     #guessing random  #words 0 do
       i guess? if  1- dup 0< if drop i leave  then then
@@ -33,14 +29,14 @@ create letters  26 cells allot
 
 : tally ( w -- n )  0 swap  len bounds do  i c@ >letter @ +  loop ;
 
-\ GUESS: pick the word with the largest letter tally
+\ TALLY-GUESS: pick the word with the largest letter tally
 : tally-guess ( -- w )
     tally-guessing  0 ww 0 ( w tally )
     #words 0 do  i guess? if
         i ww tally 2dup < if ( replace ) nip nip i ww swap else drop then
     then loop drop ;
 
-\ GUESS: trim guesses a letter at a time
+\ TRIM-GUESS: trim guesses a letter at a time
 : count-letters ( pos -- )  letters 26 cells erase
     #words 0 do  i guess? if  dup i ww + c@ >letter  1 swap +!  then loop drop ;
 : most-popular ( -- c )
@@ -49,21 +45,21 @@ create letters  26 cells allot
     #words 0 do  i guess? if
         ( pos c ) over i ww + c@  over <> if i -guess then
     then loop 2drop ;
-: trim-guess ( -- w )  len 0 do i trim loop  first-guess ;
+: trim-guess ( -- w )  len 0 do i trim loop  random-guess ;
 
 
-\ : array ( n -- )  create cells allot  does> ( n -- a ) swap cells + ;
-\ #words array word-tally
-\ : tally-words ( -- )  #words 0 do  i ww tally  i word-tally !  loop ;
-
+\ FIXED-GUESS: start with RAISE and COUNT
+: fixed-guess ( -- w )
+    guesses @ 0=  if [w] RAISE else
+    guesses @ 1 = if [w] COUNT else
+    tally-guess then then ;
 
 \ ========================================================
 \ Find a method to "weigh" each word to find the best guess.
 \ 1. Word tally - sum of frequencies of each letter in the word
-\ 2. Unique letters - words with lost of unique letters are good early
+\ 2. Unique letters - words with many unique letters are good early
 \ 3. Vowels - try them all early (or get at least two vowels)
-\ 4. Avoid the guessing game
-
+\ 4. Avoid the guessing game (3-4 greens, many words that fit)
 
 create scratch #words allot
 
@@ -74,7 +70,6 @@ create scratch #words allot
 
 create vowels 26 allot  vowels 26 erase
 : >vowel ( c -- a )  A - vowels + ;
-
 1 char A >vowel c!  1 char E >vowel c!  1 char I >vowel c!
 1 char O >vowel c!  1 char U >vowel c!
 
@@ -164,18 +159,7 @@ variable guesser
 : make-guess ( -- w )  start-guess  guesser @ execute ;
 
 : use ' guesser ! ;
-use first-guess
-\ use random-guess guesser !
-\ use tally-guess guesser !
-\ use trim-guess guesser !
 
-: t all-words start-guess ;
-
-\ Guesser that starts with RAISE and COUNT
-: fixed-guess ( -- w )
-    guesses @ 0=  if [w] RAISE else
-    guesses @ 1 = if [w] COUNT else
-    trim-guess then then ;
 
 use weighted-guess
 

@@ -37,10 +37,11 @@ create results  #guesses 1+ cells allot
         1 solve? if guesses @ >result else results then +!
     loop .results ;
 
-1 [if]
-cr .( Using random-guess ) use random-guess solver
-cr .( Using tally-guess ) use tally-guess solver
-cr .( Using trim-guess ) use trim-guess solver
-cr .( Using fixed-guess ) use fixed-guess solver
-cr .( Using weighted-guess ) use weighted-guess solver
-[then]
+: solve-with ( xt -- )  guesser ! solver cr ;
+: try-all
+    cr ." Using random-guess "      ['] random-guess    solve-with
+    cr ." Using tally-guess "       ['] tally-guess     solve-with
+    cr ." Using trim-guess "        ['] trim-guess      solve-with
+    cr ." Using fixed-guess "       ['] fixed-guess     solve-with
+    cr ." Using weighted-guess "    ['] weighted-guess  solve-with
+;
