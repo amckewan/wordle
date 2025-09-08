@@ -20,7 +20,7 @@ create working  #words allot  \ one byte per word, 0=absent, 1=present
 : prune-green  ( w -- f )  false ( default ok )
     len 0 do i green? if
         \ prune if the green letters don't match the guess, marking the greens used
-        over i + c@ i guess@ = if i used! else ( prune ) invert leave then
+        over i + c@ i guess l@ = if i used! else ( prune ) invert leave then
     then loop nip ;
 
 : find-unused ( w c -- pos t | f ) \ find the first unused pos in w that matches c
@@ -31,15 +31,15 @@ create working  #words allot  \ one byte per word, 0=absent, 1=present
 : prune-yellow ( w -- f )  false ( default ok )
     len 0 do i yellow? if
         \ prune if the word has the guessed letter at this position
-        over i + c@ i guess@ = if ( prune ) invert leave then
+        over i + c@ i guess l@ = if ( prune ) invert leave then
         \ prune if we can't find a matching unused letter (else mark it used)
-        over i guess@ find-unused if used! else ( prune ) invert leave then
+        over i guess l@ find-unused if used! else ( prune ) invert leave then
     then loop nip ;
 
 : prune-grey ( w -- f )  false ( ok )
     len 0 do i grey? if
         \ prune if there are any of this letter in the unused positions
-        over i guess@ find-unused if ( prune ) drop invert leave then
+        over i guess l@ find-unused if ( prune ) drop not leave then
     then loop nip ;
 
 : prune-word ( w -- f )  used len erase
@@ -73,7 +73,7 @@ T{ 3 used? -> 0 }T
 T{ 4 used? -> 1 }T
 
 TESTING find-unused
-: useit ( w -- ) used len erase  len 0 do dup i + c@ [char] 0 - if i used! then loop drop ;
+: useit ( w -- ) used len erase  len 0 do dup i l@ [char] 0 - if i used! then loop drop ;
 T{ w 11000 useit w AAAAA char A find-unused -> 2 true }T
 T{ w 11000 useit w AAxxA char A find-unused -> 4 true }T
 T{ w 11000 useit w AADBC char A find-unused -> false }T

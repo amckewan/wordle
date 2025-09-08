@@ -38,12 +38,12 @@ create letters  26 cells allot
 
 \ TRIM-GUESS: trim guesses a letter at a time
 : count-letters ( pos -- )  letters 26 cells erase
-    #words 0 do  i guess? if  dup i ww + c@ >letter  1 swap +!  then loop drop ;
+    #words 0 do  i guess? if  dup i ww l@ >letter  1 swap +!  then loop drop ;
 : most-popular ( -- c )
     A ( max ) dup 26 bounds do  i >letter @ over >letter @ > if  drop i  then loop ;
 : trim ( pos -- )  dup count-letters most-popular
     #words 0 do  i guess? if
-        ( pos c ) over i ww + c@  over <> if i -guess then
+        ( pos c ) over i ww l@  over <> if i -guess then
     then loop 2drop ;
 : trim-guess ( -- w )  len 0 do i trim loop  random-guess ;
 
@@ -84,7 +84,7 @@ create counts 6 cells allot
 : .vowels  len 1+ 0 do i cells counts + ? loop ;
 
 : scored-vowels ( -- n ) \ how many vowels got a green or yellow score
-    0  len 0 do  i guess@ >vowel c@  i grey? not and  +  loop ;
+    0  len 0 do  i guess l@ >vowel c@  i grey? not and  +  loop ;
 T{ w ABCDE guess w!  w ----Y score w! scored-vowels -> 1 }T
 
 create used-letters 26 allot

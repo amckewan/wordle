@@ -15,6 +15,10 @@
 : WCOMPARE ( w1 w2 -- -1/0/1 )  LEN SWAP LEN COMPARE ;
 : W= ( w1 w2 -- f )  WCOMPARE 0= ;
 
+\ Fetch and store the letter at pos
+: L@ ( pos w -- c )  + C@ ;
+: L! ( c pos w -- )  + C! ;
+
 \ There are two lists of words, those that can be solutions (wordle words)
 \ and those that can be guesses but not solutions.
 : WW, ( "w" -- )  W W, ;

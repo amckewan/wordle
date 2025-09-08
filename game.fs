@@ -5,48 +5,54 @@ char G constant GREEN
 char Y constant YELLOW
 char - constant GREY
 
+char A constant A   \ useful for letter sets
+
 create secret  len allot ( the secret answer )
 create guess   len allot ( current guess )
 create score   len allot ( score for the guess, string of colors )
 create used    len allot ( true if a letter has been used to satisfy a yellow score )
 
-char A constant A   \ useful for letter sets
+\ Build up answer based on green scores.
+\ This is used by the solver but doesn't expose anything secret.
+\ It is convenient to update it here when we score a word.
+\ We start all grey, then change to the letter when we get a green.
+create answer len allot
 
-: .used  used len bounds do S" -X" drop i c@ + c@ emit loop space ;
-: .game  ." secret: " secret w. ." guess: " guess w. ." score: " score w. ." used: " .used ;
+
+
+
+: .used  used len bounds do S" -X" drop i c@ l@ emit loop space ;
+: .game  ." secret: " secret w. ." answer: " answer w. ." guess: " guess w. ." score: " score w. ( ." used: " .used ) ;
 
 : clear-score  score len grey fill  used len erase ;
 
 : random-word ( -- w )  #wordle-words random ww ;
-: new-game  random-word secret w!  guess len blank  clear-score ;  new-game
+: new-game  random-word secret w!  answer len grey fill  guess len grey fill  clear-score ;  new-game
 
-: guess@  ( pos -- c )  guess + c@ ;
-
-: green?  ( pos -- f )  score + c@ green = ;
-: yellow? ( pos -- f )  score + c@ yellow = ;
-: grey?   ( pos -- f )  score + c@ grey = ;
+: green?  ( pos -- f )  score l@ green = ;
+: yellow? ( pos -- f )  score l@ yellow = ;
+: grey?   ( pos -- f )  score l@ grey = ;
 
 : #scores ( color -- n )  0  score len bounds do over i c@ = - loop nip ;
 
 \ Score any green letters first, then we will ignore these
-: secret? ( char pos -- f )  secret + c@ = ;
-: score!  ( char pos -- )    score + c! ;
-: score-green ( -- )
-    len 0 do  i guess@ i secret? if  green i score!  then  loop ;
+: score-green ( -- )  len 0 do
+      i guess l@ i secret l@ = if ( match )
+        green i score l!  i guess l@ i answer l!
+    then loop ;
 
 \ To score yellows, we check the non-green letters that have
 \ not already been used as yellows (to avoid double counting).
 : used? ( pos -- f )  used + c@ ;
 : used! ( pos -- )    used + 1 swap c! ;
 
-: check-yellow ( char pos -- )
-    len 0 do
-        over i secret?  i green? not and  i used? not and
-        if  yellow over score!  i used!  leave then
-    loop 2drop ;
+: check-yellow ( pos -- )  len 0 do
+      dup guess l@ i secret l@ =  i green? not and  i used? not and
+      if  yellow over score l!  i used!  leave then
+    loop drop ;
 
 : score-yellow ( -- )
-    len 0 do  i green? not if  i guess + c@  i check-yellow  then  loop ;
+    len 0 do  i green? not if  i check-yellow  then  loop ;
 
 \ Score a word, leaving results in guess & score
 : score-guess ( w -- )
