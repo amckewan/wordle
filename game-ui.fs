@@ -26,7 +26,7 @@ create kb 26 allot
 
 : G ( "w" -- ) \ "G RAISE" etc.
     w pad w! pad dup len upper ( convenient )
-    score-word save-history update-kb .history
+    score-guess add-history update-kb .history
     solved if ." You WIN! " else
     failed if ." Better luck next time (" secret len type ." )" else 
     k then then ;

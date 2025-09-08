@@ -48,7 +48,8 @@ char A constant A   \ useful for letter sets
 : score-yellow ( -- )
     len 0 do  i green? not if  i guess + c@  i check-yellow  then  loop ;
 
-: score-word ( w -- ) \ Score a word, leaving results in guess & score
+\ Score a word, leaving results in guess & score
+: score-guess ( w -- )
     guess w!  clear-score  score-green  score-yellow ;
 
 
@@ -70,15 +71,15 @@ T{ w AABCD w xxAAA w --YY- setup  score-yellow  score w= -> true }T
 T{ w AABCD w DDxxx w Y---- setup  score-yellow  score w= -> true }T
 T{ w ALERT w RAISE w YY--Y setup  score-yellow  score w= -> true }T
 
-TESTING SCORE-WORD
-T{ w AABCD w xxxxx w ----- setup  guess score-word  score w= -> true }T
-T{ w AABCD w Axxxx w G---- setup  guess score-word  score w= -> true }T
-T{ w AABCD w Dxxxx w Y---- setup  guess score-word  score w= -> true }T
-T{ w AABCD w DDDDx w Y---- setup  guess score-word  score w= -> true }T
-T{ w AABCD w xxAxx w --Y-- setup  guess score-word  score w= -> true }T
-T{ w AABCD w xxAAx w --YY- setup  guess score-word  score w= -> true }T
-T{ w AABCD w xxAAA w --YY- setup  guess score-word  score w= -> true }T
-T{ w AABCD w AxBDx w G-GY- setup  guess score-word  score w= -> true }T
-T{ w AABCD w AxAxA w G-Y-- setup  guess score-word  score w= -> true }T
+TESTING SCORE-GUESS
+T{ w AABCD w xxxxx w ----- setup  guess score-guess  score w= -> true }T
+T{ w AABCD w Axxxx w G---- setup  guess score-guess  score w= -> true }T
+T{ w AABCD w Dxxxx w Y---- setup  guess score-guess  score w= -> true }T
+T{ w AABCD w DDDDx w Y---- setup  guess score-guess  score w= -> true }T
+T{ w AABCD w xxAxx w --Y-- setup  guess score-guess  score w= -> true }T
+T{ w AABCD w xxAAx w --YY- setup  guess score-guess  score w= -> true }T
+T{ w AABCD w xxAAA w --YY- setup  guess score-guess  score w= -> true }T
+T{ w AABCD w AxBDx w G-GY- setup  guess score-guess  score w= -> true }T
+T{ w AABCD w AxAxA w G-Y-- setup  guess score-guess  score w= -> true }T
 
-T{ w VIXEN w EERIE w Y--Y- setup  guess score-word  score w= -> true }T
+T{ w VIXEN w EERIE w Y--Y- setup  guess score-guess  score w= -> true }T

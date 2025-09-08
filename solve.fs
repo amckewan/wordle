@@ -1,6 +1,6 @@
 ( solver )
 
-: round  make-guess  score-word  save-history ;
+: round  make-guess  score-guess  add-history ;
 
 : solve? ( -- f )
     all-words clear-history
