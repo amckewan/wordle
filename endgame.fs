@@ -9,7 +9,7 @@
 \ Strategy: use guess 5 to eliminate as many of the candidates as possible
 
 : endgame? ( -- f )
-    greens @ 4 =  #guesses guesses @ - #working < and ;
+    greens @ 4 =  #guesses guesses @ - #working < and  guesses @ 5 < and ;
 
 \ Collect the letters that could satisfy the remaining position
 : pos ( -- pos ) 0 begin dup answer l@ grey <> while 1+ repeat ;

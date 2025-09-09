@@ -28,7 +28,16 @@ create letters  26 cells allot
 : tally-all ( -- )  clear-letters
     #words 0 do  i guess? if  i ww tally-word  then loop ;
 
-: tally ( w -- n )  0 swap  len bounds do  i c@ >letter @ +  loop ;
+\ : tally ( w -- n )  0 swap  len bounds do  i c@ >letter @ +  loop ;
+
+\ don't tally multiple of the same letter
+create saved-letters 26 cells allot
+: tally ( w -- n )
+    letters saved-letters 26 cells move 
+    0 len 0 do ( w n )
+        over i + c@ >letter  dup @  0 rot !  +
+    loop nip
+    saved-letters letters 26 cells move ;
 
 \ TALLY-GUESS: pick the word with the largest letter tally
 : tally-guess ( -- w )
@@ -118,6 +127,8 @@ T{ w MMAMM #used -> 1 }T
 : weighted-guess ( -- w )
     guesses @ 0=  if first else tally-guess then ;
 
+
+0 [if]
 \ Try different algs for each round
 \ First round a high-scoring word with 5 different letters and at least two vowels
 
@@ -152,7 +163,7 @@ create word-tally #words cells allot
 
 : weight ( w -- n )
     tally ; 
-
+[then]
 
 \ ================ Try different algorithms ================
 

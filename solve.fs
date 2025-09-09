@@ -7,7 +7,7 @@
     all-words clear-history
     begin
         \ cr ." Round " guesses @ 1+ . ." #working=" #working .
-        endgame? if cr secret w. ." endgame " then
+        \ endgame? if cr secret w. ." endgame " then
         round
         solved if true  exit then
         failed if cr secret w. ." failed " .history cr false exit then
