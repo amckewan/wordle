@@ -20,24 +20,25 @@ create guessing  #words allot   guessing #words 1 fill ( for test )
 
 \ Count the number of occurances of each letter
 create letters  26 cells allot
+: clear-letters  letters 26 cells erase ;
 : >letter ( c -- a )  A - cells letters + ;
-: .letters  A 26 bounds do  i emit ." ="  i >letter ?  loop ;
+: .letters  A 26 bounds do i >letter @ ?dup if i emit ." =" . then loop ;
 
 : tally-word ( w -- )  len bounds do  1 i c@ >letter +!  loop ;
-: tally-guessing ( -- )  letters 26 cells erase
+: tally-all ( -- )  clear-letters
     #words 0 do  i guess? if  i ww tally-word  then loop ;
 
 : tally ( w -- n )  0 swap  len bounds do  i c@ >letter @ +  loop ;
 
 \ TALLY-GUESS: pick the word with the largest letter tally
 : tally-guess ( -- w )
-    tally-guessing  0 ww 0 ( w tally )
+    tally-all  0 ww 0 ( w tally )
     #words 0 do  i guess? if
         i ww tally 2dup < if ( replace ) nip nip i ww swap else drop then
     then loop drop ;
 
 \ TRIM-GUESS: trim guesses a letter at a time
-: count-letters ( pos -- )  letters 26 cells erase
+: count-letters ( pos -- )  clear-letters
     #words 0 do  i guess? if  dup i ww l@ >letter  1 swap +!  then loop drop ;
 : most-popular ( -- c )
     A ( max ) dup 26 bounds do  i >letter @ over >letter @ > if  drop i  then loop ;
@@ -97,7 +98,7 @@ T{ w FGHIJ #used -> 0 }T
 T{ w MMAMM #used -> 1 }T
 
 \ First guess, find a word with 5 unique letters, at least 3 vowels and the biggest tally
-: first ( -- w )  tally-guessing    0 ww 0 ( w tally )
+: first ( -- w )  tally-all    0 ww 0 ( w tally )
     #words 0 do
         i ww #unique 5 = if
             i ww #vowels 2 > if
@@ -106,7 +107,7 @@ T{ w MMAMM #used -> 1 }T
     loop drop ;
 
 \ 2nd guess we try 5 new letters, try to get at least two vowels
-: second ( -- w )  tally-guessing ( good? )  guess mark-used 
+: second ( -- w )  tally-all ( good? )  guess mark-used 
     0 ww 0 ( w tally )  #words 0 do  i guess? if
         over #used 0=   i ww #unique 5 = and if
             i ww #vowels 1 > if
@@ -123,7 +124,7 @@ T{ w MMAMM #used -> 1 }T
 create word-tally #words cells allot
 
 : tally'em
-    word-tally #words cells erase  tally-guessing
+    word-tally #words cells erase  tally-all
     #words 0 do i has if
         i ww tally  i cells word-tally + !
     then loop ;

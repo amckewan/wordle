@@ -11,5 +11,6 @@ include game-ui.fs
 ( solver )
 include prune.fs
 include guess.fs
+include endgame.fs
 include solve.fs
 

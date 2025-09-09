@@ -8,37 +8,30 @@ char - constant GREY
 char A constant A   \ useful for letter sets
 
 create secret  len allot ( the secret answer )
+create answer  len allot ( the answer we are building up, letter or grey )
 create guess   len allot ( current guess )
 create score   len allot ( score for the guess, string of colors )
-create used    len allot ( true if a letter has been used to satisfy a yellow score )
+create used    len allot ( true if position used to satisfy a yellow score )
 
-\ Build up answer based on green scores.
-\ This is used by the solver but doesn't expose anything secret.
-\ It is convenient to update it here when we score a word.
-\ We start all grey, then change to the letter when we get a green.
-create answer len allot
+variable greens ( # of greens in answer, for convenience )
 
-
-
-
-: .used  used len bounds do S" -X" drop i c@ l@ emit loop space ;
-: .game  ." secret: " secret w. ." answer: " answer w. ." guess: " guess w. ." score: " score w. ( ." used: " .used ) ;
+: .game  ." secret: " secret w. ." answer: " answer w.
+         ." guess: "  guess w.  ." score: "  score w. ;
 
 : clear-score  score len grey fill  used len erase ;
 
 : random-word ( -- w )  #wordle-words random ww ;
-: new-game  random-word secret w!  answer len grey fill  guess len grey fill  clear-score ;  new-game
+: new-game ( -- ) random-word secret w!  answer len grey fill  0 greens !
+    guess len grey fill  clear-score ;  new-game
 
 : green?  ( pos -- f )  score l@ green = ;
 : yellow? ( pos -- f )  score l@ yellow = ;
 : grey?   ( pos -- f )  score l@ grey = ;
 
-: #scores ( color -- n )  0  score len bounds do over i c@ = - loop nip ;
-
 \ Score any green letters first, then we will ignore these
 : score-green ( -- )  len 0 do
-      i guess l@ i secret l@ = if ( match )
-        green i score l!  i guess l@ i answer l!
+      i guess l@ i secret l@ = if ( match )  green i score l!  
+        i answer l@ grey = if  i guess l@ i answer l!  1 greens +!  then
     then loop ;
 
 \ To score yellows, we check the non-green letters that have
@@ -61,7 +54,7 @@ create answer len allot
 
 ( === TESTS === )
 
-: setup ( secret guess score -- score )  swap guess w! swap secret w! clear-score ;
+: setup ( secret guess score -- score ) swap guess w! swap secret w! clear-score ;
 
 TESTING SCORE-GREEN
 T{ W ABACK W ABASE w GGG-- setup  score-green  score w= -> true }T

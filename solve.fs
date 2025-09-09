@@ -1,14 +1,16 @@
 ( solver )
 
-: round  make-guess  score-guess  add-history ;
+: round  endgame? if endgame-guess else make-guess then
+         score-guess  add-history ;
 
 : solve? ( -- f )
     all-words clear-history
     begin
         \ cr ." Round " guesses @ 1+ . ." #working=" #working .
+        endgame? if cr secret w. ." endgame " then
         round
         solved if true  exit then
-        failed if false exit then
+        failed if cr secret w. ." failed " .history cr false exit then
         prune
     again ;
 
@@ -33,7 +35,7 @@ create results  #guesses 1+ cells allot
 : solver ( try all words )
     results #guesses 1+ cells erase
     #words 0 do
-        i ww secret w!
+        new-game i ww secret w!
         1 solve? if guesses @ >result else results then +!
     loop .results ;
 
