@@ -9,7 +9,7 @@
 \ Strategy: use guess 5 to eliminate as many of the candidates as possible
 
 : endgame? ( -- f )
-    greens @ 4 =  #guesses guesses @ - #working < and  guesses @ 5 < and ;
+    greens 4 =  #guesses guesses - #working < and  guesses 5 < and ;
 
 \ Collect the letters that could satisfy the remaining position
 : pos ( -- pos ) 0 begin dup answer l@ grey <> while 1+ repeat ;
@@ -26,6 +26,16 @@
 
 \ Find the word that has the most of those letters
 : endgame-guess ( -- w )
+    find-letters  0 ww 0 ( w n )
+    #words 0 do
+        i ww #letters 2dup < if nip nip i ww swap else drop then
+    loop drop ;
+
+\ 3 greens
+: endgame2? ( -- f )
+    greens 3 =  #guesses guesses - #working < and  guesses 5 < and ;
+
+: endgame2-guess ( -- w )
     find-letters  0 ww 0 ( w n )
     #words 0 do
         i ww #letters 2dup < if nip nip i ww swap else drop then

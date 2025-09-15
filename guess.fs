@@ -60,8 +60,8 @@ create saved-letters 26 cells allot
 
 \ FIXED-GUESS: start with RAISE and COUNT
 : fixed-guess ( -- w )
-    guesses @ 0=  if [w] RAISE else
-    guesses @ 1 = if [w] COUNT else
+    guesses 0=  if [w] RAISE else
+    guesses 1 = if [w] COUNT else
     tally-guess then then ;
 
 \ ========================================================
@@ -94,7 +94,7 @@ create counts 6 cells allot
 : .vowels  len 1+ 0 do i cells counts + ? loop ;
 
 : scored-vowels ( -- n ) \ how many vowels got a green or yellow score
-    0  len 0 do  i guess l@ >vowel c@  i grey? not and  +  loop ;
+    0  len 0 do  i guess l@ >vowel c@  grey scored not and  +  loop ;
 T{ w ABCDE guess w!  w ----Y score w! scored-vowels -> 1 }T
 
 create used-letters 26 allot
@@ -125,7 +125,7 @@ T{ w MMAMM #used -> 1 }T
     then loop drop ;
 
 : weighted-guess ( -- w )
-    guesses @ 0=  if first else tally-guess then ;
+    guesses 0=  if first else tally-guess then ;
 
 
 0 [if]

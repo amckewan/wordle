@@ -6,7 +6,7 @@
 : solve? ( -- f )
     all-words clear-history
     begin
-        \ cr ." Round " guesses @ 1+ . ." #working=" #working .
+        \ cr ." Round " guesses 1+ . ." #working=" #working .
         \ endgame? if cr secret w. ." endgame " then
         round
         solved if true  exit then
@@ -36,7 +36,7 @@ create results  #guesses 1+ cells allot
     results #guesses 1+ cells erase
     #words 0 do
         new-game i ww secret w!
-        1 solve? if guesses @ >result else results then +!
+        1 solve? if guesses >result else results then +!
     loop .results ;
 
 : solve-with ( xt -- )  guesser ! solver cr ;

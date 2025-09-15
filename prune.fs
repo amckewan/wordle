@@ -18,7 +18,7 @@ create working  #words allot  \ one byte per word, 0=absent, 1=present
 : .working  0  #words 0 do i has if i ww w. 1+ then loop  . ." words " ;
 
 : prune-green  ( w -- f )  false ( default ok )
-    len 0 do i green? if
+    len 0 do  green i scored if
         \ prune if the green letters don't match the guess, marking the greens used
         over i + c@ i guess l@ = if i used! else ( prune ) invert leave then
     then loop nip ;
@@ -29,7 +29,7 @@ create working  #words allot  \ one byte per word, 0=absent, 1=present
     then loop 2drop false ;
 
 : prune-yellow ( w -- f )  false ( default ok )
-    len 0 do i yellow? if
+    len 0 do  yellow i scored if
         \ prune if the word has the guessed letter at this position
         over i + c@ i guess l@ = if ( prune ) invert leave then
         \ prune if we can't find a matching unused letter (else mark it used)
@@ -37,7 +37,7 @@ create working  #words allot  \ one byte per word, 0=absent, 1=present
     then loop nip ;
 
 : prune-grey ( w -- f )  false ( ok )
-    len 0 do i grey? if
+    len 0 do  grey i scored if
         \ prune if there are any of this letter in the unused positions
         over i guess l@ find-unused if ( prune ) drop not leave then
     then loop nip ;
