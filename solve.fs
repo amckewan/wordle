@@ -1,5 +1,8 @@
 ( solver )
 
+: endgame? false ;
+: endgame-guess random-guess ;
+
 : round  endgame? if endgame-guess else make-guess then
          score-guess  add-history ;
 
@@ -10,7 +13,7 @@
         \ endgame? if cr secret w. ." endgame " then
         round
         solved if true  exit then
-        failed if cr secret w. ." failed " .history cr false exit then
+        failed if ( cr secret w. ." failed " .history cr ) false exit then
         prune
     again ;
 
@@ -35,7 +38,7 @@ create results  #guesses 1+ cells allot
 : solver ( try all words )
     results #guesses 1+ cells erase
     #words 0 do
-        new-game i ww secret w!
+        new-game i ww to secret
         1 solve? if guesses >result else results then +!
     loop .results ;
 
@@ -45,5 +48,5 @@ create results  #guesses 1+ cells allot
     cr ." Using tally-guess "       ['] tally-guess     solve-with
     cr ." Using trim-guess "        ['] trim-guess      solve-with
     cr ." Using fixed-guess "       ['] fixed-guess     solve-with
-    cr ." Using weighted-guess "    ['] weighted-guess  solve-with
+\    cr ." Using weighted-guess "    ['] weighted-guess  solve-with
 ;

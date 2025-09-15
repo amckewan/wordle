@@ -19,25 +19,24 @@ create guessing  #words allot   guessing #words 1 fill ( for test )
     loop  ww ;
 
 \ Count the number of occurances of each letter
-create letters  26 cells allot
-: clear-letters  letters 26 cells erase ;
-: >letter ( c -- a )  A - cells letters + ;
-: .letters  A 26 bounds do i >letter @ ?dup if i emit ." =" . then loop ;
+create letters  32 cells allot
+: clear-letters  letters 32 cells erase ;
+: >letter ( l -- a )  cells letters + ;
 
-: tally-word ( w -- )  len bounds do  1 i c@ >letter +!  loop ;
+: .letters  27 1 do i >letter @ ?dup if i l>c emit ." =" . then loop ;
+
+: tally-word ( w -- )  len 0 do  1 over i get >letter +!  loop drop ;
 : tally-all ( -- )  clear-letters
     #words 0 do  i guess? if  i ww tally-word  then loop ;
 
-\ : tally ( w -- n )  0 swap  len bounds do  i c@ >letter @ +  loop ;
-
 \ don't tally multiple of the same letter
-create saved-letters 26 cells allot
+create saved-letters 32 cells allot
 : tally ( w -- n )
-    letters saved-letters 26 cells move 
+    letters saved-letters 32 cells move 
     0 len 0 do ( w n )
-        over i + c@ >letter  dup @  0 rot !  +
+        over i get >letter  dup @  0 rot !  +
     loop nip
-    saved-letters letters 26 cells move ;
+    saved-letters letters 32 cells move ;
 
 \ TALLY-GUESS: pick the word with the largest letter tally
 : tally-guess ( -- w )
@@ -48,12 +47,12 @@ create saved-letters 26 cells allot
 
 \ TRIM-GUESS: trim guesses a letter at a time
 : count-letters ( pos -- )  clear-letters
-    #words 0 do  i guess? if  dup i ww l@ >letter  1 swap +!  then loop drop ;
-: most-popular ( -- c )
-    A ( max ) dup 26 bounds do  i >letter @ over >letter @ > if  drop i  then loop ;
+    #words 0 do  i guess? if  i ww over get >letter  1 swap +!  then loop drop ;
+: most-popular ( -- l )
+    1 ( max ) 27 1 do  i >letter @ over >letter @ > if  drop i  then loop ;
 : trim ( pos -- )  dup count-letters most-popular
     #words 0 do  i guess? if
-        ( pos c ) over i ww l@  over <> if i -guess then
+        ( pos c ) over i ww swap get  over <> if i -guess then
     then loop 2drop ;
 : trim-guess ( -- w )  len 0 do i trim loop  random-guess ;
 
@@ -63,6 +62,8 @@ create saved-letters 26 cells allot
     guesses 0=  if [w] RAISE else
     guesses 1 = if [w] COUNT else
     tally-guess then then ;
+
+0 [if]
 
 \ ========================================================
 \ Find a method to "weigh" each word to find the best guess.
@@ -74,11 +75,11 @@ create saved-letters 26 cells allot
 create scratch #words allot
 
 : #unique ( w -- n ) \ #  unique letters in a word ABCDD -> 4
-    scratch 26 1 fill  0 swap len bounds do
+    scratch 32 1 fill  0 swap len bounds do
         i c@ A - scratch + ( n a )  dup c@ rot + swap ( update unique )  0 swap c! ( mark it )
     loop ;
 
-create vowels 26 allot  vowels 26 erase
+create vowels 32 allot  vowels 32 erase
 : >vowel ( c -- a )  A - vowels + ;
 1 char A >vowel c!  1 char E >vowel c!  1 char I >vowel c!
 1 char O >vowel c!  1 char U >vowel c!
@@ -95,10 +96,10 @@ create counts 6 cells allot
 
 : scored-vowels ( -- n ) \ how many vowels got a green or yellow score
     0  len 0 do  i guess l@ >vowel c@  grey scored not and  +  loop ;
-T{ w ABCDE guess w!  w ----Y score w! scored-vowels -> 1 }T
+T{ w ABCDE to guess  w ----Y to score scored-vowels -> 1 }T
 
-create used-letters 26 allot
-: mark-used ( w -- )  used-letters 26 erase
+create used-letters 32 allot
+: mark-used ( w -- )  used-letters 32 erase
     len bounds do  i c@ A - used-letters +  1 swap c!  loop ;
 : #used ( w -- n )
     0 swap len bounds do i c@ A - used-letters + c@ + loop ;
@@ -167,12 +168,12 @@ create word-tally #words cells allot
 
 \ ================ Try different algorithms ================
 
+[then]
 variable guesser
 : make-guess ( -- w )  start-guess  guesser @ execute ;
 
 : use ' guesser ! ;
 
 
-use weighted-guess
-
+use random-guess
 

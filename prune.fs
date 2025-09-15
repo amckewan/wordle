@@ -19,37 +19,37 @@ create working  #words allot  \ one byte per word, 0=absent, 1=present
 
 : prune-green  ( w -- f )  false ( default ok )
     len 0 do  green i scored if
-        \ prune if the green letters don't match the guess, marking the greens used
-        over i + c@ i guess l@ = if i used! else ( prune ) invert leave then
+        \ prune if the green letter doesn't match the guess, marking it used
+        over guess i match if i used! else ( prune ) invert leave then
     then loop nip ;
 
-: find-unused ( w c -- pos t | f ) \ find the first unused pos in w that matches c
+: find-unused ( w l -- pos t | f ) \ find the first unused pos in w that matches
     len 0 do i used? not if
-        over i + c@ over = if 2drop i true unloop exit then
+        over i get over = if 2drop i true unloop exit then
     then loop 2drop false ;
 
 : prune-yellow ( w -- f )  false ( default ok )
     len 0 do  yellow i scored if
         \ prune if the word has the guessed letter at this position
-        over i + c@ i guess l@ = if ( prune ) invert leave then
+        over guess i match if ( prune ) invert leave then
         \ prune if we can't find a matching unused letter (else mark it used)
-        over i guess l@ find-unused if used! else ( prune ) invert leave then
+        over guess i get find-unused if used! else ( prune ) invert leave then
     then loop nip ;
 
 : prune-grey ( w -- f )  false ( ok )
     len 0 do  grey i scored if
         \ prune if there are any of this letter in the unused positions
-        over i guess l@ find-unused if ( prune ) drop not leave then
+        over guess i get find-unused if ( prune ) drop not leave then
     then loop nip ;
 
-: prune-word ( w -- f )  used len erase
+: prune-word ( w -- f )  0 to used
     dup prune-green not if dup prune-yellow not if prune-grey then then 0<> ;
 
 : prune  #words 0 do i has if i ww prune-word if i remove then then loop ;
 
 
 ( === TESTS === )
-: -u  used len erase ;
+: -u  0 to used ;
 
 TESTING #WORKING
 T{ all-words #working -> #words }T
@@ -59,8 +59,8 @@ T{ working #words erase  #working -> 0 }T
 
 
 TESTING prune-green
-   w ABCDE guess w!
-   w G-G-G score w!
+   w ABCDE to guess
+   w G-G-G to score
 T{ w AxCxE -u prune-green -> false }T
 T{ w BBCDE -u prune-green -> true  }T
 T{ w ABBDE -u prune-green -> true  }T
@@ -73,20 +73,20 @@ T{ 3 used? -> 0 }T
 T{ 4 used? -> 1 }T
 
 TESTING find-unused
-: useit ( w -- ) used len erase  len 0 do dup i l@ [char] 0 - if i used! then loop drop ;
-T{ w 11000 useit w AAAAA char A find-unused -> 2 true }T
-T{ w 11000 useit w AAxxA char A find-unused -> 4 true }T
-T{ w 11000 useit w AADBC char A find-unused -> false }T
-T{ w 00000 useit w ABCDE char A find-unused -> 0 true }T
-T{ w 00000 useit w ABCDE char B find-unused -> 1 true }T
-T{ w 00000 useit w ABCDE char E find-unused -> 4 true }T
-T{ w 11111 useit w ABCDE char A find-unused -> false }T
-T{ w 11111 useit w ABCDE char C find-unused -> false }T
-T{ w 11111 useit w ABCDE char D find-unused -> false }T
+: useit ( w -- )  -u  len 0 do dup i get 16 - if i used! then loop drop ;
+T{ w 11000 useit w AAAAA char A '@' - find-unused -> 2 true }T
+T{ w 11000 useit w AAxxA char A '@' - find-unused -> 4 true }T
+T{ w 11000 useit w AADBC char A '@' - find-unused -> false }T
+T{ w 00000 useit w ABCDE char A '@' - find-unused -> 0 true }T
+T{ w 00000 useit w ABCDE char B '@' - find-unused -> 1 true }T
+T{ w 00000 useit w ABCDE char E '@' - find-unused -> 4 true }T
+T{ w 11111 useit w ABCDE char A '@' - find-unused -> false }T
+T{ w 11111 useit w ABCDE char C '@' - find-unused -> false }T
+T{ w 11111 useit w ABCDE char D '@' - find-unused -> false }T
 
 TESTING prune-yellow
-   w ABCDE guess w!
-   w YY--- score w!
+   w ABCDE to guess
+   w YY--- to score
 T{ w AAAAA -u prune-yellow -> true  }T
 T{ w xxAAA -u prune-yellow -> true  }T
 T{ w xxBBB -u prune-yellow -> true  }T
@@ -94,18 +94,18 @@ T{ w xxABx -u prune-yellow -> false }T
 T{ w BAxxx -u prune-yellow -> false }T
 T{ w BABAB -u prune-yellow -> false }T
 
-   w AACDE guess w!
-   w YY--- score w!
+   w AACDE to guess
+   w YY--- to score
 T{ w xxAxx -u prune-yellow -> true  }T
 T{ w xxAAx -u prune-yellow -> false }T
 
-   w EERIE guess w!
-   w Y--Y- score w!
+   w EERIE to guess
+   w Y--Y- to score
 T{ w VIXEN -u prune-yellow -> false }T
 
 TESTING prune-word
-   w EERIE guess w!
-   w Y--Y- score w!
+   w EERIE to guess
+   w Y--Y- to score
 T{ w VIXEN prune-word -> false }T
 T{ w xIExx prune-word -> false }T
 T{ w Exxxx prune-word -> true  }T
