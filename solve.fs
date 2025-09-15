@@ -1,8 +1,5 @@
 ( solver )
 
-: endgame? false ;
-: endgame-guess random-guess ;
-
 : round  endgame? if endgame-guess else make-guess then
          score-guess  add-history ;
 

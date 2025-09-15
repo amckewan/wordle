@@ -12,17 +12,16 @@
     greens 4 =  #guesses guesses - #working < and  guesses 5 < and ;
 
 \ Collect the letters that could satisfy the remaining position
-: pos ( -- pos ) 0 begin dup answer l@ grey <> while 1+ repeat ;
-
-: find-letters ( from working set )  clear-letters  pos
-    #words 0 do i has if  1 over i ww l@ >letter !  then loop
-    guess l@ >letter 0 swap ! ( clear mismatching letter ) ;
+: unknown ( -- pos ) 0 begin answer over get while 1+ repeat ;
+: find-letters ( from working set )  clear-letters  unknown
+    #words 0 do i has if  i ww over get >letter  1 swap !  then loop
+    guess swap get >letter  0 swap ! ( clear mismatching letter ) ;
 
 : #letters ( w -- n ) \ how many matches to letters
-    letters pad 26 cells move
-    0 swap len bounds do
-        i c@ A - cells pad +  dup @ if 0 swap ! 1+ else drop then
-    loop ;
+    letters pad 32 cells move
+    0 len 0 do ( w n )
+        over i get cells pad +  dup @ if 0 swap ! 1+ else drop then
+    loop nip ;
 
 \ Find the word that has the most of those letters
 : endgame-guess ( -- w )
