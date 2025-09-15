@@ -17,10 +17,11 @@ create kb 32 allot
 : H .history ;
 
 : .k ( l k -- )  over kb + c@ = if dup l>c emit space then drop ;
-: K cr ." Green:  " 27 1 do i 3 .k loop
-    cr ." Yellow: " 27 1 do i 2 .k loop
-    cr ." Grey:   " 27 1 do i 1 .k loop
-    cr ." Unused: " 27 1 do i 0 .k loop ;
+: a-z ( -- limit index )  27 1 ;
+: K cr ." Green:  " a-z do i 3 .k loop
+    cr ." Yellow: " a-z do i 2 .k loop
+    cr ." Grey:   " a-z do i 1 .k loop
+    cr ." Unused: " a-z do i 0 .k loop ;
 
 : G ( "w" -- ) \ "G RAISE" etc.
     w score-guess add-history update-kb .history

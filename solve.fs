@@ -41,6 +41,7 @@ create results  #guesses 1+ cells allot
 
 : solve-with ( xt -- )  guesser ! solver cr ;
 : try-all
+    cr ." Using first-guess "       ['] first-guess     solve-with
     cr ." Using random-guess "      ['] random-guess    solve-with
     cr ." Using tally-guess "       ['] tally-guess     solve-with
     cr ." Using trim-guess "        ['] trim-guess      solve-with

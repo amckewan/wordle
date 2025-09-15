@@ -13,12 +13,12 @@
 
 \ Collect the letters that could satisfy the remaining position
 : unknown ( -- pos ) 0 begin answer over get while 1+ repeat ;
-: find-letters ( from working set )  clear-letters  unknown
-    #words 0 do i has if  i ww over get >letter  1 swap !  then loop
-    guess swap get >letter  0 swap ! ( clear mismatching letter ) ;
+: find-letters ( from working set )  clear-tally  unknown
+    #words 0 do i has if  i ww over get tally  1 swap !  then loop
+    guess swap get tally  0 swap ! ( clear mismatching letter ) ;
 
 : #letters ( w -- n ) \ how many matches to letters
-    letters pad 32 cells move
+    tallies pad 32 cells move ( work on a copy )
     0 len 0 do ( w n )
         over i get cells pad +  dup @ if 0 swap ! 1+ else drop then
     loop nip ;

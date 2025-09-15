@@ -12,49 +12,51 @@ create guessing  #words allot   guessing #words 1 fill ( for test )
 : #guessing ( -- n )  0 #words 0 do i guess? + loop ;
 : .guessing  0  #words 0 do i guess? if i ww w. 1+ then loop  . ." words " ;
 
+\ FIRST-GUESS: pick the first word (for repeatable tests)
+: first-guess ( -- w )
+    0 #words 0 do i guess? if drop i leave then loop ww ;
+
 \ RANDOM-GUESS: pick a random word from the guessing set
 : random-guess ( -- w )
     #guessing random  #words 0 do
       i guess? if  1- dup 0< if drop i leave  then then
     loop  ww ;
 
-\ Count the number of occurances of each letter
-create letters  32 cells allot
-: clear-letters  letters 32 cells erase ;
-: >letter ( l -- a )  cells letters + ;
+\ The number of occurances of each letter
+create tallies  32 cells allot
+: clear-tally  tallies 32 cells erase ;
+: tally ( l -- a )  cells tallies + ;
 
-: .letters  27 1 do i >letter @ ?dup if i l>c emit ." =" . then loop ;
+: .tallies  a-z do  i tally @  ?dup if i l>c emit ." =" . then  loop ;
 
-: tally-word ( w -- )  len 0 do  1 over i get >letter +!  loop drop ;
-: tally-all ( -- )  clear-letters
+: tally-word ( w -- )  len 0 do  1 over i get tally +!  loop drop ;
+: tally-guessing ( -- )  clear-tally
     #words 0 do  i guess? if  i ww tally-word  then loop ;
 
-\ don't tally multiple of the same letter
-create saved-letters 32 cells allot
-: tally ( w -- n )
-    letters saved-letters 32 cells move 
-    0 len 0 do ( w n )
-        over i get >letter  dup @  0 rot !  +
-    loop nip
-    saved-letters letters 32 cells move ;
-
 \ TALLY-GUESS: pick the word with the largest letter tally
+: word-tally ( w -- n )
+    tallies pad 32 cells move ( work on a copy, we will change as we go )
+    0 len 0 do ( w n )
+        over i get cells pad +  dup @  0 rot ! ( don't count again )  +
+    loop nip ;
 : tally-guess ( -- w )
-    tally-all  0 ww 0 ( w tally )
+    tally-guessing  0 ww 0 ( w tally )
     #words 0 do  i guess? if
-        i ww tally 2dup < if ( replace ) nip nip i ww swap else drop then
+        i ww word-tally 2dup < if ( replace ) nip nip i ww swap else drop then
     then loop drop ;
 
 \ TRIM-GUESS: trim guesses a letter at a time
-: count-letters ( pos -- )  clear-letters
-    #words 0 do  i guess? if  i ww over get >letter  1 swap +!  then loop drop ;
+\ Pick the words with the most popular first letter, then from those pick
+\ the words with the most popular second letter, etc.
+: tally-letter ( pos -- )  clear-tally
+    #words 0 do  i guess? if  i ww over get tally  1 swap +!  then loop drop ;
 : most-popular ( -- l )
-    1 ( max ) 27 1 do  i >letter @ over >letter @ > if  drop i  then loop ;
-: trim ( pos -- )  dup count-letters most-popular
+    1 ( max ) a-z do  i tally @ over tally @ > if  drop i  then loop ;
+: trim ( pos -- )  dup tally-letter most-popular
     #words 0 do  i guess? if
-        ( pos c ) over i ww swap get  over <> if i -guess then
+        ( pos c ) 2dup i ww rot get <> if i -guess then
     then loop 2drop ;
-: trim-guess ( -- w )  len 0 do i trim loop  random-guess ;
+: trim-guess ( -- w )  len 0 do i trim loop  first-guess ;
 
 
 \ FIXED-GUESS: start with RAISE and COUNT
@@ -108,7 +110,7 @@ T{ w FGHIJ #used -> 0 }T
 T{ w MMAMM #used -> 1 }T
 
 \ First guess, find a word with 5 unique letters, at least 3 vowels and the biggest tally
-: first ( -- w )  tally-all    0 ww 0 ( w tally )
+: first ( -- w )  tally-guessing    0 ww 0 ( w tally )
     #words 0 do
         i ww #unique 5 = if
             i ww #vowels 2 > if
@@ -117,7 +119,7 @@ T{ w MMAMM #used -> 1 }T
     loop drop ;
 
 \ 2nd guess we try 5 new letters, try to get at least two vowels
-: second ( -- w )  tally-all ( good? )  guess mark-used 
+: second ( -- w )  tally-guessing ( good? )  guess mark-used 
     0 ww 0 ( w tally )  #words 0 do  i guess? if
         over #used 0=   i ww #unique 5 = and if
             i ww #vowels 1 > if
@@ -136,7 +138,7 @@ T{ w MMAMM #used -> 1 }T
 create word-tally #words cells allot
 
 : tally'em
-    word-tally #words cells erase  tally-all
+    word-tally #words cells erase  tally-guessing
     #words 0 do i has if
         i ww tally  i cells word-tally + !
     then loop ;
