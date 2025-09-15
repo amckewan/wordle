@@ -65,6 +65,8 @@ create tallies  32 cells allot
     guesses 1 = if [w] COUNT else
     tally-guess then then ;
 
+
+
 0 [if]
 
 \ ========================================================

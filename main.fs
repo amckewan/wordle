@@ -10,6 +10,8 @@ include game-ui.fs
 
 ( solver )
 include prune.fs
+include vowels.fs
+include unique.fs
 include guess.fs
 include endgame.fs
 include solve.fs
