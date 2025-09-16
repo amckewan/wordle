@@ -20,7 +20,8 @@ create kb 32 allot
     cr ." Unused: " a-z do i 0 .k loop ;
 
 : G ( "w" -- ) \ "G RAISE" etc.
-    w score-guess add-history update-kb .history
+    w dup valid-guess not abort" Not in word list"
+    score-guess add-history update-kb .history
     solved if ." You WIN! " else
     failed if ." Better luck next time ( " secret w. ." ) " else 
     k then then ;
