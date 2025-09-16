@@ -12,8 +12,8 @@ create guessing  #words allot   guessing #words 1 fill ( for test )
 : #guessing ( -- n )  0 #words 0 do i guess? + loop ;
 : .guessing  0  #words 0 do i guess? if i ww w. 1+ then loop  . ." words " ;
 
-\ FIRST-GUESS: pick the first word (for repeatable tests)
-: first-guess ( -- w )
+\ FIXED-GUESS: pick the first word (for repeatable tests)
+: fixed-guess ( -- w )
     0 #words 0 do i guess? if drop i leave then loop ww ;
 
 \ RANDOM-GUESS: pick a random word from the guessing set

@@ -20,6 +20,7 @@
 : s all-words clear-history ;
 : r round .history ;
 : p prune #working . ;
+: try new w to secret solve ;
 
 \ exhaustive test
 create results  #guesses 1+ cells allot
@@ -41,9 +42,9 @@ create results  #guesses 1+ cells allot
 
 : solve-with ( xt -- )  to guesser solver cr ;
 : try-all
-    cr ." Using first-guess "       ['] first-guess     solve-with
+    cr ." Using fixed-guess "       ['] fixed-guess     solve-with
     cr ." Using random-guess "      ['] random-guess    solve-with
     cr ." Using tally-guess "       ['] tally-guess     solve-with
-    cr ." Using fixed-guess "       ['] fixed-guess     solve-with
 \    cr ." Using weighted-guess "    ['] weighted-guess  solve-with
 ;
+

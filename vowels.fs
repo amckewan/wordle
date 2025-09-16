@@ -1,4 +1,4 @@
-\ Count vowels
+( count vowels )
 
 1 'A' c>l lshift
 1 'E' c>l lshift or
