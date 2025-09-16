@@ -45,6 +45,6 @@ create results  #guesses 1+ cells allot
     cr ." Using fixed-guess "       ['] fixed-guess     solve-with
     cr ." Using random-guess "      ['] random-guess    solve-with
     cr ." Using tally-guess "       ['] tally-guess     solve-with
-\    cr ." Using weighted-guess "    ['] weighted-guess  solve-with
+    cr ." Using weighted-guess "    ['] weighted-guess  solve-with
 ;
 

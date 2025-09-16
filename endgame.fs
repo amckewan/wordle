@@ -14,8 +14,8 @@
 \ Collect the letters that could satisfy the remaining position
 : unknown ( -- pos ) 0 begin answer over get while 1+ repeat ;
 : find-letters ( from working set )  clear-tallies  unknown
-    #words 0 do i has if  i ww over get 0 tally  1 swap !  then loop
-    guess swap get 0 tally  0 swap ! ( clear mismatching letter ) ;
+    #words 0 do i has if  i ww over get 0 >tally  1 swap !  then loop
+    guess swap get 0 >tally  0 swap ! ( clear mismatching letter ) ;
 
 : #letters ( w -- n ) \ how many matches to letters
     tallies pad 32 cells move ( work on a copy )

@@ -7,8 +7,9 @@
 \ 3. Vowels - try them all early (or get at least two vowels)
 \ 4. Avoid the guessing game (3-4 greens, many words that fit)
 
-create counts 6 cells allot
-: count-vowels  counts 6 cells erase  #words 0 do i has if 1 i ww vowels cells counts + +! then loop ;
+create counts 6 cells allot ( # vowels, 0 to 5 )
+: count-vowels ( -- )  counts 6 cells erase
+    #words 0 do i has if 1 i ww vowels cells counts + +! then loop ;
 : .vowels  len 1+ 0 do i cells counts + ? loop ;
 
 : scored-vowels ( -- n ) \ how many vowels got a green or yellow score
@@ -17,20 +18,21 @@ T{ w ABCDE to guess  w ----Y to score scored-vowels -> 1 }T
 
 create used-letters 32 allot
 : mark-used ( w -- )  used-letters 32 erase
-    len bounds do  i c@ A - used-letters +  1 swap c!  loop ;
+    len 0 do  1 over i get used-letters + c!  loop drop ;
 : #used ( w -- n )
-    0 swap len bounds do i c@ A - used-letters + c@ + loop ;
+    0 len 0 do  over i get used-letters + c@ + loop nip ;
 T{ w ABCDE mark-used w ABCDE #used -> 5 }T
 T{ w FGHIJ #used -> 0 }T
 T{ w MMAMM #used -> 1 }T
 
-\ First guess, find a word with 5 unique letters, at least 3 vowels and the biggest tally
+\ First guess: find a word with 5 unique letters,
+\ at least 3 vowels and the biggest tally
 : first-guess ( -- w )  tally-guessing    0 ww 0 ( w tally )
     #words 0 do
         i ww unique 5 = if
-            i ww vowels 2 > if
-                i ww tally 2dup < if ( replace ) nip nip i ww swap else drop then
-        then then
+        i ww vowels 2 > if
+        i ww tally 2dup < if ( replace ) nip nip i ww swap  else drop
+        then then then
     loop drop ;
 
 \ 2nd guess we try 5 new letters, try to get at least two vowels
@@ -45,17 +47,18 @@ T{ w MMAMM #used -> 1 }T
 : weighted-guess ( -- w )
     guesses 0= if first-guess else tally-guess then ;
 
+use weighted-guess
 
 0 [if]
 \ Try different algs for each round
 \ First round a high-scoring word with 5 different letters and at least two vowels
 
-create word-tally #words cells allot
+create tally #words cells allot
 
 : tally'em
-    word-tally #words cells erase  tally-guessing
+    tally #words cells erase  tally-guessing
     #words 0 do i has if
-        i ww tally  i cells word-tally + !
+        i ww tally  i cells tally + !
     then loop ;
 
 : find-largest-unique ( -- w# )
