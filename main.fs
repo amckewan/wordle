@@ -13,6 +13,8 @@ include prune.fs
 include vowels.fs
 include unique.fs
 include guess.fs
+include tally.fs
+include fixed.fs
 include endgame.fs
 include solve.fs
 

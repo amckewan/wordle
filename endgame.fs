@@ -8,14 +8,14 @@
 \ Preconditions: 4 guesses, 4 greens, > 2 possible answers
 \ Strategy: use guess 5 to eliminate as many of the candidates as possible
 
-: endgame? ( -- f )
+: endgame? ( -- f )  greens 5 = if true exit then
     greens 4 =  #guesses guesses - #working < and  guesses 5 < and ;
 
 \ Collect the letters that could satisfy the remaining position
 : unknown ( -- pos ) 0 begin answer over get while 1+ repeat ;
-: find-letters ( from working set )  clear-tally  unknown
-    #words 0 do i has if  i ww over get tally  1 swap !  then loop
-    guess swap get tally  0 swap ! ( clear mismatching letter ) ;
+: find-letters ( from working set )  clear-tallies  unknown
+    #words 0 do i has if  i ww over get 0 tally  1 swap !  then loop
+    guess swap get 0 tally  0 swap ! ( clear mismatching letter ) ;
 
 : #letters ( w -- n ) \ how many matches to letters
     tallies pad 32 cells move ( work on a copy )
@@ -25,6 +25,7 @@
 
 \ Find the word that has the most of those letters
 : endgame-guess ( -- w )
+    greens 5 = if answer exit then
     find-letters  0 ww 0 ( w n )
     #words 0 do
         i ww #letters 2dup < if nip nip i ww swap else drop then

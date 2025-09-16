@@ -1,6 +1,6 @@
 ( game UI )
 
-: solved ( -- f )  greens len = ;
+: solved ( -- f )  guess secret = ;
 : failed ( -- f )  guesses #guesses >= ; ( assuming not solved )
 
 \ keyboard with knowledge about each letter played
