@@ -1,12 +1,14 @@
 ( save history of guesses and scores )
 
 6 constant #guesses ( and thus will ever be )
+0 value guesses
+
+: solved ( -- f )  guess secret = ;
+: failed ( -- f )  guesses #guesses >= ; ( assuming not solved )
 
 \ The history has 6 entries of guess+score
 create histbuf  #guesses 2* cells allot
 : history ( n -- a )  2* cells histbuf + ;
-
-0 value guesses
 
 : clear-history  0 to guesses ;
 

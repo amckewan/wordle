@@ -1,8 +1,5 @@
 ( game UI )
 
-: solved ( -- f )  guess secret = ;
-: failed ( -- f )  guesses #guesses >= ; ( assuming not solved )
-
 \ keyboard with knowledge about each letter played
 \ 0=unknown, 1=grey, 2=yellow, 3=green (k)
 create kb 32 allot
@@ -17,7 +14,6 @@ create kb 32 allot
 : H .history ;
 
 : .k ( l k -- )  over kb + c@ = if dup l>c emit space then drop ;
-: a-z ( -- limit index )  27 1 ;
 : K cr ." Green:  " a-z do i 3 .k loop
     cr ." Yellow: " a-z do i 2 .k loop
     cr ." Grey:   " a-z do i 1 .k loop

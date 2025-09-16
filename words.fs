@@ -33,9 +33,12 @@
 \ True if letters at pos match
 : MATCH ( w1 w2 pos -- f )  >R XOR R> MASK AND 0= ;
 
+: A-Z ( -- limit index )  27 1 ; \ for do..loop over the alphabet
+
+
 \ There are two lists of words, those that can be solutions (wordle words)
 \ and those that can be guesses but not solutions.
-: WW, ( "w" -- )  W , ;
+: W, ( "w" -- )  W , ;
 
 CREATE WORDLE-WORDS
 INCLUDE wordle-words.fs
