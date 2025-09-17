@@ -1,20 +1,16 @@
 ( solver )
 
-: round  endgame? if endgame-guess else make-guess then
+: round  endgame not if make-guess then
          score-guess  add-history ;
 
 : solve? ( -- f )
     all-words clear-history
-    begin
-        \ cr ." Round " guesses 1+ . ." #working=" #working .
-        \ endgame? if cr secret w. ." endgame " then
-        round
-        solved if true  exit then
-        failed if ( cr secret w. ." failed " .history cr ) false exit then
+    begin round solved not while
+        failed if false exit then
         prune
-    again ;
+    repeat true ;
 
-: solve  solve? .history if ." Solved " else  ." Failed " then ;
+: solve  solve? .history if ." Solved " else ." Failed " then ;
 
 \ shorthand
 : s all-words clear-history ;
@@ -27,7 +23,7 @@ create results  #guesses 1+ cells allot
 : >result  cells results + ;
 : average ( -- n*100 )
     0  #guesses 1+ 1 do  i >result @ i * +  loop  100 #words */ ;
-: .## ( n -- )  0 <# # # [char] . hold #s #> type space ;
+: .## ( n -- )  0 <# # # '.' hold #s #> type space ;
 : .results
     #guesses 1+ 1 do  cr i >result @ 5 .r ."  Solved in " i . loop
     cr results @ 5 .r ."  Failed "
@@ -37,7 +33,7 @@ create results  #guesses 1+ cells allot
     results #guesses 1+ cells erase
     #words 0 do
         new-game i ww to secret
-        1 solve? if guesses >result else results then +!
+        solve? if guesses >result else results then 1 swap +!
     loop .results ;
 
 : solve-with ( xt -- )  to guesser solver cr ;
