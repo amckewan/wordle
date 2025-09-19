@@ -1,7 +1,7 @@
 ( solver )
 
 : round  endgame not if make-guess then
-         score-guess  add-history ;
+         score-word  add-history ;
 
 : solve? ( -- f )
     all-words clear-history
