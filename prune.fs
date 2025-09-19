@@ -4,9 +4,6 @@
 \ We start with all the words then prune the set after each score
 \ by removing words that couldn't have got that score.
 
-\ #guess-words constant #words ( use them all )
-#wordle-words constant #words ( faster and easier to test )
-
 create working  #words allot  \ one byte per word, 0=absent, 1=present
 
 : all-words  working #words 1 fill ;

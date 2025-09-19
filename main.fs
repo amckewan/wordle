@@ -4,7 +4,6 @@ require preamble.fs
 
 ( game )
 include words.fs
-include wordlists.fs
 include game.fs
 include history.fs
 include game-ui.fs

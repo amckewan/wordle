@@ -1,4 +1,5 @@
-\ valid wordle solutions - original list in alphabetical order
+\ valid wordle solutions
+\ from https://github.com/alex1770/wordle/blob/main/wordlist_nyt20220830_hidden
 W, ABACK
 W, ABASE
 W, ABATE
@@ -40,7 +41,6 @@ W, AGILE
 W, AGING
 W, AGLOW
 W, AGONY
-W, AGORA
 W, AGREE
 W, AHEAD
 W, AIDER
@@ -725,7 +725,6 @@ W, FETUS
 W, FEVER
 W, FEWER
 W, FIBER
-W, FIBRE
 W, FICUS
 W, FIELD
 W, FIEND
@@ -1174,7 +1173,6 @@ W, LURID
 W, LUSTY
 W, LYING
 W, LYMPH
-W, LYNCH
 W, LYRIC
 W, MACAW
 W, MACHO
@@ -1493,7 +1491,6 @@ W, PUFFY
 W, PULPY
 W, PULSE
 W, PUNCH
-W, PUPAL
 W, PUPIL
 W, PUPPY
 W, PUREE
@@ -1777,7 +1774,6 @@ W, SLANG
 W, SLANT
 W, SLASH
 W, SLATE
-W, SLAVE
 W, SLEEK
 W, SLEEP
 W, SLEET
@@ -2243,7 +2239,6 @@ W, WEIGH
 W, WEIRD
 W, WELCH
 W, WELSH
-W, WENCH
 W, WHACK
 W, WHALE
 W, WHARF

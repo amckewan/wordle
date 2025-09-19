@@ -17,7 +17,7 @@ create possibles 32 allot
 
 : .possibles  a-z do i possibles + c@ if i l>c emit space then loop ;
 
-: #letters ( w -- n ) \ how many matches to letters
+: #letters ( w -- n ) \ how many of the possible letters in this word
     possibles pad 32 move ( make a copy, we change it )
     0 len 0 do ( w n )
         over i get pad +  dup c@ if 0 swap c! 1+ else drop then
@@ -37,6 +37,7 @@ create possibles 32 allot
     ." remaining words " #working .
     ." guess " w. quit ;
 
+\ 
 : endgame ( -- w t | f )
     greens 5 = if ( we should know it by now! ) answer  true exit  then
     endgame1? if  endgame1-guess  true exit  then

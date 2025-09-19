@@ -19,7 +19,7 @@
          ." guess: "  guess w.  ." score: "  score w. ;
 
 : clear-score ( -- )  0 to score  0 to used ;
-: random-word ( -- w )  #wordle-words random ww ;
+: random-word ( -- w )  #words random ww ;
 
 : new-game ( -- )  random-word to secret  0 to answer  0 to greens
     0 to guess  clear-score ;  new-game
