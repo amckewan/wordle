@@ -6,8 +6,8 @@
 \ Score any green letters first, then we will ignore these
 : +answer ( pos -- )
     guess over get  answer rot put  to answer   greens 1+ to greens ;
-: score-green ( -- )  len 0 do  guess secret i match if
-      green i score!
+: score-green ( -- )
+    len 0 do  guess secret i match if  green i score!
       answer i get 0= if ( record new green ) i +answer  then
     then loop ;
 
@@ -24,8 +24,9 @@
 : score-yellow ( -- )
     len 0 do  green i scored not if  i check-yellow  then  loop ;
 
-\ Score a word, leaving results in guess & score
-: score-word ( w -- )  to guess  clear-score  score-green  score-yellow ;
+\ Score a word, leaving the word in 'guess' and the score in 'score'
+: score-word ( w -- )
+    to guess  clear-score  score-green  score-yellow ;
 
 
 

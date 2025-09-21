@@ -3,8 +3,8 @@
 require preamble.fs
 
 ( game )
-include word.fs
-include wordlist.fs
+include words.fs
+include wordlists.fs
 include game.fs
 include score.fs
 include history.fs

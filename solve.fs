@@ -1,7 +1,13 @@
 ( solver )
 
-: round  endgame not if make-guess then
-         score-word  add-history ;
+variable endgame ( turn it on and off )  endgame on
+
+: myguess ( -- w )
+    greens 5 = if ( we know it ) answer exit then
+    endgame? endgame @ and if endgame-guess exit then
+    make-guess ;
+
+: round  myguess score-word add-history ;
 
 : solve? ( -- f )
     all-words clear-history
@@ -33,7 +39,7 @@ create results  #guesses 1+ cells allot
     results #guesses 1+ cells erase
     #words 0 do
         new-game i ww to secret
-        solve? if guesses >result else results then 1 swap +!
+        solve? if guesses >result else results h then 1 swap +!
     loop .results ;
 
 : solve-with ( xt -- )  to guesser solver cr ;
