@@ -27,7 +27,7 @@ T{ w MMAMM #used -> 1 }T
 
 \ First guess: find a word with 5 unique letters,
 \ at least 3 vowels and the biggest tally
-: first-guess ( -- w )  tally-guessing    0 ww 0 ( w tally )
+: first-guess ( -- w )  tally-working    0 ww 0 ( w tally )
     #words 0 do
         i ww unique 5 = if
         i ww vowels 2 > if
@@ -36,7 +36,7 @@ T{ w MMAMM #used -> 1 }T
     loop drop ;
 
 \ 2nd guess we try 5 new letters, try to get at least two vowels
-: second-guess ( -- w )  tally-guessing ( good? )  guess mark-used
+: second-guess ( -- w )  tally-working ( good? )  guess mark-used
     0 ww 0 ( w tally )  #words 0 do  i guess? if
         over #used 0=   i ww unique 5 = and if
             i ww vowels 1 > if
@@ -56,7 +56,7 @@ use weighted-guess
 create tally #words cells allot
 
 : tally'em
-    tally #words cells erase  tally-guessing
+    tally #words cells erase  tally-working
     #words 0 do i has if
         i ww tally  i cells tally + !
     then loop ;

@@ -12,15 +12,15 @@ create guessing  #words allot   guessing #words 1 fill ( for test )
 : #guessing ( -- n )  0 #words 0 do i guess? + loop ;
 : .guessing  0  #words 0 do i guess? if i ww w. 1+ then loop  . ." words " ;
 
-\ FIXED-GUESS: pick the first word (for repeatable tests)
-: fixed-guess ( -- w )
-    0 #words 0 do i guess? if drop i leave then loop ww ;
+\ SIMPLE-GUESS: pick the first word from the working set
+: simple-guess ( -- w )
+    0 #words 0 do i has if drop i leave then loop ww ;
 
-\ RANDOM-GUESS: pick a random word from the guessing set
+\ RANDOM-GUESS: pick a random word from the working set
 : random-guess ( -- w )
-    #guessing random  #words 0 do
-      i guess? if  1- dup 0< if drop i leave  then then
-    loop  ww ;
+    #working random  #words 0 do
+      i has if  1- dup 0< if drop i leave then  then
+    loop ww ;
 
 \ Try different algorithms
 ' random-guess value guesser

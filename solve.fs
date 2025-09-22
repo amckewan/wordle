@@ -1,13 +1,15 @@
 ( solver )
 
+use tally-guess 
+
 variable endgame ( turn it on and off )  endgame on
 
-: myguess ( -- w )
-    greens 5 = if ( we know it ) answer exit then
-    endgame? endgame @ and if endgame-guess exit then
+: solver-guess ( -- w )
+    greens len = if ( we know it ) answer exit then
+    endgame @ if endgame? if endgame-guess exit then then
     make-guess ;
 
-: round  myguess score-word add-history ;
+: round  solver-guess score-word add-history ;
 
 : solve? ( -- f )
     all-words clear-history
@@ -39,14 +41,12 @@ create results  #guesses 1+ cells allot
     results #guesses 1+ cells erase
     #words 0 do
         new-game i ww to secret
-        solve? if guesses >result else results h then 1 swap +!
+        solve? if guesses >result else results then 1 swap +!
     loop .results ;
 
 : solve-with ( xt -- )  to guesser solver cr ;
 : try-all
-    cr ." Using fixed-guess "       ['] fixed-guess     solve-with
-    cr ." Using random-guess "      ['] random-guess    solve-with
-    cr ." Using tally-guess "       ['] tally-guess     solve-with
-    cr ." Using weighted-guess "    ['] weighted-guess  solve-with
+    cr ." Using simple-guess "  ['] simple-guess    solve-with
+    cr ." Using random-guess "  ['] random-guess    solve-with
+    cr ." Using tally-guess "   ['] tally-guess     solve-with
 ;
-

@@ -11,6 +11,20 @@
       answer i get 0= if ( record new green ) i +answer  then
     then loop ;
 
+: sg ( secret guess -- score ) \ unroll loop
+    xor dup cmask and 0= green and ( xor score )
+    over [ 1 mask ] literal and 0= [ green 1 left ] literal and or
+    over [ 2 mask ] literal and 0= [ green 2 left ] literal and or
+    over [ 3 mask ] literal and 0= [ green 3 left ] literal and or
+    over [ 4 mask ] literal and 0= [ green 4 left ] literal and or
+    nip ;
+
+TESTING SG
+T{ w AAAAA w AAAAA sg -> w GGGGG }T
+T{ w JKLMN w JKLMN sg -> w GGGGG }T
+T{ w AAAAA w BBBBB sg -> w ----- }T
+T{ w AAAAA w ABBAA sg -> w G--GG }T
+
 \ To score yellows, we check the non-green letters that have
 \ not already been used as yellows (to avoid double counting).
 : used? ( pos -- f )  used swap get ;
@@ -24,10 +38,22 @@
 : score-yellow ( -- )
     len 0 do  green i scored not if  i check-yellow  then  loop ;
 
+: sy  0 { secret guess score used -- score' }
+    len 0 do score i get green <> if
+        len 0 do
+            guess j get secret i get =  score i get green <> and  used i get 0= and
+            if  yellow score j put  1 used i put  then
+        loop
+    then loop nip nip ;
+
 \ Score a word, leaving the word in 'guess' and the score in 'score'
 : score-word ( w -- )
     to guess  clear-score  score-green  score-yellow ;
 
+
+: score-wordx ( secret guess -- score )
+    sg sy
+;
 
 
 ( === TESTS === )
