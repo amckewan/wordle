@@ -1,4 +1,4 @@
-\ valid wordle solutions
+\ The hidden word list contains all words that could be solutions
 \ from https://github.com/alex1770/wordle/blob/main/wordlist_nyt20220830_hidden
 W, ABACK
 W, ABASE

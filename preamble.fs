@@ -5,4 +5,3 @@
 
 include utils/tester.fs
 include utils/random.fs
-include utils/upper.fs
