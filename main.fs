@@ -4,11 +4,11 @@ require preamble.fs
 
 ( game )
 include words.fs
+include wordlists.fs
 include game.fs
 include score.fs
-
-\  include history.fs
-\  include game-ui.fs
+include history.fs
+include game-ui.fs
 
 ( solver )
 \  include prune.fs

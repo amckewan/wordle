@@ -1,34 +1,45 @@
-( List of Wordle words )
-
-\ There are two lists of words, those that can be solutions (wordle words)
-\ and those that can be guesses but not solutions.
-\ Here we only use the first list (currently 2309 words).
+( Wordle word lists )
+\ There are two lists of words. The first list contains all words that are
+\ allowed as guesses, currently about 14,000 words (ALL-WORDS).
+\ The second list is a subset (SOLUTION-WORDS) that contains the possible
+\ Wordle solutions.
 
 : W, ( "w" -- )  W , ;
 
-CREATE WORDLE-WORDS
-INCLUDE wordle-words.fs
-HERE WORDLE-WORDS - 1 CELLS / CONSTANT #WORDS
+CREATE ALL-WORDS
+INCLUDE data/wordlist_nyt20220830_all.fs
+HERE ALL-WORDS - 1 CELLS / CONSTANT #ALL-WORDS
 
-\ get wordle word from word #
+CREATE SOLUTION-WORDS
+INCLUDE data/wordlist_nyt20220830_hidden.fs
+HERE SOLUTION-WORDS - 1 CELLS / CONSTANT #SOLUTION-WORDS
+
+\ For now we only use the hidden list (currently 2309 words).
+ SOLUTION-WORDS CONSTANT WORDLE-WORDS
+#SOLUTION-WORDS CONSTANT #WORDS
+
+\ get wordle word from word # (only works on the solution list!)
 : WW ( w# -- w )  CELLS WORDLE-WORDS + @ ;
 
-\ print all the words
-: .WORDS  #WORDS 0 DO  I WW W.  LOOP ;
+\ print all possible solution words
+: .SOLUTIONS  #WORDS 0 DO  I WW W.  LOOP ;
 
-\ check if a word is valid (in the list)
-: VALID-WORD ( w -- f )
-    WORDLE-WORDS #WORDS CELLS BOUNDS DO
+\ Check for a valid guess (in the all-words list)
+: VALID-GUESS ( w -- f )
+    ALL-WORDS #ALL-WORDS CELLS BOUNDS DO
       DUP I @ = IF  0<> UNLOOP EXIT  THEN
     CELL +LOOP  DROP FALSE ;
 
 
-
-TESTING VALID-WORD
-( wordle words )
-T{ w ABACK VALID-WORD -> true }T
-T{ w RAISE VALID-WORD -> true }T
-T{ w ZONAL VALID-WORD -> true }T
+TESTING VALID-GUESS
+( solution words )
+T{ w ABACK VALID-GUESS -> true }T
+T{ w RAISE VALID-GUESS -> true }T
+T{ w ZONAL VALID-GUESS -> true }T
+( obscure words )
+T{ w SALET VALID-GUESS -> true }T
+T{ w MILCH VALID-GUESS -> true }T
+T{ w TELEX VALID-GUESS -> true }T
 ( invalid words )
-T{ w XXXXX VALID-WORD -> false }T
-T{ w ABACC VALID-WORD -> false }T
+T{ w XXXXX VALID-GUESS -> false }T
+T{ w ABACC VALID-GUESS -> false }T

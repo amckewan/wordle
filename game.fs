@@ -5,23 +5,33 @@
 'Y' '@' - constant YELLOW
         0 constant GREY     ( displayed as '-')
 
-\ Game data (answer and greens maintained for solver convenience)
-0 value secret    ( the secret answer )
-0 value answer    ( the answer we are building up, letter or 0 )
-0 value greens    ( # of greens in answer )
+\ Game data (answer maintained for solver convenience)
+0 value secret      ( the secret word we are trying to guess )
+0 value answer      ( the answer we are building up, letter or 0 )
+0 value guesses     ( number of guesses so far, 0-6 )
+6 constant #guesses ( set by game )
+
+: solved ( score -- f ) [w] GGGGG = ;
+: failed ( -- f )       guesses 5 > ; \ assuming not solved
+
+: +answer ( guess score -- ) \ record green letters in answer
+    len 0 do  dup i get green = if
+        over i get answer i put to answer
+    then loop 2drop ;
+
+: greens ( -- n )
+    0  len 0 do  answer i get green = -  loop ;
 
 \ Per-round data, set by make-guess (along with updating answer and greens)
 0 value guess     ( current guess )
 0 value score     ( score for the guess, string of colors )
-0 value used      ( true if position used to satisfy a yellow score -internal)
 
 : .game  ." secret: " secret w. ." answer: " answer w.
          ." guess: "  guess w.  ." score: "  score w. ;
 
-: clear-score ( -- )  0 to score  0 to used ;
 : random-word ( -- w )  #words random ww ;
 
 : init-game ( -- ) \ init everything except the secret
-    0 to answer  0 to greens  0 to guess  clear-score ;
+    0 to answer  0 to guess  0 to score  0 to guesses ;
 : new-game ( -- )
     init-game  random-word to secret ; new-game
