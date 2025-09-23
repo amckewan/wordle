@@ -9,6 +9,7 @@
 0 value secret      ( the secret word we are trying to guess )
 0 value answer      ( the answer we are building up, letter or 0 )
 0 value guesses     ( number of guesses so far, 0-6 )
+
 6 constant #guesses ( set by game )
 
 : solved ( score -- f ) [w] GGGGG = ;
@@ -26,12 +27,12 @@
 0 value guess     ( current guess )
 0 value score     ( score for the guess, string of colors )
 
-: .game  ." secret: " secret w. ." answer: " answer w.
-         ." guess: "  guess w.  ." score: "  score w. ;
+: .game  ." secret: " secret w. ." answer: " answer w. ." guesses " guesses . ;
+\         ." guess: "  guess w.  ." score: "  score w. ;
 
-: random-word ( -- w )  #words random ww ;
+\ init everything except the secret
+: init-game ( -- )  0 to answer  0 to guess  0 to score  0 to guesses ;
 
-: init-game ( -- ) \ init everything except the secret
-    0 to answer  0 to guess  0 to score  0 to guesses ;
-: new-game ( -- )
-    init-game  random-word to secret ; new-game
+\ Initialize a new game and pick a random secret word.
+: random-word ( -- w )  #hidden random  cells hidden-words + @ ;
+: new-game ( -- )  init-game  random-word to secret ; new-game

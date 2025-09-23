@@ -1,36 +1,35 @@
 ( Wordle word lists )
+
 \ There are two lists of words. The first list contains all words that are
-\ allowed as guesses, currently about 14,000 words (ALL-WORDS).
-\ The second list is a subset (SOLUTION-WORDS) that contains the possible
+\ allowed as guesses, currently about 14,000 words (WORDLE-WORDS).
+\ The second list is a subset (HIDDEN-WORDS) that contains the possible
 \ Wordle solutions.
 
 : W, ( "w" -- )  W , ;
 
-CREATE ALL-WORDS
+CREATE WORDLE-WORDS
 INCLUDE data/wordlist_nyt20220830_all.fs
-HERE ALL-WORDS - 1 CELLS / CONSTANT #ALL-WORDS
+HERE WORDLE-WORDS - 1 CELLS / CONSTANT #WORDS
 
-CREATE SOLUTION-WORDS
+CREATE HIDDEN-WORDS
 INCLUDE data/wordlist_nyt20220830_hidden.fs
-HERE SOLUTION-WORDS - 1 CELLS / CONSTANT #SOLUTION-WORDS
+HERE HIDDEN-WORDS - 1 CELLS / CONSTANT #HIDDEN
 
-\ For now we only use the hidden list (currently 2309 words).
- SOLUTION-WORDS CONSTANT WORDLE-WORDS
-#SOLUTION-WORDS CONSTANT #WORDS
-
-\ get wordle word from word # (only works on the solution list!)
+\ get wordle word from word #
 : WW ( w# -- w )  CELLS WORDLE-WORDS + @ ;
 
-\ print all possible solution words
-: .SOLUTIONS  #WORDS 0 DO  I WW W.  LOOP ;
+\ print the hidden words
+: .HIDDEN  #HIDDEN 0 DO  I CELLS HIDDEN-WORDS + @ W.  LOOP ;
 
 \ Check for a valid guess (in the all-words list)
 : VALID-GUESS ( w -- f )
-    ALL-WORDS #ALL-WORDS CELLS BOUNDS DO
+    WORDLE-WORDS #WORDS CELLS BOUNDS DO
       DUP I @ = IF  0<> UNLOOP EXIT  THEN
     CELL +LOOP  DROP FALSE ;
 
 
+
+( ===== TESTS ===== )
 TESTING VALID-GUESS
 ( solution words )
 T{ w ABACK VALID-GUESS -> true }T
