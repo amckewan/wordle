@@ -1,6 +1,6 @@
 ( Pruning the working set )
 
-\ build a word mask that will exclude non-green letters from the score
+\ build a mask that will exclude non-green letters found in score
 : gmask ( score -- mask )     0 ( mask )
     len 0 do ( score mask )
         swap 3 /mod swap ( m s' color )
@@ -16,7 +16,32 @@ T{ s --g-- gmask -> cmask 2 bits * lshift }T
 T{ s ggggg gmask -> $1FFFFFF ( 25 bits ) }T
 
 
+: -green ( guess score w -- gmask f ) \ non-zero if w should be pruned
+    rot xor ( 0=green ) swap gmask  swap over and ;
+
+TESTING -GREEN
+T{ w AAAAA s G---- w Axxxx -green 0<>     -> cmask false }T
+T{ w AAAAA s G---- w Bxxxx -green 0<> nip ->       true  }T
+
 0 [if]
+variable pruned     \ letter mask, set if this letter has been used
+
+\ Using 'score' and 'used' from score.fs as local variables
+\ it's more convenient using these as arrays
+: prune? ( guess score w -- f )
+    
+
+    \  swap score!
+;
+
+
+
+
+: score-greens ( secret guess -- ) \ sets all of score and used
+    xor ( 0=green ) len 0 do
+        dup i mask and 0= ( green? ) green and  dup i score + c!  i used + c!   
+    loop drop ;
+
 
 \ we prune a word if it doesn't yield the same score
 \ could this word have got the same score?
