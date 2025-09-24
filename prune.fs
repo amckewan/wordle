@@ -1,15 +1,41 @@
 ( Pruning the working set )
 
-\ uses guess, score
+\ build a word mask that will exclude non-green letters from the score
+: gmask ( score -- mask )     0 ( mask )
+    len 0 do ( score mask )
+        swap 3 /mod swap ( m s' color )
+        green = cmask and i left ( letter mask )
+        rot or ( s' m' )
+    loop nip ;
+
+TESTING GMASK
+T{ 0 gmask -> 0 }T
+T{ s ----- gmask -> 0 }T
+T{ s g---- gmask -> cmask }T
+T{ s --g-- gmask -> cmask 2 bits * lshift }T
+T{ s ggggg gmask -> $1FFFFFF ( 25 bits ) }T
+
+
+0 [if]
 
 \ we prune a word if it doesn't yield the same score
+\ could this word have got the same score?
+\ for a green score, w must have that same letter
+\ for a yellow score
 : prune? ( guess score w -- f )
+    \ 1. it has to match the greens
+    \ mask out non-green chars (according to the score) then =
+    \ here score as 5 bytes or whatever is useful...
 
 
 : prune# ( guess score -- n ) \ how many left if we got this guess/score?
     #words 0 do i has if i ww prune-word if i remove then then loop ;
 
 
+
+
+
+: prune-green? ( w -- f ) \ 
 : prune-green  ( w -- f )  false ( default ok )
     len 0 do  green i scored if
         \ prune if the green letter doesn't match the guess, marking it used
@@ -98,3 +124,5 @@ T{ w VIXEN prune-word -> false }T
 T{ w xIExx prune-word -> false }T
 T{ w Exxxx prune-word -> true  }T
 T{ w xxxIx prune-word -> true  }T
+
+[then]
