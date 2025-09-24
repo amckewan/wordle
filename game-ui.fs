@@ -1,14 +1,13 @@
 ( game UI )
 
 \ keyboard with knowledge about each letter played
-\ 0=unknown, 1=grey, 2=yellow, 3=green (k)
+\ 0=unknown, 1=grey, 2=yellow, 3=green (k = color+1)
 create kb 32 allot
 
 \ update kb with latest guess & score
-: >k ( color -- k )  dup green = if drop 3 else yellow = negate 1+ then ;
 : +kb ( k l -- )  kb +  2dup c@ > if c! else 2drop then ;
 : update-kb ( guess score -- )
-    len 0 do  over i get  over i get >k  swap +kb  loop 2drop ;
+    len 0 do  over i get >r  3 /mod swap 1+  r> +kb  loop 2drop ;
 
 : NEW  new-game  kb 32 erase ;
 

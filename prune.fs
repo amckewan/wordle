@@ -1,18 +1,14 @@
 ( Pruning the working set )
 
-\ The working set contains the words that could be the solution.
-\ We start with all the words then prune the set after each score
-\ by removing words that couldn't have got that score.
+\ uses guess, score
 
-create working  #words allot  \ one byte per word, 0=absent, 1=present
+\ we prune a word if it doesn't yield the same score
+: prune? ( guess score w -- f )
 
-: all-words  working #words 1 fill ;
 
-: has ( n -- f )   working + c@ ;
-: remove ( n -- )  working + 0 swap c! ;
+: prune# ( guess score -- n ) \ how many left if we got this guess/score?
+    #words 0 do i has if i ww prune-word if i remove then then loop ;
 
-: #working ( -- n )  0 #words 0 do i has + loop ;
-: .working  0  #words 0 do i has if i ww w. 1+ then loop  . ." words " ;
 
 : prune-green  ( w -- f )  false ( default ok )
     len 0 do  green i scored if
@@ -48,11 +44,6 @@ create working  #words allot  \ one byte per word, 0=absent, 1=present
 ( === TESTS === )
 : -u  0 to used ;
 
-TESTING #WORKING
-T{ all-words #working -> #words }T
-T{ working 10 erase  #working -> #words 10 - }T
-T{ 0 working #words + 1- c!  #working -> #words 11 - }T
-T{ working #words erase  #working -> 0 }T
 
 
 TESTING prune-green

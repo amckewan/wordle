@@ -7,25 +7,27 @@
 
 : W, ( "w" -- )  W , ;
 
+\ All Wordle words allowed as guesses
 CREATE WORDLE-WORDS
 INCLUDE data/wordlist_nyt20220830_all.fs
 HERE WORDLE-WORDS - 1 CELLS / CONSTANT #WORDS
 
-CREATE HIDDEN-WORDS
-INCLUDE data/wordlist_nyt20220830_hidden.fs
-HERE HIDDEN-WORDS - 1 CELLS / CONSTANT #HIDDEN
-
 \ get wordle word from word #
 : WW ( w# -- w )  CELLS WORDLE-WORDS + @ ;
 
-\ print the hidden words
-: .HIDDEN  #HIDDEN 0 DO  I CELLS HIDDEN-WORDS + @ W.  LOOP ;
-
-\ Check for a valid guess (in the all-words list)
+\ Check for a valid guess word
 : VALID-GUESS ( w -- f )
     WORDLE-WORDS #WORDS CELLS BOUNDS DO
       DUP I @ = IF  0<> UNLOOP EXIT  THEN
     CELL +LOOP  DROP FALSE ;
+
+\ Wordle answers are always from the hidden list (a subset of all words)
+CREATE HIDDEN-WORDS
+INCLUDE data/wordlist_nyt20220830_hidden.fs
+HERE HIDDEN-WORDS - 1 CELLS / CONSTANT #HIDDEN
+
+: HIDDEN@ ( n -- w )  CELLS HIDDEN-WORDS + @ ;
+: .HIDDEN  #HIDDEN 0 DO  I HIDDEN@ W.  LOOP ;
 
 
 
