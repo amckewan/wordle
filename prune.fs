@@ -1,6 +1,9 @@
 ( Pruning the working set )
 
 \ build a mask that will exclude non-green letters found in score
+\ create lookup table and use that so we do the hard word at compile time
+create gmasks #scores cells allot
+marker forget
 : gmask ( score -- mask )     0 ( mask )
     len 0 do ( score mask )
         swap 3 /mod swap ( m s' color )
@@ -11,9 +14,14 @@
 TESTING GMASK
 T{ 0 gmask -> 0 }T
 T{ s ----- gmask -> 0 }T
-T{ s g---- gmask -> cmask }T
+T{ s ----g gmask -> cmask }T
+T{ s -yy-g gmask -> cmask }T
 T{ s --g-- gmask -> cmask 2 bits * lshift }T
 T{ s ggggg gmask -> $1FFFFFF ( 25 bits ) }T
+
+: fill-it #scores 0 do  i gmask  i cells gmasks + !  loop ;
+fill-it forget
+: gmask ( score -- mask ) cells gmasks + @ ;
 
 
 : -green ( guess score w -- gmask f ) \ non-zero if w should be pruned
@@ -23,14 +31,30 @@ TESTING -GREEN
 T{ w AAAAA s G---- w Axxxx -green 0<>     -> cmask false }T
 T{ w AAAAA s G---- w Bxxxx -green 0<> nip ->       true  }T
 
+
+
+
 0 [if]
-variable pruned     \ letter mask, set if this letter has been used
+0 value pscore      \ the score
+0 value pruned      \ letter mask, set if this letter has been used
+
+\ carry all four of these? use pick? locals?
+: -yellow ( guess score w used -- guess score gmask w flag )
+
+;
 
 \ Using 'score' and 'used' from score.fs as local variables
 \ it's more convenient using these as arrays
-: prune? ( guess score w -- f )
-    
+\ then we only need guess and w
 
+: prune? ( guess score w -- f )
+    swap dup gmask to pruned to pscore ( module locals ) \ or locals
+    2dup xor pruned and if ( prune green ) 2drop true exit then
+
+
+
+    \ >r 2dup r@ -green if r> drop  2drop true exit then
+    ( guess score gmask, w on rstack )
     \  swap score!
 ;
 

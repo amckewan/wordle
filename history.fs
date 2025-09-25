@@ -5,13 +5,13 @@ create histbuf  #guesses 2* cells allot
 
 : history ( n -- a )  2* cells histbuf + ;
 
-: .history  guesses 0 ?do i history 2@ swap  cr i 1+ . w.  cr 2 spaces s. loop ;
+: .history  guesses 0 ?do i history 2@ swap cr i 1+ . w. cr 2 spaces s. loop ;
 
 : +history ( guess score -- )
     guesses #guesses u< not abort" History full!"
     guesses history 2!  guesses 1+ to guesses ;
 
-\ Submit a guess to the game, add to history, return the score
+\ Submit a guess to the game, update game state and return the score
 : make-guess ( guess -- score )
     secret over score-guess  swap over 2dup +history +answer ;
 

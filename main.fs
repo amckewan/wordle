@@ -11,7 +11,7 @@ include history.fs
 include game-ui.fs
 
 ( solver )
-include solver.fs
+\  include solver.fs
 \  include prune.fs
 \  include vowels.fs
 \  include unique.fs
