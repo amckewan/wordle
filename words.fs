@@ -1,62 +1,64 @@
 ( Wordle words )
 
-\ Wordle words are 5 characters long. We encode them in 25 bits (needs 32-bit cell)
-\ with 5 bits per character, the first character in the upper 5 bits.
-\ Letter:   T R A C E
-\ Position: 4 3 2 1 0
-\ 0=@, 1=A, 2=B, 3=C, etc. This is 'w' in the stack diagrams.
+\ Wordle words are 5 characters long. When passing strings, we only need
+\ the address. This is 'w' in the stack diagrams.
 
-5 CONSTANT LEN    \ letters per word (fixed by game)
-5 CONSTANT BITS   \ bits per letter
+5 constant len
 
-: A-Z ( -- limit index )  27 1 ; \ for do..loop over the alphabet
-: 4-0 ( -- limit index )   0 4 ; \ for do..-1 +loop over the letters in a word
+: wordle    create len allot ;
 
-1 BITS LSHIFT 1- CONSTANT CMASK
+: w         bl parse len - abort" need 5 letters" ;
+: [w]       w len postpone sliteral postpone drop ; immediate
+: w.        len type space ;
 
-: LEFT  ( n pos -- n' )  BITS * LSHIFT ;
-: RIGHT ( n pos -- n' )  BITS * RSHIFT ;
-: MASK  ( pos -- mask )  CMASK SWAP LEFT ;
+: wmove     len move ;
+: wcompare  len swap len compare ;
+: w=        wcompare 0= ;
+: w,        here len dup allot move ;
+: ww,       w w, ;
 
-\ Insert and extract a letter at pos. Letters (l) are 0-31 not ASCII
-: GET ( w pos -- l )     RIGHT CMASK AND ;
-: PUT ( l w pos -- w' )  DUP >R  MASK INVERT AND  SWAP R> LEFT OR ;
+: for-chars ( w -- limit index )  dup len + swap ; \ for do..loop over chars
+\ for-each-letter ?
 
-\ True if letters at pos match
-: MATCH ( w1 w2 pos -- f )  >R XOR R> MASK AND 0= ;
+: upc ( c -- C )  [ char a char A - invert ] literal and ;
+: wupper ( w -- )  for-chars do i c@ upc i c! loop ;
 
-\ Convert between letter (0-31) and ASCII char, use - instead of @ for zero
-: C>L ( c -- l )  DUP '-' <> AND  CMASK AND ;
-: L>C ( l -- c )  DUP IF '@' ELSE '-' THEN + ;
+\ There are two lists of words, those that can be solutions (wordle words)
+\ and those that can be guesses but not solutions.
 
-\ Literals
-: >W  ( a -- w ) 0  LEN 0 DO  SWAP COUNT C>L   ROT BITS LSHIFT OR  LOOP NIP ;
-:  W  ( "w" -- w )  BL PARSE  LEN <> ABORT" need 5 letters"  >W ;
-: [W] ( "w" -- w )  W  POSTPONE LITERAL ; IMMEDIATE
+create wordle-words
+include data/wordle-words.fs
+here
+include data/guess-words.fs
+here
 
-\ Format and display
-: (W.)  <# LEN 0 DO  DUP CMASK AND L>C HOLD  BITS RSHIFT  LOOP 0 #> ;
-: W. ( w -- )  (W.) TYPE SPACE ;
+wordle-words - len / constant #words
+wordle-words - len / constant #wordles
+
+\ get wordle word from word #
+: ww ( w# -- w )  len * wordle-words + ;
+
+\ print all possible solutions
+: .wordles  #wordles 0 do  i ww w.  loop ;
+
+\ check if a guess is in one of the two word lists
+: valid-guess ( w -- f )
+    #words 0 do
+        dup i ww w= if  drop true  unloop exit  then
+    loop  drop false ;
 
 
 
-( === TESTS === )
-TESTING MASK PUT GET
-T{ 0 MASK -> $1F }T
-T{ 2 MASK -> $1F 10 LSHIFT }T
-T{ 4 MASK -> $1F 20 LSHIFT }T
-T{ 'X' '@' - W RAISE 0 PUT -> w RAISX }T
-T{ 'X' '@' - W RAISE 2 PUT -> w RAXSE }T
-T{ 'X' '@' - W RAISE 4 PUT -> w XAISE }T
-T{ W RAISE 0 GET '@' + -> 'E' }T
-T{ W RAISE 1 GET '@' + -> 'S' }T
-T{ W RAISE 3 GET '@' + -> 'A' }T
-
-TESTING MATCH
-T{ w AAAAA w AAAAA 1 MATCH -> TRUE }T
-T{ w AAAAA w AAAAA 3 MATCH -> TRUE }T
-T{ w ABCDE w ABCED 3 MATCH -> TRUE }T
-T{ w AAAAA w BBBBB 0 MATCH -> FALSE }T
-T{ w AAAAA w BBBBB 2 MATCH -> FALSE }T
-T{ w AAAAA w BBBBB 4 MATCH -> FALSE }T
-T{ w ABCDE w ABCED 0 MATCH -> FALSE }T
+( ===== TESTS ===== )
+TESTING VALID-GUESS
+( hidden words )
+T{ w ABACK valid-guess -> true }T
+T{ w RAISE valid-guess -> true }T
+T{ w ZONAL valid-guess -> true }T
+( guess words)
+T{ w ABLOW valid-guess -> true }T
+T{ w PONGO valid-guess -> true }T
+T{ w ZYMIC valid-guess -> true }T
+( invalid words )
+T{ w XXXXX valid-guess -> false }T
+T{ w ABACC valid-guess -> false }T

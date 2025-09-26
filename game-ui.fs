@@ -5,15 +5,17 @@
 create kb 32 allot
 
 \ update kb with latest guess & score
-: +kb ( k l -- )  kb +  2dup c@ > if c! else 2drop then ;
+: >kb ( c -- a )  31 and kb + ;
+: +kb ( k c -- )  >kb 2dup c@ > if c! else 2drop then ;
 : update-kb ( guess score -- )
-    len 0 do  over i get >r  3 /mod swap 1+  r> +kb  loop 2drop ;
+    swap for-chars do  i c@ >r  3 /mod swap 1+  r> +kb  loop drop ;
 
 : NEW  new-game  kb 32 erase ;
 
 : H .history ;
-
-: .k ( l k -- )  over kb + c@ = if dup l>c emit space then drop ;
+ 
+: .k ( c k -- )  over >kb c@ = if dup emit space then drop ;
+: a-z  ( -- limit index ) 'Z' 1+ 'A' ;
 : K cr ." Answer: " answer w.
     cr ." Green:  " a-z do i 3 .k loop
     cr ." Yellow: " a-z do i 2 .k loop
@@ -21,7 +23,8 @@ create kb 32 allot
     cr ." Unused: " a-z do i 0 .k loop ;
 
 : G ( "w" -- ) \ "G RAISE" etc.
-    w dup valid-guess not abort" Not in word list"
+    w here wmove  here wupper  here
+    dup valid-guess not abort" Not in word list"
     dup make-guess  swap over update-kb  .history
     solved if ." You WIN! " else
     failed if ." Better luck next time ( " secret w. ." ) " else 

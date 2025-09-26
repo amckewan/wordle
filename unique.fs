@@ -1,8 +1,9 @@
 ( count unique letters )
 
+create unique_ 32 allot
 : unique ( w -- n ) \ # unique letters in a word ABCDD -> 4
-    pad 32 1 fill  0 ( n )  len 0 do
-        over i get pad + ( w n a )
+    unique_ 32 1 fill  0 ( n )  len 0 do
+        over i + c@ 31 and unique_ + ( w n a )
         dup c@ rot + ( update unique )  0 rot c! ( clear it )
     loop nip ;
 

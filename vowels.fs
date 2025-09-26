@@ -1,22 +1,22 @@
 ( count vowels )
 
-1 'A' c>l lshift
-1 'E' c>l lshift or
-1 'I' c>l lshift or
-1 'O' c>l lshift or
-1 'U' c>l lshift or constant vowels_
+create vowels_ 32 allot  vowels_ 32 erase
+1 'A' 31 and vowels_ + c!
+1 'E' 31 and vowels_ + c!
+1 'I' 31 and vowels_ + c!
+1 'O' 31 and vowels_ + c!
+1 'U' 31 and vowels_ + c!
 
-: vowel ( l -- 0/1 )  vowels_ swap rshift 1 and ;
+: vowel ( c -- 0/1 )  31 and vowels_ + c@ ; ( close enough )
 
-: vowels ( w -- n )  0 ( n ) len 0 do  over i get vowel +  loop nip ;
+: vowels ( w -- n )  0 swap  for-chars do  i c@ vowel +  loop ;
 
 
 TESTING VOWELS
-T{ 0 vowel -> 0 }T
-T{ 'A' c>l vowel -> 1 }T
-T{ 'M' c>l vowel -> 0 }T
-T{ 'U' c>l vowel -> 1 }T
-T{ 'Z' c>l vowel -> 0 }T
+T{ 'A' vowel -> 1 }T
+T{ 'M' vowel -> 0 }T
+T{ 'U' vowel -> 1 }T
+T{ 'Z' vowel -> 0 }T
 
 T{ w AEIOU vowels -> 5 }T
 T{ w EEEEE vowels -> 5 }T
