@@ -1,71 +1,91 @@
 ( Pruning the working set )
 
-\ use 'target' and 'guess' from score.fs
+\ pruning is similar to scoring and we re-use the scoring table
 \ target = the word we are evaluating for pruning
 \ guess = the guess we made
-\ score for the guess passed on the stack
+\ the score for the guess passed on the stack
+
+\  : prune-green? ( score -- f )
+\      false swap  len 0 do
+\          3 /mod swap green = if
+\              ( green score, prune if guess and target don't match )
+\              i match not if
+\                  2drop true ( prune ) unloop exit
+\              then
+\              i i mark-used ( ok, mark letter used )
+\          then
+\      loop drop ;
 
 : prune-green? ( score -- f )
-    false swap  len 0 do
+    for-scoring do
         3 /mod swap green = if
-            ( green score, prune if guess and target don't match )
-            i match not if
-                2drop true ( prune ) unloop exit
-            then
-            i i mark-used ( ok, mark letter used )
+            ( prune if guess and target don't match )
+            i 2@ - if  drop true  unloop exit  then
+            -1 -2 i 2! ( ok, mark letter used )
         then
-    loop drop ;
+    2 cells +loop   drop false ;
 
 TESTING PRUNE-GREEN?
 \    guess   score   target
-T{ w ABCDE s G-G-G w AxCxE  rot init-score  prune-green? -> false }T
-T{ w ABCDE s G-G-G w BBCDE  rot init-score  prune-green? -> true  }T
-T{ w ABCDE s G-G-G w ABBDE  rot init-score  prune-green? -> true  }T
-T{ w ABCDE s G-G-G w ABCDD  rot init-score  prune-green? -> true  }T
-T{ w ABCDE s G-G-G w ABCDE  rot init-score  prune-green? -> false }T
-T{ 0 guess + c@ bl < -> true  }T
-T{ 1 guess + c@ bl < -> false }T
-T{ 2 guess + c@ bl < -> true  }T
-T{ 3 guess + c@ bl < -> false }T
-T{ 4 guess + c@ bl < -> true  }T
+T{ w ABCDE s G-G-G w AxCxE  rot init-scoring  prune-green? -> false }T
+T{ w ABCDE s G-G-G w BBCDE  rot init-scoring  prune-green? -> true  }T
+T{ w ABCDE s G-G-G w ABBDE  rot init-scoring  prune-green? -> true  }T
+T{ w ABCDE s G-G-G w ABCDD  rot init-scoring  prune-green? -> true  }T
+T{ w ABCDE s G-G-G w ABCDE  rot init-scoring  prune-green? -> false }T
+T{ 0 2 cells * scoring + @ 0< -> true  }T
+T{ 1 2 cells * scoring + @ 0< -> false }T
+T{ 2 2 cells * scoring + @ 0< -> true  }T
+T{ 3 2 cells * scoring + @ 0< -> false }T
+T{ 4 2 cells * scoring + @ 0< -> true  }T
 
 
-: find-match ( c w -- pos t | f )
-    len 0 do  2dup c@ = if 2drop i true unloop exit then  1+ loop 2drop false ;
+: -match ( c -- a false | true ) \ look for match in target
+    scoring cell+ #scoring bounds do
+        dup i @ = if ( found ) drop i false unloop exit then
+    2 cells +loop ;
 
-TESTING FIND-MATCH
-T{ 'A' w AAAAA find-match -> 0 true }T
-T{ 'A' w xxAxx find-match -> 2 true }T
-T{ 'A' w xxxxx find-match -> false  }T
-T{ 'A' w ABCDE find-match -> 0 true }T
-T{ 'B' w ABCDE find-match -> 1 true }T
-T{ 'C' w ABCDE find-match -> 2 true }T
-T{ 'D' w ABCDE find-match -> 3 true }T
-T{ 'E' w ABCDE find-match -> 4 true }T
-T{ 'F' w ABCDE find-match -> false  }T
+TESTING -MATCH
+T{ w AAAAA w xxxxx init-scoring  'A' -match -> scoring cell+ false }T
+T{ w xxAxx w xxxxx init-scoring  'A' -match -> 2 2 cells * scoring + cell+ false }T
+T{ w xxxxx w xxxxx init-scoring  'A' -match 0<> -> true  }T
+T{ w ABCDE w xxxxx init-scoring  'B' -match nip -> false }T
+T{ w ABCDE w xxxxx init-scoring  'C' -match nip -> false }T
+T{ w ABCDE w xxxxx init-scoring  'D' -match nip -> false }T
+T{ w ABCDE w xxxxx init-scoring  'E' -match nip -> false }T
+T{ w ABCDE w xxxxx init-scoring  'F' -match 0<> -> true  }T
 
-: prune-yellow? ( score -- f )   false swap
-    len 0 do  3 /mod swap yellow = if
-        i match if ( prune ) 2drop true unloop exit then
-        i guess + c@ target find-match if ( ok ) i mark-used else
-            ( prune ) 2drop true unloop exit
+\  : prune-yellow? ( score -- f )
+\      len 0 do  3 /mod swap yellow = if
+\          i match if ( prune ) 2drop true unloop exit then
+\          i guess + c@ target find-match if ( ok ) i mark-used else
+\              ( prune ) drop true unloop exit
+\          then
+\      then
+\      loop   drop false ;
+
+: prune-yellow? ( score -- f )
+    for-scoring do
+        3 /mod swap yellow = if
+            i 2@ = if ( prune ) drop true unloop exit then
+            i @ -match if ( prune ) drop true unloop exit then
+            -1 swap ! ( mark )
         then
-    then loop drop ;
+    2 cells +loop   drop false ;
 
 TESTING PRUNE-YELLOW?
 \    guess   score   target
-T{ w ABCDE s YY--- w AAAAA  rot init-score  prune-yellow? -> true }T
-T{ w ABCDE s YY--- w xxAAA  rot init-score  prune-yellow? -> true }T
-T{ w ABCDE s YY--- w xxBBB  rot init-score  prune-yellow? -> true }T
-T{ w ABCDE s YY--- w xxABx  rot init-score  prune-yellow? -> false }T
-T{ w ABCDE s YY--- w BAxxx  rot init-score  prune-yellow? -> false }T
-T{ w ABCDE s YY--- w BABAB  rot init-score  prune-yellow? -> false }T
+T{ w ABCDE s YY--- w AAAAA  rot init-scoring  prune-yellow? -> true }T
+T{ w ABCDE s YY--- w xxAAA  rot init-scoring  prune-yellow? -> true }T
+T{ w ABCDE s YY--- w xxBBB  rot init-scoring  prune-yellow? -> true }T
+T{ w ABCDE s YY--- w xxABx  rot init-scoring  prune-yellow? -> false }T
+T{ w ABCDE s YY--- w BAxxx  rot init-scoring  prune-yellow? -> false }T
+T{ w ABCDE s YY--- w BABAB  rot init-scoring  prune-yellow? -> false }T
 
-T{ w AACDE s YY--- w xxAxx  rot init-score  prune-yellow? -> true }T
-T{ w AACDE s YY--- w xxAAx  rot init-score  prune-yellow? -> false }T
-T{ w EERIE s Y--Y- w VIXEN  rot init-score  prune-yellow? -> false }T
+T{ w AACDE s YY--- w xxAxx  rot init-scoring  prune-yellow? -> true }T
+T{ w AACDE s YY--- w xxAAx  rot init-scoring  prune-yellow? -> false }T
+T{ w EERIE s Y--Y- w VIXEN  rot init-scoring  prune-yellow? -> false }T
 
-
+0 [if]
 : prune-grey? ( score -- f )  false swap
     len 0 do  3 /mod swap 0= if
         i guess + c@ target find-match if
@@ -75,13 +95,13 @@ T{ w EERIE s Y--Y- w VIXEN  rot init-score  prune-yellow? -> false }T
 
 TESTING PRUNE-GREY?
 \    guess   score   target
-T{ w ABCDE s ----- w xxxxx  rot init-score  prune-grey? -> false }T
-T{ w ABCDE s ----- w xAxxx  rot init-score  prune-grey? -> true }T
-T{ w ABCDE s ----- w xxxxA  rot init-score  prune-grey? -> true }T
-T{ w ABCDE s ----- w Cxxxx  rot init-score  prune-grey? -> true }T
+T{ w ABCDE s ----- w xxxxx  rot init-scoring  prune-grey? -> false }T
+T{ w ABCDE s ----- w xAxxx  rot init-scoring  prune-grey? -> true }T
+T{ w ABCDE s ----- w xxxxA  rot init-scoring  prune-grey? -> true }T
+T{ w ABCDE s ----- w Cxxxx  rot init-scoring  prune-grey? -> true }T
 
 : prune? ( guess score target -- f )
-    rot init-score
+    rot init-scoring
     dup prune-green?  if true else
     dup prune-yellow? if true else
     dup prune-grey?   then then nip ;
@@ -103,9 +123,13 @@ T{ w EERIE s Y--Y- w xxxIx  prune? -> true }T
 
 : prune ( -- )  guesses 1- hist@ pruner ;
 
+[then]
+
 
 
 0 [if]
+=================================
+
 
    w ABCDE to guess
    w YY--- to score
@@ -146,7 +170,7 @@ T{ w VIXEN -u prune-yellow -> false }T
 
 
 : prune?  ( guess score target -- f )
-    rot init-score
+    rot init-scoring
     prune-green?  if true exit then
     prune-yellow? if true exit then
     prune-grey? ;

@@ -1,4 +1,4 @@
-( make a guess )
+( take a guess )
 
 \ Pick the first word from the working set
 : simple-guesser ( -- w )

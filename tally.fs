@@ -15,10 +15,10 @@ create tallies  32 len * cells allot
 
 : tally-word ( w -- )  len 0 do  1 over i get i >tally +!  loop drop ;
 : tally-working  \ tally all words from the working set
-    clear-tallies  #words 0 do  i has if i ww tally-word then  loop ;
+    clear-tallies  working-size 0 do  i has if i ww tally-word then  loop ;
 
-\ TALLY-GUESS: pick the word with the largest letter tally
-: tally-guess ( -- w )  tally-working  0 0 ( w# tally )
-    #words 0 do
+\ Pick the word with the largest letter tally (from all words)
+: tally-guesser ( -- w )  tally-working  0 0 ( w# tally )
+    working-size 0 do
       i ww tally 2dup < if ( replace ) nip nip i swap else drop then
     loop drop ww ;
