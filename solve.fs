@@ -1,8 +1,8 @@
 ( solver )
 
-use simple-guesser ( best so far )
+use tally-guesser ( best so far )
 
-variable endgame ( turn it on and off )  endgame off
+variable endgame ( turn it on and off )  endgame on
 
 : solver-guess ( -- w )
     greens len = if ( we know it ) answer exit then

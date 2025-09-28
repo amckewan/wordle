@@ -17,11 +17,11 @@ create possibles 32 allot
     latest drop + c@ >possible  0 swap c! ( clear mismatching letter ) ;
 
 : #letters ( w -- n ) \ how many of the possible letters in this word
-    possibles pad 32 move ( make a copy, we change it )  0 ( n )
+    possibles pad 32 move ( make a copy, we change it )  0 ( n ) swap
     for-chars do
         i c@ 31 and pad +
         dup c@ if  0 swap c! ( only count once ) 1+  else  drop  then
-    loop nip ;
+    loop ;
 
 \ Find a word from the full list that has the most of the remaining letters
 wordle-words #words len * bounds 2constant for-all-words
