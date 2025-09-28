@@ -1,19 +1,20 @@
 ( solver )
 
-use tally-guess 
+use simple-guesser ( best so far )
 
-variable endgame ( turn it on and off )  endgame on
+variable endgame ( turn it on and off )  endgame off
 
 : solver-guess ( -- w )
     greens len = if ( we know it ) answer exit then
     endgame @ if endgame? if endgame-guess exit then then
-    make-guess ;
+    guess ;
 
-: round  solver-guess score-word add-history ;
+: round ( -- f )  solver-guess make-guess solved ;
 
+\ Try to solve the puzzle in 6 rounds, return true if we solved it.
 : solve? ( -- f )
-    all-words clear-history
-    begin round solved not while
+    init-solver
+    begin round not while
         failed if false exit then
         prune
     repeat true ;
@@ -21,16 +22,16 @@ variable endgame ( turn it on and off )  endgame on
 : solve  solve? .history if ." Solved " else ." Failed " then ;
 
 \ shorthand
-: s all-words clear-history ;
-: r round .history ;
+: init init-solver ;
+: r round drop .history ;
 : p prune #working . ;
-: try new w to secret solve ;
+: try new w secret wmove solve ;
 
 \ exhaustive test
 create results  #guesses 1+ cells allot
 : >result  cells results + ;
 : average ( -- n*100 )
-    0  #guesses 1+ 1 do  i >result @ i * +  loop  100 #words */ ;
+    0  #guesses 1+ 1 do  i >result @ i * +  loop  100 #wordles */ ;
 : .## ( n -- )  0 <# # # '.' hold #s #> type space ;
 : .results
     #guesses 1+ 1 do  cr i >result @ 5 .r ."  Solved in " i . loop
@@ -39,14 +40,14 @@ create results  #guesses 1+ cells allot
 
 : solver ( try all words )
     results #guesses 1+ cells erase
-    #words 0 do
-        new-game i ww to secret
+    #wordles 0 do
+        new-game i ww secret wmove
         solve? if guesses >result else results then 1 swap +!
     loop .results ;
 
 : solve-with ( xt -- )  to guesser solver cr ;
 : try-all
-    cr ." Using simple-guess "  ['] simple-guess    solve-with
-    cr ." Using random-guess "  ['] random-guess    solve-with
-    cr ." Using tally-guess "   ['] tally-guess     solve-with
+    cr ." Using simple-guesser "    ['] simple-guesser  solve-with
+    cr ." Using random-guesser "    ['] random-guesser  solve-with
+    cr ." Using tally-guesser "     ['] tally-guesser   solve-with
 ;

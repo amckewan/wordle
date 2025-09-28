@@ -49,7 +49,7 @@ scoring #scoring bounds 2constant for-scoring
         then  3 * ( mult )
     2 cells +loop  drop ;
 
-: score-guess ( target guess -- score )
+: score ( target guess -- score )
     init-scoring  score-greens  score-yellows ;
 
 
@@ -101,14 +101,14 @@ T{ w AABCD w DDxxx init-scoring  0 score-yellows -> s Y---- }T
 T{ w ALERT w RAISE init-scoring  0 score-yellows -> s YY--Y }T
 T{ w AABCD w AxAxA init-scoring  score-greens score-yellows -> s G-Y-- }T
 
-TESTING SCORE-GUESS
-T{ w AABCD w xxxxx score-guess -> s ----- }T
-T{ w AABCD w Axxxx score-guess -> s G---- }T
-T{ w AABCD w Dxxxx score-guess -> s Y---- }T
-T{ w AABCD w DDDDx score-guess -> s Y---- }T
-T{ w AABCD w xxAxx score-guess -> s --Y-- }T
-T{ w AABCD w xxAAx score-guess -> s --YY- }T
-T{ w AABCD w xxAAA score-guess -> s --YY- }T
-T{ w AABCD w AxBDx score-guess -> s G-GY- }T
-T{ w AABCD w AxAxA score-guess -> s G-Y-- }T
-T{ w VIXEN w EERIE score-guess -> s Y--Y- }T
+TESTING SCORE
+T{ w AABCD w xxxxx score -> s ----- }T
+T{ w AABCD w Axxxx score -> s G---- }T
+T{ w AABCD w Dxxxx score -> s Y---- }T
+T{ w AABCD w DDDDx score -> s Y---- }T
+T{ w AABCD w xxAxx score -> s --Y-- }T
+T{ w AABCD w xxAAx score -> s --YY- }T
+T{ w AABCD w xxAAA score -> s --YY- }T
+T{ w AABCD w AxBDx score -> s G-GY- }T
+T{ w AABCD w AxAxA score -> s G-Y-- }T
+T{ w VIXEN w EERIE score -> s Y--Y- }T

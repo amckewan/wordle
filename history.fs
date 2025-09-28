@@ -13,11 +13,11 @@ create histbuf  #guesses len 1+ * allot
     guesses #guesses u< not abort" History full!"
     guesses hist!  guesses 1+ to guesses ;
 
-\  : last ( -- guess score ) guesses 1- hist@ ;
+: latest ( -- guess score )  guesses 1- hist@ ;
 
 \ Submit a guess to the game, update game state and return the score
 : make-guess ( guess -- score )
-    secret over score-guess  swap over 2dup +history +answer ;
+    secret over score  swap over 2dup +history +answer ;
 
 
 

@@ -14,7 +14,7 @@ include solver.fs
 include prune.fs
 include vowels.fs
 include unique.fs
-\  include guess.fs
-\  include tally.fs
-\  include endgame.fs
-\  include solve.fs
+include guess.fs
+include tally.fs
+include endgame.fs
+include solve.fs

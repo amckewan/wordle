@@ -13,7 +13,7 @@ create kb 32 allot
 : NEW  new-game  kb 32 erase ;
 
 : H .history ;
- 
+
 : .k ( c k -- )  over >kb c@ = if dup emit space then drop ;
 : a-z  ( -- limit index ) 'Z' 1+ 'A' ;
 : K cr ." Answer: " answer w.

@@ -6,14 +6,13 @@ wordle secret       ( the secret word we are trying to guess )
 
 6 constant #guesses ( set by game )
 
-\ Maintain partial answer for solver convenience
+\ Maintain partial answer for solver convenience, letter or '-'
 wordle answer
 : +answer ( guess score -- ) \ record any green letters in answer
     len 0 do  3 /mod swap green = if
         over i + c@  i answer + c!
     then loop 2drop ;
 : greens ( -- n )  0  answer len bounds do  i c@ '-' = 1+ +  loop ;
-
 
 : .game ." secret: " secret w. ." answer: " answer w. ." guesses: " guesses . ;
 

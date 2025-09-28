@@ -2,11 +2,11 @@
 
 \ Pick the first word from the working set
 : simple-guesser ( -- w )
-    0  working-size 0 do  i has if drop i leave then  loop  ww ;
+    0  #wordles 0 do  i has if drop i leave then  loop  ww ;
 
 \ Pick a random word from the working set
 : random-guesser ( -- w )
-    #working random  working-size 0 do
+    #working random  #wordles 0 do
       i has if  1- dup 0< if drop i leave then  then
     loop ww ;
 
