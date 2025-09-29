@@ -31,7 +31,7 @@ variable endgame ( turn it on and off )  endgame on
 create results  #guesses 1+ cells allot
 : >result  cells results + ;
 : average ( -- n*100 )
-    0  #guesses 1+ 1 do  i >result @ i * +  loop  100 #wordles */ ;
+    0  #guesses 1+ 1 do  i >result @ i * +  loop  100 #words */ ;
 : .## ( n -- )  0 <# # # '.' hold #s #> type space ;
 : .results
     #guesses 1+ 1 do  cr i >result @ 5 .r ."  Solved in " i . loop
@@ -40,7 +40,7 @@ create results  #guesses 1+ cells allot
 
 : solver ( try all words )
     results #guesses 1+ cells erase
-    #wordles 0 do
+    #words 0 do
         new-game i ww secret wmove
         solve? if guesses >result else results then 1 swap +!
     loop .results ;

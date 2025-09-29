@@ -24,7 +24,7 @@ create possibles 32 allot
     loop ;
 
 \ Find a word from the full list that has the most of the remaining letters
-wordle-words #words len * bounds 2constant for-all-words
+wordle-words #guess-words len * bounds 2constant for-all-words
 : endgame-guess ( -- w )
     find-letters  0 ww 0 ( w n )  for-all-words do
         i #letters  2dup < if  nip nip i swap  else  drop  then

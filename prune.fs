@@ -99,7 +99,7 @@ T{ w EERIE s Y--Y- w xxxIx  prune? -> true }T
 
 \ Prune the working set, removing words that wouldn't get this score
 : pruner ( guess score -- )
-    #wordles 0 do  i has if
+    #words 0 do  i has if
         2dup i ww prune? if  i remove  then
     then loop 2drop ;
 

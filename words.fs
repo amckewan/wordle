@@ -32,18 +32,18 @@ here
 include data/guess-words.fs
 here
 
+wordle-words - len / constant #guess-words
 wordle-words - len / constant #words
-wordle-words - len / constant #wordles
 
 \ get wordle word from word #
 : ww ( w# -- w )  len * wordle-words + ;
 
 \ print all possible solutions
-: .wordles  #wordles 0 do  i ww w.  loop ;
+: .wordles  #words 0 do  i ww w.  loop ;
 
 \ check if a guess is in one of the two word lists
 : valid-guess ( w -- f )
-    #words 0 do
+    #guess-words 0 do
         dup i ww w= if  drop true  unloop exit  then
     loop  drop false ;
 

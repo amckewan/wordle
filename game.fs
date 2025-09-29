@@ -23,4 +23,4 @@ wordle answer
 : init-game ( -- )  0 to guesses  answer len '-' fill ;
 
 \ Initialize a new game and pick a random secret word.
-: new-game ( -- )  init-game   #wordles random ww secret wmove ; new-game
+: new-game ( -- )  init-game   #words random ww secret wmove ; new-game
