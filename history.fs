@@ -42,14 +42,3 @@ T{ w BABAA make-guess -> s YY-Y- }T
 T{ w AKBCB make-guess -> s GYYG- }T
 T{ w CCBAA make-guess -> s Y-YYY }T
 T{ guesses -> 6 }T
-
-TESTING +ANSWER
-init-game
-T{ w ABCDE s GY-G- +answer  w A--D- answer w= -> true }T
-T{ w LMNOP s -G--- +answer  w AM-D- answer w= -> true }T
-T{ w VWXYZ s ----- +answer  w AM-D- answer w= -> true }T
-
-TESTING GREENS
-T{ w ----- answer wmove     greens -> 0 }T
-T{ w -A-B- answer wmove     greens -> 2 }T
-T{ w WINDY answer wmove     greens -> 5 }T

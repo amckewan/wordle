@@ -13,7 +13,7 @@
 \ literals
 : color ( char -- color )  2 rshift  3 and  3 - negate ( ascii tricks ) ;
 : >s ( a -- s )  0 1  len 0 do >r  swap count color  r@ * rot +  r> 3 * loop drop nip ;
-: s   ( "w" -- s )  bl parse  len <> abort" need 5 letters"  >s ;
+: s   ( "w" -- s )  bl parse  len - abort" need 5 letters"  >s ;
 : [s] ( "w" -- s )  s  postpone literal ; immediate
 
 : s. ( s -- ) len 0 do  3 /mod swap S" -YG" drop + c@ emit  loop drop space ;

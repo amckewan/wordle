@@ -23,9 +23,8 @@ create kb 32 allot
     cr ." Unused: " a-z do i 0 .k loop ;
 
 : G ( "w" -- ) \ "G RAISE" etc.
-    w here wmove  here wupper  here
-    dup valid-guess not abort" Not in word list"
-    dup make-guess  swap over update-kb  .history
+    w  dup valid-guess not abort" Not in word list"
+    dup make-guess ( g s ) tuck update-kb  .history ( s )
     solved if ." You WIN! " else
     failed if ." Better luck next time ( " secret w. ." ) " else 
     k then then ;
