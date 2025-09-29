@@ -13,6 +13,7 @@ create working  #words allot  \ one byte per word, 0=absent, 1=present
 
 working #words bounds 2constant for-working ( -- limit index )
 
+: w# ( i -- w# )  working - ;
 : >ww ( i -- w )  working - ww ;
 
 : #working ( -- n )  0 for-working do  i c@ +  loop ;
