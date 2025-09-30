@@ -14,7 +14,8 @@ wordle answer
     then loop 2drop ;
 : greens ( -- n )  0  answer len bounds do  i c@ '-' = 1+ +  loop ;
 
-: .game ." secret: " secret w. ." answer: " answer w. ." guesses: " guesses . ;
+: .secret  secret w. ;
+: .game ." secret: " .secret ." answer: " answer w. ." guesses: " guesses . ;
 
 : solved ( score -- f ) #scores 1- = ;
 : failed ( -- f )       guesses 5 > ; \ assuming not solved
@@ -28,10 +29,11 @@ wordle answer
 \ Initialize a new game and pick a random secret word.
 : new-game ( -- )  #words random ww new-game-with ; new-game
 
+: score-guess ( guess -- score )  secret swap score ;
+
 
 
 ( ===== TESTS ===== )
-
 TESTING +ANSWER
 init-game
 T{ w ABCDE s GY-G- +answer  w A--D- answer w= -> true }T

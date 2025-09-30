@@ -1,9 +1,9 @@
 ( save history of guesses and scores )
 
-\ The history has 6 entries of score+guess
+\ The history has 6 entries of score+guess (6 bytes)
 create histbuf  #guesses len 1+ * allot
 
-: >hist ( n -- a )  len 1+ * histbuf + ;
+: >hist ( n -- a )  6 * histbuf + ;
 : hist@ ( n -- guess score )  >hist count ;
 : hist! ( guess score n -- )  >hist  swap over c!  1+ wmove ;
 
@@ -13,16 +13,11 @@ create histbuf  #guesses len 1+ * allot
     guesses #guesses u< not abort" History full!"
     guesses hist!  guesses 1+ to guesses ;
 
-: latest ( -- guess score )  guesses 1- hist@ ;
-
-\ Submit a guess to the game, update game state and return the score
-: guess ( guess -- score )
-    secret over score  swap over 2dup +history +answer ;
+: latest ( -- guess score )  guesses dup 0= abort" no history" 1- hist@ ;
 
 
 
 ( ===== TESTS ===== )
-
 TESTING HISTORY
 0 to guesses
 T{ w RAISE s GG-YY +history guesses -> 1 }T
@@ -31,14 +26,3 @@ T{ 0 >hist 1+ w RAISE w= -> true }T
 T{ 1 >hist c@ -> s YY-GG }T
 T{ 0 hist@ drop w RAISE w= -> true }T
 T{ 1 hist@ nip -> s YY-GG }T
-
-TESTING GUESS
-init-game w ABACK secret wmove
-T{ w DEFGH guess -> s ----- }T
-T{ w AxAxK guess -> s G-G-G }T
-T{ w ABACK guess -> s GGGGG }T
-T{ guesses -> 3 }T
-T{ w BABAA guess -> s YY-Y- }T
-T{ w AKBCB guess -> s GYYG- }T
-T{ w CCBAA guess -> s Y-YYY }T
-T{ guesses -> 6 }T

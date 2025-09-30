@@ -1,5 +1,8 @@
 ( game UI )
 
+\ Submit a guess to the game, update game state and return the score
+: guess ( guess -- score )  dup score-guess tuck  2dup +history +answer ;
+
 \ keyboard with knowledge about each letter played
 \ 0=unknown, 1=grey, 2=yellow, 3=green (k = color+1)
 create kb 32 allot
@@ -14,8 +17,9 @@ create kb 32 allot
 
 : H .history ;
 
+'Z' 1+ 'A' 2constant a-z ( -- limit index )
+
 : .k ( c k -- )  over >kb c@ = if dup emit space then drop ;
-: a-z  ( -- limit index ) 'Z' 1+ 'A' ;
 : K cr ." Answer: " answer w.
     cr ." Green:  " a-z do i 3 .k loop
     cr ." Yellow: " a-z do i 2 .k loop
@@ -26,5 +30,19 @@ create kb 32 allot
     w  dup valid-guess not abort" Not in word list"
     dup guess ( g s ) tuck update-kb  .history ( s )
     solved if ." You WIN! " else
-    failed if ." Better luck next time ( " secret w. ." ) " else 
+    failed if ." Better luck next time ( " .secret ." ) " else 
     k then then ;
+
+
+
+( ===== TESTS ===== )
+TESTING GUESS
+w ABACK new-game-with
+T{ w DEFGH guess -> s ----- }T
+T{ w AxAxK guess -> s G-G-G }T
+T{ w ABACK guess -> s GGGGG }T
+T{ guesses -> 3 }T
+T{ w BABAA guess -> s YY-Y- }T
+T{ w AKBCB guess -> s GYYG- }T
+T{ w CCBAA guess -> s Y-YYY }T
+T{ guesses -> 6 }T
