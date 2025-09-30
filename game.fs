@@ -22,8 +22,11 @@ wordle answer
 \ init everything except the secret
 : init-game ( -- )  0 to guesses  answer len '-' fill ;
 
+\ start a new game with w as the secret
+: new-game-with ( w -- )  init-game secret wmove ;
+
 \ Initialize a new game and pick a random secret word.
-: new-game ( -- )  init-game   #words random ww secret wmove ; new-game
+: new-game ( -- )  #words random ww new-game-with ; new-game
 
 
 

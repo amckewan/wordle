@@ -5,11 +5,12 @@ use tally-guesser ( best so far )
 variable endgame ( turn it on and off )  endgame on
 
 : solver-guess ( -- w )
+    #working 1 = if ( only one left ) simple-guesser exit then
     greens len = if ( we know it ) answer exit then
     endgame @ if endgame? if endgame-guess exit then then
-    guess ;
+    make-guess ;
 
-: round ( -- f )  solver-guess make-guess solved ;
+: round ( -- f )  solver-guess guess solved ;
 
 \ Try to solve the puzzle in 6 rounds, return true if we solved it.
 : solve? ( -- f )
@@ -38,12 +39,13 @@ create results  #guesses 1+ cells allot
     cr results @ 5 .r ."  Failed "
     cr ." Average: " average .## ;
 
-: solver ( try all words )
+: (solver) ( #words -- )
     results #guesses 1+ cells erase
-    #words 0 do
-        new-game i ww secret wmove
+    0 do
+        i ww new-game-with
         solve? if guesses >result else results then 1 swap +!
     loop .results ;
+: solver ( try all words ) #words (solver) ;
 
 : solve-with ( xt -- )  to guesser solver cr ;
 : try-all

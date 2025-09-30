@@ -11,7 +11,7 @@
 
 : flog2 ( F: f -- log2_f )  flog [ 2e flog ] fliteral f/ ;
 
-: prob  ( total n -- ) ( F: -- probability )  s>f ?dup if s>f f/ then ;
+: probability ( n total -- ) ( F: -- prob )  swap s>f s>f f/ ;
 : ibits ( F: prob -- ibits )  flog2 fnegate ;
 
 
@@ -32,20 +32,27 @@ create scored   #scores cells allot
     loop cr ." Total: " total . ;
 
 \ update scored for each word in the working set
-: score-working  ( w -- )  scored #scores cells erase   0 ( #words )
+: score-working  ( guess -- #words )
+    scored #scores cells erase   0 ( #words )
     for-working do i c@ if
         over i >ww swap score  cells scored +  1 swap +!  1+
-    then loop to total drop ;
+    then loop nip ;
 
-: entropy ( F: -- entropy ) \ using data from scored & totoal
-    0e ( entropy ) #scores 0 do
-        total i cells scored + @ ( # with this score )
-        dup if  prob fdup ibits f* f+  else 2drop then
+: entropy ( guess -- ) ( F: -- entropy )
+    score-working ( #words ) 0e ( entropy ) 
+    #scores 0 do
+        i cells scored + @ ( words with this score )
+        ?dup if  over probability  fdup ibits f*  f+  then
+    loop drop ;
+
+\ find word with the highest entropy
+: max-entropy ( #words -- w )  0 ww  0e
+    swap 0 do  i ww entropy
+        fover fover f< if  drop i ww  fswap  then  fdrop
     loop ;
-    
+
 \ find word in working set with the highest entropy
-: entropy-guesser ( -- w )  0 ww  0e
-    for-working do i c@ if
-        i >ww score-working  entropy
-        fover fover f< if  drop i >ww  fswap  then  fdrop
-    then loop fdrop ;
+: entropy-guesser ( -- w )
+    guesses 0= if '.' emit ( show progress ) then
+    #working 1 = if simple-guesser exit then
+    #words max-entropy ;

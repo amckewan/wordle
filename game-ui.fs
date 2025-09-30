@@ -24,7 +24,7 @@ create kb 32 allot
 
 : G ( "w" -- ) \ "G RAISE" etc.
     w  dup valid-guess not abort" Not in word list"
-    dup make-guess ( g s ) tuck update-kb  .history ( s )
+    dup guess ( g s ) tuck update-kb  .history ( s )
     solved if ." You WIN! " else
     failed if ." Better luck next time ( " secret w. ." ) " else 
     k then then ;

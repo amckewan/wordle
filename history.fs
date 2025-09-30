@@ -16,7 +16,7 @@ create histbuf  #guesses len 1+ * allot
 : latest ( -- guess score )  guesses 1- hist@ ;
 
 \ Submit a guess to the game, update game state and return the score
-: make-guess ( guess -- score )
+: guess ( guess -- score )
     secret over score  swap over 2dup +history +answer ;
 
 
@@ -32,13 +32,13 @@ T{ 1 >hist c@ -> s YY-GG }T
 T{ 0 hist@ drop w RAISE w= -> true }T
 T{ 1 hist@ nip -> s YY-GG }T
 
-TESTING MAKE-GUESS
+TESTING GUESS
 init-game w ABACK secret wmove
-T{ w DEFGH make-guess -> s ----- }T
-T{ w AxAxK make-guess -> s G-G-G }T
-T{ w ABACK make-guess -> s GGGGG }T
+T{ w DEFGH guess -> s ----- }T
+T{ w AxAxK guess -> s G-G-G }T
+T{ w ABACK guess -> s GGGGG }T
 T{ guesses -> 3 }T
-T{ w BABAA make-guess -> s YY-Y- }T
-T{ w AKBCB make-guess -> s GYYG- }T
-T{ w CCBAA make-guess -> s Y-YYY }T
+T{ w BABAA guess -> s YY-Y- }T
+T{ w AKBCB guess -> s GYYG- }T
+T{ w CCBAA guess -> s Y-YYY }T
 T{ guesses -> 6 }T

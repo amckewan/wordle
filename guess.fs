@@ -15,4 +15,4 @@
 : use  ' to guesser ;
 
 \ Make a guess using the chosen algorithm
-: guess ( -- w )  guesser execute ;
+: make-guess ( -- w )  guesser execute ;
