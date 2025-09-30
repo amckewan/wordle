@@ -13,10 +13,12 @@ variable endgame ( turn it on and off )  endgame on
 : round ( -- f )  solver-guess guess solved ;
 
 \ Try to solve the puzzle in 6 rounds, return true if we solved it.
+variable fails
+: .failed fails @ if cr .secret ." failed" .history then ;
 : solve? ( -- f )
     init-solver
     begin round not while
-        failed if false exit then
+        failed if .failed false exit then
         prune
     repeat true ;
 
@@ -39,13 +41,13 @@ create results  #guesses 1+ cells allot
     cr results @ 5 .r ."  Failed "
     cr ." Average: " average .## ;
 
-: (solver) ( #words -- )
+variable talking
+: +results ( solved? -- )
+    talking @ if dup if guesses . else ." X " then then
+    if guesses >result else results then 1 swap +! ;
+: solver ( #words -- )
     results #guesses 1+ cells erase
-    0 do
-        i ww new-game-with
-        solve? if guesses >result else results then 1 swap +!
-    loop .results ;
-: solver ( try all words ) #words (solver) ;
+    #words 0 do  i ww new-game-with  solve? +results  loop .results ;
 
 : solve-with ( xt -- )  to guesser solver cr ;
 : try-all

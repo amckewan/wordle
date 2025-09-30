@@ -14,5 +14,6 @@ include solver.fs
 include prune.fs
 include guess.fs
 include tally.fs
+include entropy.fs
 include endgame.fs
 include solve.fs
