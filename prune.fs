@@ -35,14 +35,14 @@ T{ 4 2 cells * scoring + @ 0< -> true  }T
     2 cells +loop  drop false ;
 
 TESTING find-match
-T{ w AAAAA w xxxxx init-scoring  'A' find-match -> scoring cell+ true }T
-T{ w xxAxx w xxxxx init-scoring  'A' find-match -> 2 2 cells * scoring + cell+ true }T
-T{ w xxxxx w xxxxx init-scoring  'A' find-match     -> false  }T
-T{ w ABCDE w xxxxx init-scoring  'B' find-match nip -> true }T
-T{ w ABCDE w xxxxx init-scoring  'C' find-match nip -> true }T
-T{ w ABCDE w xxxxx init-scoring  'D' find-match nip -> true }T
-T{ w ABCDE w xxxxx init-scoring  'E' find-match nip -> true }T
-T{ w ABCDE w xxxxx init-scoring  'F' find-match     -> false  }T
+T{ w AAAAA w xxxxx init-scoring  'a' find-match -> scoring cell+ true }T
+T{ w xxAxx w xxxxx init-scoring  'a' find-match -> 2 2 cells * scoring + cell+ true }T
+T{ w xxxxx w xxxxx init-scoring  'a' find-match     -> false  }T
+T{ w ABCDE w xxxxx init-scoring  'b' find-match nip -> true }T
+T{ w ABCDE w xxxxx init-scoring  'c' find-match nip -> true }T
+T{ w ABCDE w xxxxx init-scoring  'd' find-match nip -> true }T
+T{ w ABCDE w xxxxx init-scoring  'e' find-match nip -> true }T
+T{ w ABCDE w xxxxx init-scoring  'f' find-match     -> false  }T
 
 
 : prune-yellow? ( score -- f )

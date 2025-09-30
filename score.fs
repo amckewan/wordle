@@ -81,9 +81,9 @@ T{ :noname [s] YG-Y- ; execute -> s YG-Y- }T
 
 TESTING INIT-SCORING
 T{ w ABCDE w MNOPQ init-scoring -> }T
-T{ scoring           2@ -> 'A' 'M' }T
-T{ scoring 2 cells + 2@ -> 'B' 'N' }T
-T{ scoring 8 cells + 2@ -> 'E' 'Q' }T
+T{ scoring           2@ -> 'a' 'm' }T
+T{ scoring 2 cells + 2@ -> 'b' 'n' }T
+T{ scoring 8 cells + 2@ -> 'e' 'q' }T
 
 TESTING SCORE-GREENS
 T{ W TRACE W xxxxx init-scoring  score-greens -> s ----- }T

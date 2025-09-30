@@ -7,8 +7,8 @@
 
 : wordle    create len allot ;
 
-: upper     bounds do i c@ dup 'a' < -33 or and i c! loop ;
-: w         bl parse len - abort" need 5 letters" dup len upper ;
+: lower     bounds do i c@ bl or i c! loop ;
+: w         bl parse len - abort" need 5 letters" dup len lower ;
 : [w]       w len postpone sliteral postpone drop ; immediate
 : w.        len type space ;
 
