@@ -36,114 +36,55 @@ create scored   #scores cells allot
     loop drop ;
 
 \ find the word with the highest entropy
-: max-entropy ( #words -- w )  0 ww  0e
+: max-entropy ( #words -- w )  0 ww ( default ) 0e ( entropy )
     swap 0 do  i ww entropy
         fover fover f< if  drop i ww  fswap  then  fdrop
     loop fdrop ;
 
-\ it takes almost 3 seconds for the first guess, precalculate for a speedup
-\ since it's always the same (RAISE)
-1 [if]
-cr .( calculating first entropy guess... )
-wordle first-guess
-init-solver #words max-entropy first-guess wmove
-[else]
-: first-guess  [w] raise ; \ just do it once
-[then]
-
-
-\ find word in working set with the highest entropy
-: entropy-guesser ( -- w )
-    guesses 0= if first-guess exit then
-    #working 1 = if simple-guesser exit then
-    timing @ if timestamp >r then
-    #words max-entropy
-    timing @ if timestamp cr #working . ." words in " r> - . ." us " then ;
-
-
-
-\ experimental...
 \ just pick guesses from the working set
 : max-working-entropy ( -- w )  0 ww  0e
     for-working do i c@ if  i >ww entropy
         fover fover f< if  drop i >ww  fswap  then  fdrop
     then loop fdrop ;
 
-\ find word in working set with the highest entropy
-: entropy-guesser2 ( -- w )
-    #working 1 = if simple-guesser exit then
-    max-working-entropy ;
+\ it takes almost 3 seconds for the first guess, precalculate for a speedup
+\ since it's always the same
+1 [if]
+\ use a known good (best?) starting word
+: first-guess  [w] salet ;
+[else]
+cr .( calculating first entropy guess... )
+wordle first-guess
+init-solver #words max-entropy first-guess wmove
+[then]
+
+\ find word with the highest entropy
+4 value fence               \ below here use tally guesser
+false value working-only    \ true to use only working set for guesses
+: entropy-guesser ( -- w )
+    guesses 0= if first-guess exit then
+    #working fence < if tally-guesser exit then
+    working-only if  max-working-entropy  else  #words max-entropy  then ;
+
 
 0 [if]
-=========================================
-failing test cases
-=========================================
-
-use entropy-guesser  ok
-solver 
-
-mecca failed
-1 raise 
-  -Y--Y 
-2 cleat 
-  Y-YY- 
-3 aback 
-  Y--G- 
-4 aback 
-  Y--G- 
-5 aback 
-  Y--G- 
-6 aback 
-  Y--G- 
-ninja failed
-
-1 raise 
-  -YY-- 
-2 until 
-  -Y-Y- 
-3 aback 
-  Y---- 
-4 aback 
-  Y---- 
-5 aback 
-  Y---- 
-6 aback 
-  Y---- 
-pupal failed
-
-1 raise 
-  -Y--- 
-2 clout 
-  -Y-Y- 
-3 aback 
-  Y---- 
-4 aback 
-  Y---- 
-5 aback 
-  Y---- 
-6 aback 
-  Y---- 
-
-
-total failed
-1 raise 
-  -Y--- 
-2 clout 
-  -YY-Y 
-3 again 
-  Y---- 
-4 aback 
-  Y---- 
-5 aback 
-  Y---- 
-6 aback 
-  Y---- 
+\ starting with RAISE
     1 Solved in 1 
-   34 Solved in 2 
-  829 Solved in 3 
- 1291 Solved in 4 
-  153 Solved in 5 
+   52 Solved in 2 
+ 1100 Solved in 3 
+ 1044 Solved in 4 
+  109 Solved in 5 
+    9 Solved in 6 
+    0 Failed 
+Average: 3.53    224.815 sec
+
+\ starting with SALET
+    0 Solved in 1 
+   75 Solved in 2 
+ 1117 Solved in 3 
+ 1038 Solved in 4 
+   82 Solved in 5 
     3 Solved in 6 
-    4 Failed 
-Average: 3.67  ok
+    0 Failed 
+Average: 3.49    248.144 sec
 [then]

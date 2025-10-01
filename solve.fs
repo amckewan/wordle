@@ -1,6 +1,6 @@
 ( solver )
 
-use tally-guesser ( best so far )
+use entropy-guesser ( best so far )
 
 variable endgame ( turn it on and off )  endgame on
 
@@ -41,17 +41,22 @@ create results  #guesses 1+ cells allot
     cr results @ 5 .r ."  Failed "
     cr ." Average: " average .## ;
 
-variable talking
+variable talking ( show progress as we go )
 : +results ( solved? -- )
     talking @ if dup if guesses . else ." X " then then
     if guesses >result else results then 1 swap +! ;
-: solver ( #words -- )
+: solve-all ( -- )
     results #guesses 1+ cells erase
-    #words 0 do  i ww new-game-with  solve? +results  loop .results ;
+    #words 0 do  i ww new-game-with  solve? +results  loop ;
+: solver ( -- )
+    timing @ if timestamp >r then
+    solve-all .results
+    timing @ if timestamp r> - 3 spaces .elapsed then ;
 
 : solve-with ( xt -- )  to guesser solver cr ;
 : try-all
     cr ." Using simple-guesser "    ['] simple-guesser  solve-with
     cr ." Using random-guesser "    ['] random-guesser  solve-with
     cr ." Using tally-guesser "     ['] tally-guesser   solve-with
+    cr ." Using entropy-guesser "   ['] entropy-guesser solve-with
 ;
