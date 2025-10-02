@@ -1,7 +1,8 @@
 ( game UI )
 
 \ Submit a guess to the game, update game state and return the score
-: guess ( guess -- score )  dup score-guess tuck  2dup +history +answer ;
+: submit ( guess score -- )  2dup +history +answer ;
+: guess  ( guess -- score )  dup score-guess tuck submit ;
 
 \ keyboard with knowledge about each letter played
 \ 0=unknown, 1=grey, 2=yellow, 3=green (k = color+1)
@@ -17,7 +18,7 @@ create kb 32 allot
 
 : H .history ;
 
-'Z' 1+ 'A' 2constant a-z ( -- limit index )
+'z' 1+ 'a' 2constant a-z ( -- limit index )
 
 : .k ( c k -- )  over >kb c@ = if dup emit space then drop ;
 : K cr ." Answer: " answer w.

@@ -28,12 +28,21 @@ create scored   #scores cells allot
         over i >ww swap score  cells scored +  1 swap +!  1+
     then loop nip ;
 
+: score-all  ( guess -- )
+    scored #scores cells erase
+    #guess-words 0 do
+        i ww over score  cells scored +  1 swap +!
+    loop drop ;
+
 : entropy ( guess -- ) ( F: -- entropy )
     score-working ( #words ) 0e ( entropy ) 
     #scores 0 do
         i cells scored + @ ( words with this score )
         ?dup if  over probability  fdup ibits f*  f+  then
     loop drop ;
+
+\  : working-entropy  score-working (entropy) ;
+\  : all-entropy  score-all #words entropy ;
 
 \ find the word with the highest entropy
 : max-entropy ( #words -- w )  0 ww ( default ) 0e ( entropy )
@@ -51,7 +60,7 @@ create scored   #scores cells allot
 \ since it's always the same
 1 [if]
 \ use a known good (best?) starting word
-: first-guess  [w] salet ;
+wordle first-guess   w salet first-guess wmove
 [else]
 cr .( calculating first entropy guess... )
 wordle first-guess
@@ -59,12 +68,12 @@ init-solver #words max-entropy first-guess wmove
 [then]
 
 \ find word with the highest entropy
-4 value fence               \ below here use tally guesser
-false value working-only    \ true to use only working set for guesses
+4 value fence   \ use a different guesser if fewer than fence words left
 : entropy-guesser ( -- w )
-    guesses 0= if first-guess exit then
-    #working fence < if tally-guesser exit then
-    working-only if  max-working-entropy  else  #words max-entropy  then ;
+    guesses 0= if ( shortcut ) first-guess exit then
+    #working 1 = if ( can't use entropy ) simple-guesser exit then
+    #working fence < if max-working-entropy exit then
+    #words max-entropy ;
 
 
 0 [if]
@@ -87,4 +96,51 @@ Average: 3.53    224.815 sec
     3 Solved in 6 
     0 Failed 
 Average: 3.49    248.144 sec
+
+\ working-only not so good (but fast!)
+true to working-only  ok
+timing on  ok
+solver 
+    0 Solved in 1 
+  148 Solved in 2 
+ 1021 Solved in 3 
+  951 Solved in 4 
+  172 Solved in 5 
+   22 Solved in 6 
+    1 Failed 
+Average: 3.52    12.596 sec
+
+\ Use max-working-entropy below the fence (slightly better than tally)
+    0 Solved in 1 
+   75 Solved in 2 
+ 1118 Solved in 3 
+ 1039 Solved in 4 
+   80 Solved in 5 
+    3 Solved in 6 
+    0 Failed 
+Average: 3.48    249.131 sec
+
+\ Using simple-guess at 1
+\ Use max-working-entropy if < 4
+\ Otherwise max-entropy
+    0 Solved in 1 
+   75 Solved in 2 
+ 1118 Solved in 3 
+ 1039 Solved in 4 
+   80 Solved in 5 
+    3 Solved in 6 
+    0 Failed 
+Average: 3.48    245.206 sec 
+
+\ salet still rules
+w trace first-guess wmove solver 
+    1 Solved in 1 
+   77 Solved in 2 
+ 1106 Solved in 3 
+ 1039 Solved in 4 
+   87 Solved in 5 
+    5 Solved in 6 
+    0 Failed 
+Average: 3.49    249.583 sec
+
 [then]

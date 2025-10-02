@@ -4,13 +4,13 @@ use entropy-guesser ( best so far )
 
 variable endgame ( turn it on and off )  endgame on
 
-: solver-guess ( -- w )
+: make-guess ( -- w )
     #working 1 = if ( only one left ) simple-guesser exit then
     greens len = if ( we know it ) answer exit then
     endgame @ if endgame? if endgame-guess exit then then
-    make-guess ;
+    guesser execute ;
 
-: round ( -- f )  solver-guess guess solved ;
+: round ( -- f )  make-guess guess solved ;
 
 \ Try to solve the puzzle in 6 rounds, return true if we solved it.
 variable fails

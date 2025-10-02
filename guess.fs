@@ -13,6 +13,3 @@
 \ Try different algorithms
 ' simple-guesser value guesser
 : use  ' to guesser ;
-
-\ Make a guess using the chosen algorithm
-: make-guess ( -- w )  guesser execute ;
