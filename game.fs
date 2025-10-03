@@ -27,7 +27,7 @@ wordle answer
 : new-game-with ( w -- )  init-game secret wmove ;
 
 \ Initialize a new game and pick a random secret word.
-: new-game ( -- )  #words random ww new-game-with ; new-game
+: new-game ( -- )  #hidden random ww new-game-with ; new-game
 
 : score-guess ( guess -- score )  secret swap score ;
 

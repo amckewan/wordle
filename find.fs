@@ -13,11 +13,11 @@
 
 \ find a word in wordle words
 : find-word ( w -- w# t | f )
-    0 #words search ;
+    0 #hidden search ;
 
 \ find a word in guess words
 : find-guess ( w -- w# t | f )
-    dup find-word if nip true else #words #guess-words search then ;
+    dup find-word if nip true else #hidden #words search then ;
 
 
 \ Literal words as numbers
@@ -32,7 +32,7 @@ testing find-word
 ( wordle words )
 t{ s" aback" drop find-word -> 0 true }t
 t{ s" raise" drop find-word nip -> true }t
-t{ s" zonal" drop find-word -> #words 1- true }t
+t{ s" zonal" drop find-word -> #hidden 1- true }t
 ( guess words)
 t{ s" ablow" drop find-guess nip -> true }t
 t{ s" pongo" drop find-guess nip -> true }t

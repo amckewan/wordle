@@ -1,5 +1,6 @@
 ( entropy guesser )
 
+\ ----------------------------------------------------------------
 \ Using the ideas from "Solving Wordle using information theory"
 \ https://www.youtube.com/watch?v=v68zYyaEmEA
 \
@@ -8,6 +9,7 @@
 \ e.g. P = 1/16, I = 4
 \
 \ Entropy = sum (P*I) over all possible scores
+\ ----------------------------------------------------------------
 
 : flog2 ( F: f -- log2_f )  flog [ 2e flog ] fliteral f/ ;
 
@@ -22,24 +24,67 @@ create scored   #scores cells allot
     loop cr ." Total: " . ;
 
 \ update scored for each word in the working set
-: score-working  ( guess -- #words )
+: score-working  ( guess -- #hidden )
     scored #scores cells erase   0 ( #words )
     for-working do i c@ if
         over i >ww swap score  cells scored +  1 swap +!  1+
     then loop nip ;
 
-: score-all  ( guess -- )
-    scored #scores cells erase
-    #guess-words 0 do
-        i ww over score  cells scored +  1 swap +!
-    loop drop ;
-
+\ calculate the entropy for a guess against all the words in the working set
 : entropy ( guess -- ) ( F: -- entropy )
     score-working ( #words ) 0e ( entropy ) 
     #scores 0 do
         i cells scored + @ ( words with this score )
         ?dup if  over probability  fdup ibits f*  f+  then
     loop drop ;
+
+\ find the word with the highest entropy
+: max-entropy ( -- w )  0 ww ( default ) 0e ( entropy )
+    for-working do i c@ if
+        i >ww entropy  fover fover f< if  drop i >ww  fswap  then  fdrop
+    then loop fdrop ;
+
+\ It takes time for the first guess which is always the same
+\ #words    to #working time fg ->  2.2 sec (raise)
+\ #allwords to #working time fg -> 68.9 sec (tares)
+
+wordle first-guess   w tares   first-guess wmove
+
+\  cr .( calculating first entropy guess... )
+\  ? to #working
+\  init-solver max-entropy first-guess wmove
+
+\ find word with the highest entropy
+\  4 value fence   \ use a different guesser if fewer than fence words left
+: entropy-guess ( -- w )
+    guesses 0= if ( shortcut ) first-guess exit then
+    #working remaining 1 = if ( can't use entropy ) simple-guess exit then
+\     #working fence < if max-working-entropy exit then
+\   #working fence
+    max-entropy ;
+
+
+
+
+
+
+0 [if]
+: score-all  ( w -- )  scored #scores cells erase
+    #words 0 do
+        i ww over score  cells scored +  1 swap +!
+    loop drop ;
+
+: entropy-all ( w -- ) ( F: -- entropy )  score-all  0e ( entropy ) 
+    scored #scores bounds do
+        i @ ?dup if  #words probability  fdup ibits f*  f+  then
+    cell +loop ;
+
+\ find the word from the working set that has the highest entropy
+: max-entropy-all ( -- w )  0 ww ( default ) 0e ( entropy )
+    working #words bounds do i c@ if
+        i >ww entropy-all fover fover f< if  drop i >ww  fswap  then  fdrop
+    then loop fdrop ;
+
 
 \  : working-entropy  score-working (entropy) ;
 \  : all-entropy  score-all #words entropy ;
@@ -49,32 +94,7 @@ create scored   #scores cells allot
     swap 0 do  i ww entropy
         fover fover f< if  drop i ww  fswap  then  fdrop
     loop fdrop ;
-
-\ just pick guesses from the working set
-: max-working-entropy ( -- w )  0 ww  0e
-    for-working do i c@ if  i >ww entropy
-        fover fover f< if  drop i >ww  fswap  then  fdrop
-    then loop fdrop ;
-
-\ it takes almost 3 seconds for the first guess, precalculate for a speedup
-\ since it's always the same
-1 [if]
-\ use a known good (best?) starting word
-wordle first-guess   w salet first-guess wmove
-[else]
-cr .( calculating first entropy guess... )
-wordle first-guess
-init-solver #words max-entropy first-guess wmove
 [then]
-
-\ find word with the highest entropy
-4 value fence   \ use a different guesser if fewer than fence words left
-: entropy-guesser ( -- w )
-    guesses 0= if ( shortcut ) first-guess exit then
-    #working 1 = if ( can't use entropy ) simple-guesser exit then
-    #working fence < if max-working-entropy exit then
-    #words max-entropy ;
-
 
 0 [if]
 \ starting with RAISE
@@ -142,5 +162,18 @@ w trace first-guess wmove solver
     5 Solved in 6 
     0 Failed 
 Average: 3.49    249.583 sec
+
+use entropy-guess ( best so far )
+#words to #working ( working set size )
+endgame off
+time solver 
+    0 Solved in 1 
+   64 Solved in 2 
+  828 Solved in 3 
+ 1018 Solved in 4 
+  323 Solved in 5 
+   73 Solved in 6 
+    9 Failed 
+Average: 3.77 183.830 sec
 
 [then]

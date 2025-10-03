@@ -25,7 +25,7 @@ tallies tallies-size bounds 2constant for-tallies ( -- limit index )
     for-tallies do  count 31 and cells i + @  rot + swap  tally-row +loop drop ;
 
 \ Pick the word with the largest letter tally
-: tally-guesser ( -- w )  tally-working  0 0 ( w# tally )
-    #words 0 do
+: tally-guess ( -- w )  tally-working  0 0 ( w# tally )
+    #working 0 do
       i ww tally 2dup < if ( replace ) nip nip i swap else drop then
     loop drop ww ;

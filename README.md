@@ -1,6 +1,11 @@
 # Wordle solver in Forth
 Andrew McKewan 2025
 
+## To Do
+remove lowercasing
+try using word numbers throughout
+make secret a value pointing to the word list
+
 # Glossary
 
 **score** ( target guess -- score )  *calculate the score for a word*

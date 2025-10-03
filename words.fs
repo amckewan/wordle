@@ -22,28 +22,28 @@
 \ for-each-letter ?
 
 \ =========================================================================
-\ There are two lists of words, those that can be solutions (wordle-words)
+\ There are two lists of words, those that can be solutions (hidden-words)
 \ and those that can be guesses but not solutions (guess-words).
 \ The lists are disjoint and we lay them down one after the other.
 
 create wordle-words
-include data/wordle-words.fs
+include data/hidden-words.fs
 here
 include data/guess-words.fs
 here
 
-wordle-words - len / constant #guess-words
-wordle-words - len / constant #words        ( just the possible solutions )
+wordle-words - len / constant #words    ( all words )
+wordle-words - len / constant #hidden   ( just the possible solutions )
 
 \ get wordle word from word #
 : ww ( w# -- w )  len * wordle-words + ;
 
 \ print all possible solutions
-: .wordles  #words 0 do  i ww w.  loop ;
+: .hidden  #hidden 0 do  i ww w.  loop ;
 
 \ check if a guess is in one of the two word lists
 : valid-guess ( w -- f )
-    #guess-words 0 do
+    #words 0 do
         dup i ww w= if  drop true  unloop exit  then
     loop  drop false ;
 
