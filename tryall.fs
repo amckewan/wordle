@@ -1,39 +1,7 @@
-( solver )
-
-variable endgame     \ true to use endgame strategy
-
-use simple-guess
-endgame on
-hidden on
-
-: make-guess ( -- w )
-    #hidden ( #working? ) remaining 1 = if ( only one left ) simple-guess exit then
-    greens len = if ( we know it ) answer exit then
-    endgame @ if endgame? if endgame-guess exit then then
-    guesser execute ;
-
-: round ( -- f )  make-guess guess solved ;
-
-\ Try to solve the puzzle in 6 rounds, return true if we solved it.
-variable fails
-: .failed fails @ if cr .secret ." failed" .history then ;
-: solve? ( -- f )
-    init-solver
-    begin round not while
-        failed if .failed false exit then
-        prune
-    repeat true ;
-
-: solve  solve? .history if ." Solved " else ." Failed " then ;
-
-\ shorthand
-: init init-solver ;
-: r round drop .history ;
-: p prune #hidden remaining . ;
-: try new w secret wmove solve ;
+( try different algorithms )
 
 \ exhaustive test
-create results  #guesses 1+ cells allot
+create results  #guesses 1+ cells allot  ( index 0 for failures )
 : >result  cells results + ;
 : average ( -- n*100 )
     0  #guesses 1+ 1 do  i >result @ i * +  loop  100 #hidden */ ;
@@ -59,5 +27,5 @@ variable talking ( show progress as we go )
     cr ." Using simple-guess "    ['] simple-guess  solve-with
     cr ." Using random-guess "    ['] random-guess  solve-with
     cr ." Using tally-guess "     ['] tally-guess   solve-with
-    cr ." Using entropy-guess "   ['] entropy-guess solve-with
+    \  cr ." Using entropy-guess "   ['] entropy-guess solve-with
 ;

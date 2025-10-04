@@ -19,12 +19,13 @@
 \ for each score, how many words from the working set got that score
 create scored   #scores cells allot
 
-: .scored  0  #scores 0 do  i 6 mod 0= if cr then
-      i s.  i cells scored + @ dup 3 .r 3 spaces +
-    loop cr ." Total: " . ;
+: .scored  0 0  #scores 0 do i cells scored + @ ?dup if  
+      over 6 mod 0= if cr then swap 1+ swap
+      i s.  dup 3 .r 3 spaces  +
+    then loop cr ." Total: " . drop ;
 
 \ update scored for each word in the working set
-: score-working  ( guess -- #hidden )
+: score-working  ( guess -- #words )
     scored #scores cells erase   0 ( #words )
     for-working do i c@ if
         over i >ww swap score  cells scored +  1 swap +!  1+
@@ -38,28 +39,40 @@ create scored   #scores cells allot
         ?dup if  over probability  fdup ibits f*  f+  then
     loop drop ;
 
-\ find the word with the highest entropy
+\ find the word from the working set with the highest entropy
 : max-entropy ( -- w )  0 ww ( default ) 0e ( entropy )
     for-working do i c@ if
         i >ww entropy  fover fover f< if  drop i >ww  fswap  then  fdrop
     then loop fdrop ;
 
+\ find the word with the highest entropy from all words
+: max-entropy-all ( -- w )  0 ( default ) 0e ( entropy )
+    #words 0 do
+        i ww entropy  fover fover f< if  drop i  fswap  then  fdrop
+    loop fdrop ww ;
+
 \ It takes time for the first guess which is always the same
-\ #words    to #working time fg ->  2.2 sec (raise)
-\ #allwords to #working time fg -> 68.9 sec (tares)
+\   hidden on  init time max-entropy w.  2.189 sec raise
+\   hidden off init time max-entropy w. 70.853 sec tares
+\ Whe we consider all words (hidden off), "tares" has higher entropy
+\   w raise entropy f. 5.91973684251619
+\   w tares entropy f. 6.19405254437545
+\ The proven best first word is "salet", which we don't prize quite as much:
+\   w salet entropy f. 6.01684287539826
 
 wordle first-guess   w tares   first-guess wmove
 
 \  cr .( calculating first entropy guess... )
-\  ? to #working
-\  init-solver max-entropy first-guess wmove
+\  hidden off init-solver max-entropy first-guess wmove
 
-\ find word with the highest entropy
+\ guess the word with the highest entropy
 \  4 value fence   \ use a different guesser if fewer than fence words left
 : entropy-guess ( -- w )
     guesses 0= if ( shortcut ) first-guess exit then
     #working remaining 1 = if ( can't use entropy ) simple-guess exit then
-\     #working fence < if max-working-entropy exit then
+    \ use all words for the second guess
+    \  guesses 1 = if max-entropy exit then
+\     #working fence < if max-entropy exit then
 \   #working fence
     max-entropy ;
 
@@ -130,7 +143,7 @@ solver
     1 Failed 
 Average: 3.52    12.596 sec
 
-\ Use max-working-entropy below the fence (slightly better than tally)
+\ Use max-entropy below the fence (slightly better than tally)
     0 Solved in 1 
    75 Solved in 2 
  1118 Solved in 3 
@@ -141,7 +154,7 @@ Average: 3.52    12.596 sec
 Average: 3.48    249.131 sec
 
 \ Using simple-guess at 1
-\ Use max-working-entropy if < 4
+\ Use max-entropy if < 4
 \ Otherwise max-entropy
     0 Solved in 1 
    75 Solved in 2 

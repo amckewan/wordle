@@ -2,30 +2,28 @@
 
 \ The number of occurances of each letter at each position
 \ 5 rows of 32, count for 'A' at offset 1.
-32 cells constant tally-row
-tally-row len * constant tallies-size
-create tallies           tallies-size allot
+32 cells constant #tally
+#tally len * constant #tallies
+create tallies        #tallies allot
 
-tallies tallies-size bounds 2constant for-tallies ( -- limit index )
-
-: clear-tallies  tallies tallies-size erase ;
 : >tally ( c pos -- a )  32 *  swap 31 and +  cells tallies + ;
 
+tallies #tallies bounds 2constant for-tallies ( -- limit index )
+
+: .tallies  len 0 do  cr i 0 .r ." : "  a-z do  i j >tally @
+      ?dup if  i emit ." =" . then loop loop ;
+
 : tally-word ( w -- )
-    for-tallies do  count 31 and cells i +  1 swap +!  tally-row +loop drop ;
-: tally-working ( -- ) \ tally the words in the working set
-    clear-tallies  for-working do  i c@ if i >ww tally-word then  loop ;
-
-: .tallies  len 0 do  cr i 0 .r ." : "  27 1 do
-      j 32 * i + cells tallies + @  ?dup if  i '@' + emit ." =" .  then
-    loop loop ;
-
+    for-tallies do  count 31 and cells i +  1 swap +!  #tally +loop drop ;
+: tally-working ( -- )  tallies #tallies erase
+    working @ begin  dup cell+ tally-word  @ ?dup 0= until ;
 
 : tally ( w -- n )    0 ( n ) swap
-    for-tallies do  count 31 and cells i + @  rot + swap  tally-row +loop drop ;
+    for-tallies do  count 31 and cells i + @  rot + swap  #tally +loop drop ;
 
 \ Pick the word with the largest letter tally
-: tally-guess ( -- w )  tally-working  0 0 ( w# tally )
-    #working 0 do
-      i ww tally 2dup < if ( replace ) nip nip i swap else drop then
-    loop drop ww ;
+: tally-guess ( -- w )
+    tally-working  wordle-words cell+ ( w )  0 ( tally )
+    for-hidden-words do
+      i tally 2dup < if ( replace ) nip nip i swap else drop then
+    wsize +loop drop ;

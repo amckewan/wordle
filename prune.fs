@@ -3,8 +3,8 @@
 \ Pruning is similar to scoring and we re-use the scoring table.
 \ Instead of taking a guess and target and producing a score,
 \ we take a guess and a score and answer whether a target word
-\ could have received that score. If not, we remove it from the
-\ working set.
+\ could have received that score. If not, we can remove it from
+\ the working set.
 
 : prune-green? ( score -- f )
     for-scoring do
@@ -41,15 +41,6 @@
     dup prune-green?  if true else
     dup prune-yellow? if true else
     dup prune-grey?   then then nip ;
-
-
-\ Prune the working set, removing words that wouldn't get this score
-: pruner ( guess score #words -- )
-    working + working do  i c@ if
-        2dup i >ww prune? if ( remove ) 0 i c! then
-    then loop 2drop ;
-
-: prune ( -- )  latest #working pruner ;
 
 
 
@@ -104,3 +95,4 @@ T{ w EERIE s Y--Y- w VIXEN  prune? -> false }T
 T{ w EERIE s Y--Y- w xIExx  prune? -> false }T
 T{ w EERIE s Y--Y- w Exxxx  prune? -> true }T
 T{ w EERIE s Y--Y- w xxxIx  prune? -> true }T
+

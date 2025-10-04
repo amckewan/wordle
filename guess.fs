@@ -1,14 +1,10 @@
 ( take a guess )
 
 \ Pick the first word from the working set
-: simple-guess ( -- w )
-    0 ww  for-working do i c@ if drop i >ww leave then loop ;
+: simple-guess ( -- w )  working @ cell+ ;
 
 \ Pick a random word from the hidden word list (otherwise it's terrible)
-: random-guess ( -- w )
-    0 ww  #working remaining random  for-working do
-        i c@ if  1- dup 0< if drop i >ww swap leave then  then
-    loop drop ;
+: random-guess ( -- w )  working remaining-hidden random -1 do @ loop cell+ ;
 
 \ Try different algorithms
 ' simple-guess value guesser

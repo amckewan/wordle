@@ -9,10 +9,9 @@ wordle secret       ( the secret word we are trying to guess )
 \ Maintain partial answer for solver convenience, letter or '-'
 wordle answer
 : +answer ( guess score -- ) \ record any green letters in answer
-    len 0 do  3 /mod swap green = if
-        over i + c@  i answer + c!
+    len 0 do  3 /mod swap green = if  over i + c@  i answer + c!
     then loop 2drop ;
-: greens ( -- n )  0  answer len bounds do  i c@ '-' = 1+ +  loop ;
+: greens ( -- n )  0  answer len + answer do  i c@ '-' = 1+ +  loop ;
 
 : .secret  secret w. ;
 : .game ." secret: " .secret ." answer: " answer w. ." guesses: " guesses . ;

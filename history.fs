@@ -1,11 +1,11 @@
 ( save history of guesses and scores )
 
 \ The history has 6 entries of score+guess (6 bytes)
-create histbuf  #guesses len 1+ * allot
+create history  #guesses 6 * allot
 
-: >hist ( n -- a )  6 * histbuf + ;
+: >hist ( n -- a )  6 * history + ;
 : hist@ ( n -- guess score )  >hist count ;
-: hist! ( guess score n -- )  >hist  swap over c!  1+ wmove ;
+: hist! ( guess score n -- )  >hist swap over c!  1+ wmove ;
 
 : .history  guesses 0 ?do i hist@ swap  cr i 1+ . w.  cr 2 spaces s. loop ;
 
@@ -13,7 +13,7 @@ create histbuf  #guesses len 1+ * allot
     guesses #guesses u< not abort" History full!"
     guesses hist!  guesses 1+ to guesses ;
 
-: latest ( -- guess score )  guesses dup 0= abort" no history" 1- hist@ ;
+: latest ( -- guess score )  guesses 1- hist@ ;
 
 
 

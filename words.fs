@@ -16,7 +16,6 @@
 : wcompare  len swap len compare ;
 : w=        wcompare 0= ;
 : w,        here len dup allot move ;
-: ww,       w w, ;
 
 : for-chars ( w -- limit index )  dup len + swap ; \ for do..loop over chars
 \ for-each-letter ?
@@ -25,6 +24,13 @@
 \ There are two lists of words, those that can be solutions (hidden-words)
 \ and those that can be guesses but not solutions (guess-words).
 \ The lists are disjoint and we lay them down one after the other.
+\ Each list is sorted so we can do a binary search.
+
+\ list entry has a cell used by the solver followed by the 5-letters word
+len aligned cell+ constant wsize
+
+\ compile flag + word
+: ww, ( "w" -- )  0 ,  bl parse drop  here len dup allot move  align ;
 
 create wordle-words
 include data/hidden-words.fs
@@ -32,20 +38,27 @@ here
 include data/guess-words.fs
 here
 
-wordle-words - len / constant #words    ( all words )
-wordle-words - len / constant #hidden   ( just the possible solutions )
+dup                    constant words-end
+wordle-words - wsize / constant #words    ( all words )
+
+dup                    constant hidden-end
+wordle-words - wsize / constant #hidden   ( just the possible solutions )
+
+\ iterate through words ( i returns word address ), use `wsize +loop`
+words-end  cell+ wordle-words cell+ 2constant for-all-words
+hidden-end cell+ wordle-words cell+ 2constant for-hidden-words
 
 \ get wordle word from word #
-: ww ( w# -- w )  len * wordle-words + ;
+: ww ( w# -- w )  wsize * wordle-words + cell+ ;
 
 \ print all possible solutions
-: .hidden  #hidden 0 do  i ww w.  loop ;
+: .hidden  for-hidden-words do i w. wsize +loop ;
 
-\ check if a guess is in one of the two word lists
+\ check if a guess is in one of the two word lists (linear search)
 : valid-guess ( w -- f )
-    #words 0 do
-        dup i ww w= if  drop true  unloop exit  then
-    loop  drop false ;
+    false  for-all-words do
+        over i w= if drop true leave then
+    wsize +loop nip ;
 
 
 
