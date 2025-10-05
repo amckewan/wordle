@@ -30,3 +30,25 @@ t{ all-words remaining-hidden -> #hidden }t
 : .working  0 working @ begin .entry until . ;
 : .hidden  0 working @ begin  dup hidden-end u< not if drop . exit then
     .entry until . ;
+
+0 [if]
+\ using words-end as the marker
+\ saved for interest but it doesn't really simplify much
+
+: all-words ( add all words to the working set )
+    wordle-words dup working !
+    begin  dup wsize +   dup rot !   dup words-end = until drop ;
+
+: for-working  words-end working @ ;
+: for-hidden-working  hidden-end working @ ;
+: next ( w -- n )  dup @ swap - ;
+
+\ : remaining ( -- n )  0  working @ begin  swap 1+ swap  @ ?dup 0= until ;
+
+\ : remaining ( end -- n )  0 swap working @ do  1+  i next +loop ;
+
+: remaining ( -- n )  0  for-working do  1+  i next +loop ;
+
+: remaining-hidden ( -- n )  0  for-hidden-working do  1+  i next +loop ;
+
+[then]
