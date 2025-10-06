@@ -37,13 +37,13 @@ create kb 32 allot
 
 
 ( ===== TESTS ===== )
-TESTING GUESS
-w ABACK new-game-with
-T{ w DEFGH guess -> s ----- }T
-T{ w AxAxK guess -> s G-G-G }T
-T{ w ABACK guess -> s GGGGG }T
-T{ guesses -> 3 }T
-T{ w BABAA guess -> s YY-Y- }T
-T{ w AKBCB guess -> s GYYG- }T
-T{ w CCBAA guess -> s Y-YYY }T
-T{ guesses -> 6 }T
+testing guess
+w aback new-game-with
+t{ w defgh guess -> s ----- }t
+t{ w axaxk guess -> s g-g-g }t
+t{ w aback guess -> s ggggg }t
+t{ guesses -> 3 }t
+t{ w babaa guess -> s yy-y- }t
+t{ w akbcb guess -> s gyyg- }t
+t{ w ccbaa guess -> s y-yyy }t
+t{ guesses -> 6 }t

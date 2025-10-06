@@ -3,6 +3,7 @@
 variable endgame    \ true to use endgame strategy
 variable hidden     \ true to reduce working set to just hidden words
 
+\ start easy...
 use simple-guess
 endgame on
 hidden on

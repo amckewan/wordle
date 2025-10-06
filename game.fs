@@ -16,8 +16,8 @@ wordle answer
 : .secret  secret w. ;
 : .game ." secret: " .secret ." answer: " answer w. ." guesses: " guesses . ;
 
-: solved ( score -- f ) #scores 1- = ;
-: failed ( -- f )       guesses 5 > ; \ assuming not solved
+: solved ( score -- f ) [s] ggggg = ;
+: failed ( -- f )       guesses 5 > ; ( assuming not solved )
 
 \ init everything except the secret
 : init-game ( -- )  0 to guesses  answer len '-' fill ;
@@ -33,13 +33,13 @@ wordle answer
 
 
 ( ===== TESTS ===== )
-TESTING +ANSWER
+testing +answer
 init-game
-T{ w ABCDE s GY-G- +answer  w A--D- answer w= -> true }T
-T{ w LMNOP s -G--- +answer  w AM-D- answer w= -> true }T
-T{ w VWXYZ s ----- +answer  w AM-D- answer w= -> true }T
+t{ w abcde s gy-g- +answer  w a--d- answer w= -> true }t
+t{ w lmnop s -g--- +answer  w am-d- answer w= -> true }t
+t{ w vwxyz s ----- +answer  w am-d- answer w= -> true }t
 
-TESTING GREENS
-T{ w ----- answer wmove     greens -> 0 }T
-T{ w -A-B- answer wmove     greens -> 2 }T
-T{ w WINDY answer wmove     greens -> 5 }T
+testing greens
+t{ w ----- answer wmove     greens -> 0 }t
+t{ w -a-b- answer wmove     greens -> 2 }t
+t{ w windy answer wmove     greens -> 5 }t

@@ -7,15 +7,12 @@
 
 : wordle    create len allot ;
 
-: lower     bounds do i c@ bl or i c! loop ;
-: w         bl parse len - abort" need 5 letters" dup len lower ;
+: w         bl parse len - abort" need 5 letters" ;
 : [w]       w len postpone sliteral postpone drop ; immediate
 : w.        len type space ;
 
 : wmove     len move ;
-: wcompare  len swap len compare ;
-: w=        wcompare 0= ;
-: w,        here len dup allot move ;
+: w=        len swap len compare 0= ;
 
 : for-chars ( w -- limit index )  dup len + swap ; \ for do..loop over chars
 \ for-each-letter ?
@@ -51,9 +48,6 @@ hidden-end cell+ wordle-words cell+ 2constant for-hidden-words
 \ get wordle word from word #
 : ww ( w# -- w )  wsize * wordle-words + cell+ ;
 
-\ print all possible solutions
-: .hidden  for-hidden-words do i w. wsize +loop ;
-
 \ check if a guess is in one of the two word lists (linear search)
 : valid-guess ( w -- f )
     false  for-all-words do
@@ -63,19 +57,15 @@ hidden-end cell+ wordle-words cell+ 2constant for-hidden-words
 
 
 ( ===== TESTS ===== )
-TESTING VALID-GUESS
+testing valid-guess
 ( hidden words )
-T{ w ABACK valid-guess -> true }T
-T{ w RAISE valid-guess -> true }T
-T{ w ZONAL valid-guess -> true }T
+t{ w aback valid-guess -> true }t
+t{ w raise valid-guess -> true }t
+t{ w zonal valid-guess -> true }t
 ( guess words)
-T{ w ABLOW valid-guess -> true }T
-T{ w PONGO valid-guess -> true }T
-T{ w ZYMIC valid-guess -> true }T
+t{ w ablow valid-guess -> true }t
+t{ w pongo valid-guess -> true }t
+t{ w zymic valid-guess -> true }t
 ( invalid words )
-T{ w XXXXX valid-guess -> false }T
-T{ w ABACC valid-guess -> false }T
-( lowercase )
-T{ w aback valid-guess -> true }T
-T{ w RaisE valid-guess -> true }T
-T{ w zonal valid-guess -> true }T
+t{ w xxxxx valid-guess -> false }t
+t{ w abacc valid-guess -> false }t

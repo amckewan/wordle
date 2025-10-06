@@ -18,11 +18,11 @@ create history  #guesses 6 * allot
 
 
 ( ===== TESTS ===== )
-TESTING HISTORY
+testing history
 0 to guesses
-T{ w RAISE s GG-YY +history guesses -> 1 }T
-T{ w COUNT s YY-GG +history guesses -> 2 }T
-T{ 0 >hist 1+ w RAISE w= -> true }T
-T{ 1 >hist c@ -> s YY-GG }T
-T{ 0 hist@ drop w RAISE w= -> true }T
-T{ 1 hist@ nip -> s YY-GG }T
+t{ w raise s gg-yy +history guesses -> 1 }t
+t{ w count s yy-gg +history guesses -> 2 }t
+t{ 0 >hist 1+ w raise w= -> true }t
+t{ 1 >hist c@ -> s yy-gg }t
+t{ 0 hist@ drop w raise w= -> true }t
+t{ 1 hist@ nip -> s yy-gg }t

@@ -55,60 +55,60 @@ scoring #scoring bounds 2constant for-scoring
 
 
 ( ===== TESTS ===== )
-TESTING COLOR
-T{ '-' color -> grey }T
-T{ 'Y' color -> yellow }T
-T{ 'G' color -> green }T
-T{ 'y' color -> yellow }T
-T{ 'g' color -> green }T
+testing color
+t{ '-' color -> grey }t
+t{ 'y' color -> yellow }t
+t{ 'g' color -> green }t
+t{ 'y' color -> yellow }t
+t{ 'g' color -> green }t
 
-TESTING >S
-T{ S" -----" drop >s -> 0 }T
-T{ S" Y----" drop >s -> yellow }T
-T{ S" G----" drop >s -> green }T
-T{ S" Y--YY" drop >s -> yellow dup 27 * over 81 * + + }T
-T{ S" -G--G" drop >s -> green dup 3 * swap 81 * + }T
-T{ S" GGGGG" drop >s -> #scores 1- }T
+testing >s
+t{ s" -----" drop >s -> 0 }t
+t{ s" y----" drop >s -> yellow }t
+t{ s" g----" drop >s -> green }t
+t{ s" y--yy" drop >s -> yellow dup 27 * over 81 * + + }t
+t{ s" -g--g" drop >s -> green dup 3 * swap 81 * + }t
+t{ s" ggggg" drop >s -> #scores 1- }t
 
-TESTING S [S]
-T{ s ----- -> 0 }T
-T{ s Y---- -> yellow }T
-T{ s G---- -> green }T
-T{ s YG-Y- -> yellow  green 3 * +  yellow 27 * + }T
-T{ s YYYYY -> yellow dup 3 * dup 3 * dup 3 * dup 3 * + + + + }T
-T{ s GGGGG -> #scores 1- }T
-T{ :noname [s] YG-Y- ; execute -> s YG-Y- }T
+testing s [s]
+t{ s ----- -> 0 }t
+t{ s y---- -> yellow }t
+t{ s g---- -> green }t
+t{ s yg-y- -> yellow  green 3 * +  yellow 27 * + }t
+t{ s yyyyy -> yellow dup 3 * dup 3 * dup 3 * dup 3 * + + + + }t
+t{ s ggggg -> #scores 1- }t
+t{ :noname [s] yg-y- ; execute -> s yg-y- }t
 
-TESTING INIT-SCORING
-T{ w ABCDE w MNOPQ init-scoring -> }T
-T{ scoring           2@ -> 'a' 'm' }T
-T{ scoring 2 cells + 2@ -> 'b' 'n' }T
-T{ scoring 8 cells + 2@ -> 'e' 'q' }T
+testing init-scoring
+t{ w thorn w bears init-scoring -> }t
+t{ scoring           2@ -> 't' 'b' }t
+t{ scoring 2 cells + 2@ -> 'h' 'e' }t
+t{ scoring 8 cells + 2@ -> 'n' 's' }t
 
-TESTING SCORE-GREENS
-T{ W TRACE W xxxxx init-scoring  score-greens -> s ----- }T
-T{ W TRACE W TRACE init-scoring  score-greens -> s GGGGG }T
-T{ W TRACE W TRAxx init-scoring  score-greens -> s GGG-- }T
-T{ W TRACE W xRxCx init-scoring  score-greens -> s -G-G- }T
+testing score-greens
+t{ w trace w xxxxx init-scoring  score-greens -> s ----- }t
+t{ w trace w trace init-scoring  score-greens -> s ggggg }t
+t{ w trace w traxx init-scoring  score-greens -> s ggg-- }t
+t{ w trace w xrxcx init-scoring  score-greens -> s -g-g- }t
 
-TESTING SCORE-YELLOWS
-T{ w AABCD w xxxxx init-scoring  0 score-yellows -> s ----- }T
-T{ w AABCD w Bxxxx init-scoring  0 score-yellows -> s Y---- }T
-T{ w AABCD w xxAxx init-scoring  0 score-yellows -> s --Y-- }T
-T{ w AABCD w xxAAx init-scoring  0 score-yellows -> s --YY- }T
-T{ w AABCD w xxAAA init-scoring  0 score-yellows -> s --YY- }T
-T{ w AABCD w DDxxx init-scoring  0 score-yellows -> s Y---- }T
-T{ w ALERT w RAISE init-scoring  0 score-yellows -> s YY--Y }T
-T{ w AABCD w AxAxA init-scoring  score-greens score-yellows -> s G-Y-- }T
+testing score-yellows
+t{ w aabcd w xxxxx init-scoring  0 score-yellows -> s ----- }t
+t{ w aabcd w bxxxx init-scoring  0 score-yellows -> s y---- }t
+t{ w aabcd w xxaxx init-scoring  0 score-yellows -> s --y-- }t
+t{ w aabcd w xxaax init-scoring  0 score-yellows -> s --yy- }t
+t{ w aabcd w xxaaa init-scoring  0 score-yellows -> s --yy- }t
+t{ w aabcd w ddxxx init-scoring  0 score-yellows -> s y---- }t
+t{ w alert w raise init-scoring  0 score-yellows -> s yy--y }t
+t{ w aabcd w axaxa init-scoring  score-greens score-yellows -> s g-y-- }t
 
-TESTING SCORE
-T{ w AABCD w xxxxx score -> s ----- }T
-T{ w AABCD w Axxxx score -> s G---- }T
-T{ w AABCD w Dxxxx score -> s Y---- }T
-T{ w AABCD w DDDDx score -> s Y---- }T
-T{ w AABCD w xxAxx score -> s --Y-- }T
-T{ w AABCD w xxAAx score -> s --YY- }T
-T{ w AABCD w xxAAA score -> s --YY- }T
-T{ w AABCD w AxBDx score -> s G-GY- }T
-T{ w AABCD w AxAxA score -> s G-Y-- }T
-T{ w VIXEN w EERIE score -> s Y--Y- }T
+testing score
+t{ w aabcd w xxxxx score -> s ----- }t
+t{ w aabcd w axxxx score -> s g---- }t
+t{ w aabcd w dxxxx score -> s y---- }t
+t{ w aabcd w ddddx score -> s y---- }t
+t{ w aabcd w xxaxx score -> s --y-- }t
+t{ w aabcd w xxaax score -> s --yy- }t
+t{ w aabcd w xxaaa score -> s --yy- }t
+t{ w aabcd w axbdx score -> s g-gy- }t
+t{ w aabcd w axaxa score -> s g-y-- }t
+t{ w vixen w eerie score -> s y--y- }t

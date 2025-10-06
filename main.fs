@@ -16,7 +16,7 @@ include game-ui.fs
 include working.fs
 include guess.fs
 include tally.fs
-\  \  include entropy.fs
+include entropy.fs
 include endgame.fs
 include solver.fs
 include tryall.fs

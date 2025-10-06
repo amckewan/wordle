@@ -46,53 +46,52 @@
 
 ( ===== TESTS ===== )
 
-TESTING PRUNE-GREEN?
+testing prune-green?
 \    guess   score   target
-T{ w ABCDE s G-G-G w AxCxE  rot init-scoring  prune-green? -> false }T
-T{ w ABCDE s G-G-G w BBCDE  rot init-scoring  prune-green? -> true  }T
-T{ w ABCDE s G-G-G w ABBDE  rot init-scoring  prune-green? -> true  }T
-T{ w ABCDE s G-G-G w ABCDD  rot init-scoring  prune-green? -> true  }T
-T{ w ABCDE s G-G-G w ABCDE  rot init-scoring  prune-green? -> false }T
-T{ 0 2 cells * scoring + @ 0< -> true  }T
-T{ 1 2 cells * scoring + @ 0< -> false }T
-T{ 2 2 cells * scoring + @ 0< -> true  }T
-T{ 3 2 cells * scoring + @ 0< -> false }T
-T{ 4 2 cells * scoring + @ 0< -> true  }T
+t{ w abcde s g-g-g w axcxe  rot init-scoring  prune-green? -> false }t
+t{ w abcde s g-g-g w bbcde  rot init-scoring  prune-green? -> true  }t
+t{ w abcde s g-g-g w abbde  rot init-scoring  prune-green? -> true  }t
+t{ w abcde s g-g-g w abcdd  rot init-scoring  prune-green? -> true  }t
+t{ w abcde s g-g-g w abcde  rot init-scoring  prune-green? -> false }t
+t{ 0 2 cells * scoring + @ 0< -> true  }t
+t{ 1 2 cells * scoring + @ 0< -> false }t
+t{ 2 2 cells * scoring + @ 0< -> true  }t
+t{ 3 2 cells * scoring + @ 0< -> false }t
+t{ 4 2 cells * scoring + @ 0< -> true  }t
 
-TESTING find-match
-T{ w AAAAA w xxxxx init-scoring  'a' find-match -> scoring cell+ true }T
-T{ w xxAxx w xxxxx init-scoring  'a' find-match -> 2 2 cells * scoring + cell+ true }T
-T{ w xxxxx w xxxxx init-scoring  'a' find-match     -> false  }T
-T{ w ABCDE w xxxxx init-scoring  'b' find-match nip -> true }T
-T{ w ABCDE w xxxxx init-scoring  'c' find-match nip -> true }T
-T{ w ABCDE w xxxxx init-scoring  'd' find-match nip -> true }T
-T{ w ABCDE w xxxxx init-scoring  'e' find-match nip -> true }T
-T{ w ABCDE w xxxxx init-scoring  'f' find-match     -> false  }T
+testing find-match
+t{ w aaaaa w xxxxx init-scoring  'a' find-match -> scoring cell+ true }t
+t{ w xxaxx w xxxxx init-scoring  'a' find-match -> 2 2 cells * scoring + cell+ true }t
+t{ w xxxxx w xxxxx init-scoring  'a' find-match     -> false  }t
+t{ w abcde w xxxxx init-scoring  'b' find-match nip -> true }t
+t{ w abcde w xxxxx init-scoring  'c' find-match nip -> true }t
+t{ w abcde w xxxxx init-scoring  'd' find-match nip -> true }t
+t{ w abcde w xxxxx init-scoring  'e' find-match nip -> true }t
+t{ w abcde w xxxxx init-scoring  'f' find-match     -> false  }t
 
-TESTING PRUNE-YELLOW?
+testing prune-yellow?
 \    guess   score   target
-T{ w ABCDE s YY--- w AAAAA  rot init-scoring  prune-yellow? -> true }T
-T{ w ABCDE s YY--- w xxAAA  rot init-scoring  prune-yellow? -> true }T
-T{ w ABCDE s YY--- w xxBBB  rot init-scoring  prune-yellow? -> true }T
-T{ w ABCDE s YY--- w xxABx  rot init-scoring  prune-yellow? -> false }T
-T{ w ABCDE s YY--- w BAxxx  rot init-scoring  prune-yellow? -> false }T
-T{ w ABCDE s YY--- w BABAB  rot init-scoring  prune-yellow? -> false }T
+t{ w abcde s yy--- w aaaaa  rot init-scoring  prune-yellow? -> true }t
+t{ w abcde s yy--- w xxaaa  rot init-scoring  prune-yellow? -> true }t
+t{ w abcde s yy--- w xxbbb  rot init-scoring  prune-yellow? -> true }t
+t{ w abcde s yy--- w xxabx  rot init-scoring  prune-yellow? -> false }t
+t{ w abcde s yy--- w baxxx  rot init-scoring  prune-yellow? -> false }t
+t{ w abcde s yy--- w babab  rot init-scoring  prune-yellow? -> false }t
 
-T{ w AACDE s YY--- w xxAxx  rot init-scoring  prune-yellow? -> true }T
-T{ w AACDE s YY--- w xxAAx  rot init-scoring  prune-yellow? -> false }T
-T{ w EERIE s Y--Y- w VIXEN  rot init-scoring  prune-yellow? -> false }T
+t{ w aacde s yy--- w xxaxx  rot init-scoring  prune-yellow? -> true }t
+t{ w aacde s yy--- w xxaax  rot init-scoring  prune-yellow? -> false }t
+t{ w eerie s y--y- w vixen  rot init-scoring  prune-yellow? -> false }t
 
-TESTING PRUNE-GREY?
+testing prune-grey?
 \    guess   score   target
-T{ w ABCDE s ----- w xxxxx  rot init-scoring  prune-grey? -> false }T
-T{ w ABCDE s ----- w xAxxx  rot init-scoring  prune-grey? -> true }T
-T{ w ABCDE s ----- w xxxxA  rot init-scoring  prune-grey? -> true }T
-T{ w ABCDE s ----- w Cxxxx  rot init-scoring  prune-grey? -> true }T
+t{ w abcde s ----- w xxxxx  rot init-scoring  prune-grey? -> false }t
+t{ w abcde s ----- w xaxxx  rot init-scoring  prune-grey? -> true }t
+t{ w abcde s ----- w xxxxa  rot init-scoring  prune-grey? -> true }t
+t{ w abcde s ----- w cxxxx  rot init-scoring  prune-grey? -> true }t
 
-TESTING PRUNE?
+testing prune?
 \    guess   score   target
-T{ w EERIE s Y--Y- w VIXEN  prune? -> false }T
-T{ w EERIE s Y--Y- w xIExx  prune? -> false }T
-T{ w EERIE s Y--Y- w Exxxx  prune? -> true }T
-T{ w EERIE s Y--Y- w xxxIx  prune? -> true }T
-
+t{ w eerie s y--y- w vixen  prune? -> false }t
+t{ w eerie s y--y- w xiexx  prune? -> false }t
+t{ w eerie s y--y- w exxxx  prune? -> true }t
+t{ w eerie s y--y- w xxxix  prune? -> true }t

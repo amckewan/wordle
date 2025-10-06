@@ -7,7 +7,7 @@
 \ The working set always contains at least the secret (which is never pruned),
 \ so `working` always points to a hidden word in wordle-words.
  
-variable working    ( head of the working set )
+variable working    ( head of the working set linked list )
 
 : all-words ( add all words to the working set )
     wordle-words begin   dup wsize +   dup rot !   dup words-end = until
@@ -25,30 +25,10 @@ t{ all-words remaining -> #words }t
 t{ snip-hidden remaining -> #hidden }t
 t{ remaining-hidden -> #hidden }t
 t{ all-words remaining-hidden -> #hidden }t
+t{ wordle-words wsize 3 * + working ! remaining -> #words 3 - }t
+t{ remaining-hidden -> #hidden 3 - }t
 
 : .entry  dup cell+ w.  swap 1+ swap  @ ?dup 0= ;
 : .working  0 working @ begin .entry until . ;
 : .hidden  0 working @ begin  dup hidden-end u< not if drop . exit then
     .entry until . ;
-
-0 [if]
-\ using words-end as the marker
-\ saved for interest but it doesn't really simplify much
-
-: all-words ( add all words to the working set )
-    wordle-words dup working !
-    begin  dup wsize +   dup rot !   dup words-end = until drop ;
-
-: for-working  words-end working @ ;
-: for-hidden-working  hidden-end working @ ;
-: next ( w -- n )  dup @ swap - ;
-
-\ : remaining ( -- n )  0  working @ begin  swap 1+ swap  @ ?dup 0= until ;
-
-\ : remaining ( end -- n )  0 swap working @ do  1+  i next +loop ;
-
-: remaining ( -- n )  0  for-working do  1+  i next +loop ;
-
-: remaining-hidden ( -- n )  0  for-hidden-working do  1+  i next +loop ;
-
-[then]
