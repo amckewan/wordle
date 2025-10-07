@@ -60,19 +60,88 @@ create scored   #scores cells allot
 \ The proven best first word is "salet", which we don't prize quite as much:
 \   w salet entropy f. 6.01684287539826
 
-wordle first-guess   w tares   first-guess wmove
+: first-guess  hidden @ if [w] raise else [w] tares then ;
 
 \  cr .( calculating first entropy guess... )
-\  hidden off init-solver max-entropy first-guess wmove
+\  wordle first-guess
+\  init-solver max-entropy first-guess wmove
 
 \ guess the word with the highest entropy
-variable fence   \ use a different guesser if fewer than fence words left
+variable fence
 : entropy-guess ( -- w )
     guesses 0= if ( shortcut ) first-guess exit then
     remaining 1 = if ( can't use entropy ) simple-guess exit then
-    remaining fence @ < if tally-guess exit then
+    guesses fence @ < if ( use all on 2nd guess ) max-entropy-all exit then
+    \  remaining fence @ < if tally-guess exit then
     \ use all words for the second guess
     \  guesses 1 = if max-entropy exit then
 \     #working fence < if max-entropy exit then
 \   #working fence
     max-entropy ;
+
+\  \ try entropy for two rounds on all the hidden words to see how we go
+\  variable useall
+\  : testone ( w -- )  init secret!
+\      first-guess guess [w] ggggg = if 
+\      useall @ if max-entropy-all else max-entropy then
+
+
+\  : test-entropy  for-hidden-words do
+
+
+0 [if]
+( ===== RESULTS =====)
+fence off
+
+endgame off hidden off solver
+    0 Solved in 1 
+   64 Solved in 2 
+  828 Solved in 3 
+ 1022 Solved in 4 
+  313 Solved in 5 
+   71 Solved in 6 
+   17 Failed 
+Average: 3.75    146.995 sec
+
+endgame off hidden on solver  ( using raise )
+    1 Solved in 1 
+  131 Solved in 2 
+  990 Solved in 3 
+  926 Solved in 4 
+  208 Solved in 5 
+   48 Solved in 6 
+   11 Failed 
+Average: 3.57    7.684 sec
+
+endgame on hidden off solver 
+    0 Solved in 1 
+   64 Solved in 2 
+  828 Solved in 3 
+ 1018 Solved in 4 
+  319 Solved in 5 
+   75 Solved in 6 
+   11 Failed 
+Average: 3.77    148.061 sec
+
+endgame on hidden on solver ( using raise )
+    1 Solved in 1 
+  131 Solved in 2 
+  988 Solved in 3 
+  928 Solved in 4 
+  218 Solved in 5 
+   46 Solved in 6 
+    3 Failed 
+Average: 3.58    7.878 sec
+
+( tally guess is faster and almost as good )
+use tally-guess solver 
+    1 Solved in 1 
+  145 Solved in 2 
+  861 Solved in 3 
+ 1006 Solved in 4 
+  264 Solved in 5 
+   34 Solved in 6 
+    4 Failed 
+Average: 3.63    2.588 sec
+
+[then]

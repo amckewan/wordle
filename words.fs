@@ -15,7 +15,7 @@
 : w=        len swap len compare 0= ;
 
 : for-chars ( w -- limit index )  dup len + swap ; \ for do..loop over chars
-\ for-each-letter ?
+\ for-each-letter ? for-each-pos
 
 \ =========================================================================
 \ There are two lists of words, those that can be solutions (hidden-words)

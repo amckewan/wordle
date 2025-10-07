@@ -1,5 +1,9 @@
 ( save history of guesses and scores )
 
+6 constant #guesses     ( set by game )
+
+0 value guesses         ( number of guesses so far, 0-6 )
+
 \ The history has 6 entries of score+guess (6 bytes)
 create history  #guesses 6 * allot
 

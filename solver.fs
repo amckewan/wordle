@@ -1,30 +1,24 @@
 ( solver )
 
 variable endgame    \ true to use endgame strategy
-variable hidden     \ true to reduce working set to just hidden words
+variable fails      \ true to show failures
 
-\ start easy...
-use simple-guess
+use entropy-guess
+hidden off
 endgame on
-hidden on
+fails on
+timing on
 
 : init-solver  init-game  all-words  hidden @ if snip-hidden then ;
 
 : make-guess ( -- w )
     remaining-hidden 1 = if ( only one left ) simple-guess exit then
-    greens len = if ( we know it ) answer exit then
+    #greens len = if ( we know it ) greens exit then
     endgame @ if endgame? if endgame-guess exit then then
     guesser execute ;
 
-\ Prune the working set, removing words that wouldn't produce this score
-: prune ( -- )  latest 2>r
-    working begin dup @ dup while
-        dup 2r@ rot cell+ prune? if  @ over !  else  nip  then
-    repeat 2drop 2r> 2drop ;
-
 \ Try to solve the puzzle in 6 rounds, return true if we solved it.
-variable fails
-: .failed fails @ if cr .secret ." failed" .history then ;
+: .failed fails @ if cr cr .secret ." failed" .history then ;
 : round ( -- f )  make-guess guess solved ;
 : solve? ( -- f )
     init-solver
@@ -37,6 +31,7 @@ variable fails
 
 \ shorthand
 : init init-solver ;
+: try init w secret! ;
 : r round drop .history ;
 : p prune remaining . ;
-: try new w secret wmove solve ;
+: rounds ( n -- )  0 do round if unloop exit then prune loop ;

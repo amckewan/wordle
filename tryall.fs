@@ -17,7 +17,7 @@ variable talking ( show progress as we go )
     if guesses >result else results then 1 swap +! ;
 : solve-all ( -- )
     results #guesses 1+ cells erase
-    #hidden 0 do  i ww new-game-with  solve? +results  loop ;
+    #hidden 0 do  init  i ww secret!  solve? +results  loop ;
 : solver ( -- )
     timestamp  solve-all  timestamp  .results
     timing @ if swap - 3 spaces .elapsed else 2drop then ;

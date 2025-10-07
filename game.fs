@@ -1,45 +1,52 @@
 \ Wordle game
 
-\ Game data
-wordle secret       ( the secret word we are trying to guess )
-0 value guesses     ( number of guesses so far, 0-6 )
+wordle secret   ( the secret word we are trying to guess )
 
-6 constant #guesses ( set by game )
+: secret! ( w -- )  secret wmove ;
 
-\ Maintain partial answer for solver convenience, letter or '-'
-wordle answer
-: +answer ( guess score -- ) \ record any green letters in answer
-    len 0 do  3 /mod swap green = if  over i + c@  i answer + c!
-    then loop 2drop ;
-: greens ( -- n )  0  answer len + answer do  i c@ '-' = 1+ +  loop ;
-
-: .secret  secret w. ;
-: .game ." secret: " .secret ." answer: " answer w. ." guesses: " guesses . ;
+: score-guess ( guess -- score )  secret swap score ;
 
 : solved ( score -- f ) [s] ggggg = ;
 : failed ( -- f )       guesses 5 > ; ( assuming not solved )
 
-\ init everything except the secret
-: init-game ( -- )  0 to guesses  answer len '-' fill ;
+\ Maintain greens for solver convenience, letter or '-'
+wordle greens
+: #greens ( -- n )  0  greens for-chars do  i c@ '-' = 1+ +  loop ;
+: +greens ( guess score -- )
+    len 0 do  3 /mod swap green = if  over i + c@  i greens + c!  then
+    loop 2drop ;
 
-\ start a new game with w as the secret
-: new-game-with ( w -- )  init-game secret wmove ;
+\ Like the wordle-game's keyboard, record what we know about each letter
+\ 0=unknown, 1=grey, 2=yellow, 3=green (k = color+1)
+create kb 32 allot
+: >kb ( c -- a )  31 and kb + ;
+: +kb ( k c -- )  >kb 2dup c@ > if c! else 2drop then ;
+: +keyboard ( guess score -- ) \ update kb with latest guess & score
+    swap for-chars do  3 /mod swap ( color ) 1+ i c@ +kb  loop drop ;
 
-\ Initialize a new game and pick a random secret word.
-: new-game ( -- )  #hidden random ww new-game-with ; new-game
+: .secret  secret w. ;
+: .game ." secret: " .secret ." guesses: " guesses . ." greens: " greens w. ;
 
-: score-guess ( guess -- score )  secret swap score ;
+\ Submit guess to the game, update game state and return the score
+: submit ( guess score -- )  2dup +history  2dup +greens  +keyboard ;
+: guess  ( guess -- score )  dup score-guess  tuck submit ;
+
+\ Initialize everything except the secret (reset game)
+: init-game ( -- )  0 to guesses  greens len '-' fill  kb 32 erase ;
+
+\ Initialize a new game and pick a random secret word
+: new-game ( -- )  init-game  #hidden random ww secret! ;
 
 
 
 ( ===== TESTS ===== )
-testing +answer
+testing +greens
 init-game
-t{ w abcde s gy-g- +answer  w a--d- answer w= -> true }t
-t{ w lmnop s -g--- +answer  w am-d- answer w= -> true }t
-t{ w vwxyz s ----- +answer  w am-d- answer w= -> true }t
+t{ w abcde s gy-g- +greens  w a--d- greens w= -> true }t
+t{ w lmnop s -g--- +greens  w am-d- greens w= -> true }t
+t{ w vwxyz s ----- +greens  w am-d- greens w= -> true }t
 
-testing greens
-t{ w ----- answer wmove     greens -> 0 }t
-t{ w -a-b- answer wmove     greens -> 2 }t
-t{ w windy answer wmove     greens -> 5 }t
+testing #greens
+t{ w ----- greens wmove     #greens -> 0 }t
+t{ w -a-b- greens wmove     #greens -> 2 }t
+t{ w windy greens wmove     #greens -> 5 }t

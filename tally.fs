@@ -1,5 +1,7 @@
 ( letter tallies )
 
+variable tallypos  \ true to use individual positions
+
 \ The number of occurances of each letter at each position
 \ 5 rows of 32, count for 'A' at offset 1.
 32 cells constant #tally
@@ -20,10 +22,3 @@ tallies #tallies bounds 2constant for-tallies ( -- limit index )
 
 : tally ( w -- n )    0 ( n ) swap
     for-tallies do  count 31 and cells i + @  rot + swap  #tally +loop drop ;
-
-\ Pick the word with the largest letter tally
-: tally-guess ( -- w )
-    tally-working  wordle-words cell+ ( w )  0 ( tally )
-    for-hidden-words do
-      i tally 2dup < if ( replace ) nip nip i swap else drop then
-    wsize +loop drop ;
