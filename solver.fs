@@ -5,16 +5,16 @@ variable fails      \ true to show failures
 
 use entropy-guess
 hidden off
-endgame on
-fails on
+endgame off
+fails off
 timing on
 
 : init-solver  init-game  all-words  hidden @ if snip-hidden then ;
 
 : make-guess ( -- w )
-    remaining-hidden 1 = if ( only one left ) simple-guess exit then
+    remaining 1 = if ( only one left ) simple-guess exit then
     #greens len = if ( we know it ) greens exit then
-    endgame @ if endgame? if endgame-guess exit then then
+    endgame @ if endgame? if exit then then
     guesser execute ;
 
 \ Try to solve the puzzle in 6 rounds, return true if we solved it.

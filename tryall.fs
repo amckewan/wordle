@@ -27,5 +27,5 @@ variable talking ( show progress as we go )
     cr ." Using simple-guess "    ['] simple-guess  solve-with
     cr ." Using random-guess "    ['] random-guess  solve-with
     cr ." Using tally-guess "     ['] tally-guess   solve-with
-    \  cr ." Using entropy-guess "   ['] entropy-guess solve-with
+    cr ." Using entropy-guess "   ['] entropy-guess solve-with
 ;

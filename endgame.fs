@@ -5,12 +5,11 @@
 \ where there are 4 greens, but we don't have enough guesses left to try
 \ all possibilities.
 
-: endgame? ( -- f )
-    guesses 3 5 within   #greens 2 > and  ; \ #guesses guesses - remaining-hidden < and ;
-
 \ The letters that could satisfy the remaining positions (two copies)
 create possibles  32 2* allot ( a = 1 )
 : >possible ( c -- a )  31 and possibles + ;
+
+: .possibles  a-z do i >possible c@ if i emit space then loop ;
 
 \ mark all the possible letters at pos for words in the working set
 \ but don't mark the letter in the latest guess (we know it's wrong)
@@ -36,6 +35,7 @@ create possibles  32 2* allot ( a = 1 )
         i #possibles  2dup < if  nip nip i swap  else  drop  then
     wsize +loop drop ;
 
-
 : endgame-guess ( -- w )  mark-greens  find-most ;
 
+: endgame? ( -- w true | false )
+    #greens 4 =  guesses 5 < and  dup if endgame-guess swap then ;

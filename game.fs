@@ -11,7 +11,7 @@ wordle secret   ( the secret word we are trying to guess )
 
 \ Maintain greens for solver convenience, letter or '-'
 wordle greens
-: #greens ( -- n )  0  greens for-chars do  i c@ '-' = 1+ +  loop ;
+: #greens ( -- n )  len  greens for-chars do  i c@ '-' = +  loop ;
 : +greens ( guess score -- )
     len 0 do  3 /mod swap green = if  over i + c@  i greens + c!  then
     loop 2drop ;
