@@ -3,11 +3,11 @@
 variable endgame    \ true to use endgame strategy
 variable fails      \ true to show failures
 
-use entropy-guess
-hidden off
+use tally-guess
+hidden on
 endgame off
 fails off
-timing on
+timing off
 
 : init-solver  init-game  all-words  hidden @ if snip-hidden then ;
 
@@ -18,7 +18,7 @@ timing on
     guesser execute ;
 
 \ Try to solve the puzzle in 6 rounds, return true if we solved it.
-: .failed fails @ if cr cr .secret ." failed" .history then ;
+: .failed fails @ if cr .secret ." failed" fails @ 0> if .history cr then then ;
 : round ( -- f )  make-guess guess solved ;
 : solve? ( -- f )
     init-solver

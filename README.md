@@ -103,11 +103,36 @@ As we can see, there is a small reduction in the number of failures:
 
 | Algorithm  | Basic | Endgame |
 | ---------- | ----- | ------- |
-| Simple   |  59 |  55 |
-| Random   | 247 | 196 |
-| Tally    |  49 |  40 |
-| Entropy  |  17 |  13 |
+| Simple     |  59   |  55     |
+| Random     | 247   | 196     |
+| Tally      |  49   |  40     |
+| Entropy    |  17   |  13     |
 
+If we just use the endgame on the puzzles we failed to solve without it,
+we see that 2 additional puzzled are solved. We would have solved those
+two words with our guesser, but failed when we use the endgame strategy.
+
+```
+hidden off endgame on failures 
+boxer failed
+cover failed
+foyer failed
+hound failed
+hover failed
+joker failed
+jolly failed
+mound failed
+nudge failed
+rover failed
+swell failed
+    0 Solved in 1 
+    0 Solved in 2 
+    0 Solved in 3 
+    0 Solved in 4 
+    2 Solved in 5 
+    4 Solved in 6 
+   11 Failed 
+```
 # Glossary
 
 **score** ( target guess -- score )  *calculate the score for a word*

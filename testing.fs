@@ -13,6 +13,13 @@ include entropy-guesses.fs
         if  init  i ww secret!  solve? +results  then
     loop .results ;
 
+: failures ( just failing words )
+    results #guesses 1+ cells erase
+    #hidden 0 do
+        i entropy-guesses + c@ 6 >
+        if  init  i ww secret!  solve? +results  then
+    loop .results ;
+
 0 [if]
 Interestingly, more are solved in 5 without endgame...
 endgame off solver 

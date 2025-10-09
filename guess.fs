@@ -11,8 +11,7 @@
 : tally-guess ( -- w )
     tally-working \ guesses 0= if tally-working then
     wordle-words cell+ ( w )  0 ( tally )
-    \  hidden @ if for-hidden-words else for-all-words then do
-    for-all-words do
+    hidden @ if for-hidden-words else for-all-words then do
       i tally 2dup < if ( replace ) nip nip i swap else drop then
     wsize +loop drop ;
 
