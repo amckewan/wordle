@@ -13,22 +13,21 @@
     cr ." Unused:  " a-z do i 0 .k loop ;
 
 : g ( "w" -- ) \ "g raise" etc.
-    w  dup valid-guess not abort" Not in word list"
-    dup guess .history ( s )
+    w dup guess .history ( s )
     solved if ." You WIN! " else
-    failed if ." Better luck next time ( " .secret ." ) " else 
+    failed if ." Better luck next time ( " secret w. ." ) " else 
     k then then ;
 
 
 
 ( ===== TESTS ===== )
 testing guess
-init-game w aback secret!
-t{ w defgh guess -> s ----- }t
-t{ w axaxk guess -> s g-g-g }t
+init-game w aback to secret
+t{ w found guess -> s ----- }t
+t{ w track guess -> s --ggg }t
 t{ w aback guess -> s ggggg }t
 t{ guesses -> 3 }t
-t{ w babaa guess -> s yy-y- }t
-t{ w akbcb guess -> s gyyg- }t
-t{ w ccbaa guess -> s y-yyy }t
+t{ w madam guess -> s -y-y- }t
+t{ w brand guess -> s y-g-- }t
+t{ w block guess -> s y--gg }t
 t{ guesses -> 6 }t

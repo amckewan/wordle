@@ -13,8 +13,8 @@
 \ literals
 : color ( char -- color )  2 rshift  3 and  3 - negate ( ascii tricks ) ;
 : >s ( a -- s )  0 1  len 0 do >r  swap count color  r@ * rot +  r> 3 * loop drop nip ;
-: s   ( "w" -- s )  bl parse  len - abort" need 5 letters"  >s ;
-: [s] ( "w" -- s )  s  postpone literal ; immediate
+: s   ( "w" -- s )  bl parse ?len >s ;
+: [s] ( "w" -- s )  s postpone literal ; immediate
 
 : s. ( s -- ) len 0 do  3 /mod swap S" -YG" drop + c@ emit  loop drop space ;
 
@@ -24,8 +24,8 @@
 create scoring  #scoring allot
 scoring #scoring bounds 2constant for-scoring
 
-: init-scoring ( target guess -- )
-    for-scoring do  count rot count rot i 2! swap  2 cells +loop  2drop ;
+: init-scoring ( target guess -- )  ww swap ww
+    for-scoring do  swap count rot count rot i 2!  2 cells +loop  2drop ;
 
 : score-greens ( -- score )   0 ( score ) 1 ( mult )
     for-scoring do
@@ -86,29 +86,21 @@ t{ scoring 2 cells + 2@ -> 'h' 'e' }t
 t{ scoring 8 cells + 2@ -> 'n' 's' }t
 
 testing score-greens
-t{ w trace w xxxxx init-scoring  score-greens -> s ----- }t
+t{ w trace w colon init-scoring  score-greens -> s ----- }t
 t{ w trace w trace init-scoring  score-greens -> s ggggg }t
-t{ w trace w traxx init-scoring  score-greens -> s ggg-- }t
-t{ w trace w xrxcx init-scoring  score-greens -> s -g-g- }t
+t{ w trace w tramp init-scoring  score-greens -> s ggg-- }t
+t{ w trace w brick init-scoring  score-greens -> s -g-g- }t
 
 testing score-yellows
-t{ w aabcd w xxxxx init-scoring  0 score-yellows -> s ----- }t
-t{ w aabcd w bxxxx init-scoring  0 score-yellows -> s y---- }t
-t{ w aabcd w xxaxx init-scoring  0 score-yellows -> s --y-- }t
-t{ w aabcd w xxaax init-scoring  0 score-yellows -> s --yy- }t
-t{ w aabcd w xxaaa init-scoring  0 score-yellows -> s --yy- }t
-t{ w aabcd w ddxxx init-scoring  0 score-yellows -> s y---- }t
+t{ w trace w flown init-scoring  0 score-yellows -> s ----- }t
+t{ w trace w could init-scoring  0 score-yellows -> s y---- }t
+t{ w trace w flesh init-scoring  0 score-yellows -> s --y-- }t
+t{ w trace w girth init-scoring  0 score-yellows -> s --yy- }t
 t{ w alert w raise init-scoring  0 score-yellows -> s yy--y }t
-t{ w aabcd w axaxa init-scoring  score-greens score-yellows -> s g-y-- }t
 
 testing score
-t{ w aabcd w xxxxx score -> s ----- }t
-t{ w aabcd w axxxx score -> s g---- }t
-t{ w aabcd w dxxxx score -> s y---- }t
-t{ w aabcd w ddddx score -> s y---- }t
-t{ w aabcd w xxaxx score -> s --y-- }t
-t{ w aabcd w xxaax score -> s --yy- }t
-t{ w aabcd w xxaaa score -> s --yy- }t
-t{ w aabcd w axbdx score -> s g-gy- }t
-t{ w aabcd w axaxa score -> s g-y-- }t
+t{ w trace w flown score -> s ----- }t
+t{ w trace w tooth score -> s g---- }t
+t{ w trace w could score -> s y---- }t
+t{ w trace w colon score -> s y---- }t
 t{ w vixen w eerie score -> s y--y- }t

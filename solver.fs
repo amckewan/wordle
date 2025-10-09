@@ -5,11 +5,11 @@ variable fails      \ true to show failures
 
 use tally-guess
 hidden on
-endgame off
+endgame on
 fails off
-timing off
+timing on
 
-: init-solver  init-game  all-words  hidden @ if snip-hidden then ;
+: init-solver  init-game  init-working ;
 
 : make-guess ( -- w )
     remaining 1 = if ( only one left ) simple-guess exit then
@@ -18,7 +18,7 @@ timing off
     guesser execute ;
 
 \ Try to solve the puzzle in 6 rounds, return true if we solved it.
-: .failed fails @ if cr .secret ." failed" fails @ 0> if .history cr then then ;
+: .failed fails @ if cr secret w. ." failed" fails @ 0> if .history cr then then ;
 : round ( -- f )  make-guess guess solved ;
 : solve? ( -- f )
     init-solver
@@ -31,7 +31,7 @@ timing off
 
 \ shorthand
 : init init-solver ;
-: try init w secret! ;
+: try init w to secret ;
 : r round drop .history ;
 : p prune remaining . ;
 : rounds ( n -- )  0 do round if unloop exit then prune loop ;

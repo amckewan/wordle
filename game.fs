@@ -1,8 +1,6 @@
 \ Wordle game
 
-wordle secret   ( the secret word we are trying to guess )
-
-: secret! ( w -- )  secret wmove ;
+0 value secret      ( the secret word we are trying to guess )
 
 : score-guess ( guess -- score )  secret swap score ;
 
@@ -10,9 +8,9 @@ wordle secret   ( the secret word we are trying to guess )
 : failed ( -- f )       guesses 5 > ; ( assuming not solved )
 
 \ Maintain greens for solver convenience, letter or '-'
-wordle greens
-: #greens ( -- n )  len  greens for-chars do  i c@ '-' = +  loop ;
-: +greens ( guess score -- )
+create greens len allot
+: #greens ( -- n )  len  greens len bounds do  i c@ '-' = +  loop ;
+: +greens ( guess score -- )  swap ww swap
     len 0 do  3 /mod swap green = if  over i + c@  i greens + c!  then
     loop 2drop ;
 
@@ -22,10 +20,10 @@ create kb 32 allot
 : >kb ( c -- a )  31 and kb + ;
 : +kb ( k c -- )  >kb 2dup c@ > if c! else 2drop then ;
 : +keyboard ( guess score -- ) \ update kb with latest guess & score
-    swap for-chars do  3 /mod swap ( color ) 1+ i c@ +kb  loop drop ;
+    swap ww len bounds do  3 /mod swap ( color ) 1+ i c@ +kb  loop drop ;
 
-: .secret  secret w. ;
-: .game ." secret: " .secret ." guesses: " guesses . ." greens: " greens w. ;
+: .game ." secret: " secret w. ." guesses: " guesses .
+        ." greens: " greens len type space ;
 
 \ Submit guess to the game, update game state and return the score
 : submit ( guess score -- )  2dup +history  2dup +greens  +keyboard ;
@@ -35,18 +33,18 @@ create kb 32 allot
 : init-game ( -- )  0 to guesses  greens len '-' fill  kb 32 erase ;
 
 \ Initialize a new game and pick a random secret word
-: new-game ( -- )  init-game  #hidden random ww secret! ;
+: new-game ( -- )  init-game  #hidden random to secret ;
 
 
 
 ( ===== TESTS ===== )
 testing +greens
 init-game
-t{ w abcde s gy-g- +greens  w a--d- greens w= -> true }t
-t{ w lmnop s -g--- +greens  w am-d- greens w= -> true }t
-t{ w vwxyz s ----- +greens  w am-d- greens w= -> true }t
+t{ w raise s gy-g- +greens  s" r--s-" greens len compare -> 0 }t
+t{ w smack s -g--- +greens  s" rm-s-" greens len compare -> 0 }t
+t{ w pound s ----- +greens  s" rm-s-" greens len compare -> 0 }t
 
 testing #greens
-t{ w ----- greens wmove     #greens -> 0 }t
-t{ w -a-b- greens wmove     #greens -> 2 }t
-t{ w windy greens wmove     #greens -> 5 }t
+t{ s" -----" greens swap move   #greens -> 0 }t
+t{ s" -i-d-" greens swap move   #greens -> 2 }t
+t{ s" windy" greens swap move   #greens -> 5 }t

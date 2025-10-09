@@ -17,13 +17,13 @@ variable talking ( show progress as we go )
     if guesses >result else results then 1 swap +! ;
 : solve-all ( -- )
     results #guesses 1+ cells erase
-    #hidden 0 do  init  i ww secret!  solve? +results  loop ;
+    #hidden 0 do  init  i to secret  solve? +results  loop ;
 : solver ( -- )
     timestamp  solve-all  timestamp  .results
     timing @ if swap - 3 spaces .elapsed else 2drop then ;
 
 : solve-with ( xt -- )  to guesser solver cr ;
-: try-all
+: tryall
     cr ." Using simple-guess "    ['] simple-guess  solve-with
     cr ." Using random-guess "    ['] random-guess  solve-with
     cr ." Using tally-guess "     ['] tally-guess   solve-with

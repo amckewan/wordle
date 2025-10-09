@@ -45,7 +45,7 @@
 
 
 ( ===== TESTS ===== )
-
+0 [if] fix these!
 testing prune-green?
 \    guess   score   target
 t{ w abcde s g-g-g w axcxe  rot init-scoring  prune-green? -> false }t
@@ -95,3 +95,4 @@ t{ w eerie s y--y- w vixen  prune? -> false }t
 t{ w eerie s y--y- w xiexx  prune? -> false }t
 t{ w eerie s y--y- w exxxx  prune? -> true }t
 t{ w eerie s y--y- w xxxix  prune? -> true }t
+[then]

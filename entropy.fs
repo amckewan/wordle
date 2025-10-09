@@ -25,14 +25,14 @@ create scored   #scores cells allot
     then loop cr ." Total: " . drop ;
 
 \ update scored for each word in the working set
-: score-working  ( guess -- #words )
+: score-working  ( w -- #words )
     scored #scores cells erase   0 ( #words )
     working @ begin >r
-        over r@ cell+ swap score  cells scored +  1 swap +!  1+
+        over r@ >w swap score  cells scored +  1 swap +!  1+
     r> @ ?dup 0= until nip ;
 
 \ calculate the entropy for a guess against all the words in the working set
-: entropy ( guess -- ) ( F: -- entropy )
+: entropy ( w -- ) ( F: -- entropy )
     score-working ( #words ) 0e ( entropy ) 
     #scores 0 do
         i cells scored + @ ( words with this score )
@@ -40,21 +40,24 @@ create scored   #scores cells allot
     loop drop ;
 
 \ find the word from the working set with the highest entropy
-: max-entropy ( -- w )  0 ( default ) 0e ( entropy )
-    working @ begin
-        dup cell+ entropy  fover fover f< if  nip dup  fswap  then  fdrop
-    @ ?dup 0= until cell+ fdrop ;
+\  : biggest ( w1 w2 -- w1 w2 | w2 w2 ) ( F: e -- e' )
+\      dup entropy  fover fover f< if  nip dup  fswap  then  fdrop
+
+: max-entropy ( -- w )    
+    0e ( entropy ) working @ ( default ) dup begin
+        dup >w entropy  fover fover f< if  nip dup  fswap  then  fdrop
+    @ ?dup 0= until fdrop >w ;
 
 \ find the word with the highest entropy from all words
-: max-entropy-all ( -- w )  0 ( default ) 0e ( entropy )
-    #words 0 do
-        i ww entropy  fover fover f< if  drop i  fswap  then  fdrop
-    loop fdrop ww ;
+: max-entropy-all ( -- w )
+    0e ( entropy ) working @ ( default ) #words 0 do
+        i entropy  fover fover f< if  drop i  fswap  then  fdrop
+    loop fdrop >w ;
 
 \ It takes time for the first guess which is always the same
 \   hidden on  init time max-entropy w.  2.189 sec raise
 \   hidden off init time max-entropy w. 70.853 sec tares
-\ Whe we consider all words (hidden off), "tares" has higher entropy
+\ When we consider all words (hidden off), "tares" has higher entropy
 \   w raise entropy f. 5.91973684251619
 \   w tares entropy f. 6.19405254437545
 \ The proven best first word is "salet", which we don't prize quite as much:

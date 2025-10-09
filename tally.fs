@@ -2,21 +2,23 @@
 
 \ The number of occurances of each letter at each position
 \ 5 rows of 32, count for 'A' at offset 1.
-32 cells constant next-tally
-next-tally len * constant tallies-size
-create tallies            tallies-size allot
+32 cells len * constant tallies#
+create tallies          tallies# allot
 
-: >tally ( c pos -- a )  32 *  swap 31 and +  cells tallies + ;
+: >tally ( c row -- a )  swap 31 and cells + ;
 
-tallies tallies-size bounds 2constant for-tallies ( -- limit index )
+: .tallies  len 0 do  cr i 0 .r ." : "  a-z do
+    i j 32 * tallies + >tally @ ?dup if i emit ." =" . then loop loop ;
 
-: .tallies  len 0 do  cr i 0 .r ." : "  a-z do  i j >tally @
-      ?dup if  i emit ." =" . then loop loop ;
+\ Init tallies from the working set
+: tally-word ( w -- )  ww  tallies tallies# bounds do
+    count i >tally  1 swap +!  32 cells +loop drop ;
+: tally-working ( -- )
+    tallies tallies# erase
+    working @ begin  dup >w tally-word  @ ?dup 0= until ;
 
-: tally-word ( w -- )  for-tallies do
-    count 31 and cells i +  1 swap +!  next-tally +loop drop ;
-: tally-working ( -- )  tallies tallies-size erase
-    working @ begin  dup cell+ tally-word  @ ?dup 0= until ;
-
-: tally ( w -- n )    0 ( n ) swap  for-tallies do
-    count 31 and cells i + @  rot + swap  next-tally +loop drop ;
+\ get the tally for a word
+: tally ( w -- n )   0 ( n ) swap ww
+    tallies tallies# bounds do
+        count i >tally @  rot + swap
+    32 cells +loop drop ;

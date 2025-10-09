@@ -1,71 +1,57 @@
 ( Wordle words )
 
-\ Wordle words are 5 characters long. When passing strings, we only need
-\ the address. This is 'w' in the stack diagrams.
-
-5 constant len
-
-: wordle    create len allot ;
-
-: w         bl parse len - abort" need 5 letters" ;
-: [w]       w len postpone sliteral postpone drop ; immediate
-: w.        len type space ;
-
-: wmove     len move ;
-: w=        len swap len compare 0= ;
-
-: for-chars ( w -- limit index )  dup len + swap ; \ for do..loop over chars
-\ for-each-letter ? for-each-pos
-
-\ =========================================================================
 \ There are two lists of words, those that can be solutions (hidden-words)
 \ and those that can be guesses but not solutions (guess-words).
 \ The lists are disjoint and we lay them down one after the other.
-\ Each list is sorted so we can do a binary search.
+\ We identify a word by its offset into the list (`w` in stack diagrams).
 
-\ list entry has a cell used by the solver followed by the 5-letters word
-len aligned cell+ constant wsize
+5 constant len          ( Wordle words are 5 characters long )
 
-\ compile flag + word
-: ww, ( "w" -- )  0 ,  bl parse drop  here len dup allot move  align ;
+: ww, ( "aword" -- )  bl parse drop  here len  dup allot move ;
 
 create wordle-words
-include data/hidden-words.fs
-here
-include data/guess-words.fs
-here
+include data/hidden-words.fs here
+include data/guess-words.fs here
 
-dup                    constant words-end
-wordle-words - wsize / constant #words    ( all words )
+wordle-words - len / constant #words    ( number of words )
+wordle-words - len / constant #hidden   ( just the possible solutions )
 
-dup                    constant hidden-end
-wordle-words - wsize / constant #hidden   ( just the possible solutions )
+\ get wordle-word string from word #
+: ww ( w -- a )  len * wordle-words + ;
+: w. ( w -- )    ww len type space ;
 
-\ iterate through words ( i returns word address ), use `wsize +loop`
-words-end  cell+ wordle-words cell+ 2constant for-all-words
-hidden-end cell+ wordle-words cell+ 2constant for-hidden-words
+\ find a word using in one of the lists using a binary search
+: search ( a start end -- w t | f )  rot >r
+    begin 2dup < while
+        2dup + 2/ ( low high mid )
+        dup ww  r@ len  rot len compare
+        dup 0= if ( found ) r> 2drop  nip nip true exit then
+        0< if ( bottom half ) nip else ( top half ) rot drop  1+ swap then
+    repeat  2drop false  r> drop ;
+: find-word ( a -- w t | f )  \ find word in either list
+    dup 0 #hidden search if nip true exit then  #hidden #words search ;
 
-\ get wordle word from word #
-: ww ( w# -- w )  wsize * wordle-words + cell+ ;
-
-\ check if a guess is in one of the two word lists (linear search)
-: valid-guess ( w -- f )
-    false  for-all-words do
-        over i w= if drop true leave then
-    wsize +loop nip ;
-
+\ word literals
+: ?len ( n -- )  len - abort" need 5 letters" ;
+: w ( -- w )  bl parse ?len find-word 0= abort" Not in word list" ;
+: [w]  w  postpone literal ; immediate
 
 
 ( ===== TESTS ===== )
-testing valid-guess
-( hidden words )
-t{ w aback valid-guess -> true }t
-t{ w raise valid-guess -> true }t
-t{ w zonal valid-guess -> true }t
+testing find-word
+( wordle words )
+t{ s" aback" drop find-word -> 0 true }t
+t{ s" raise" drop find-word nip -> true }t
+t{ s" zonal" drop find-word -> #hidden 1- true }t
 ( guess words)
-t{ w ablow valid-guess -> true }t
-t{ w pongo valid-guess -> true }t
-t{ w zymic valid-guess -> true }t
+t{ s" ablow" drop find-word nip -> true }t
+t{ s" pongo" drop find-word nip -> true }t
+t{ s" zymic" drop find-word nip -> true }t
 ( invalid words )
-t{ w xxxxx valid-guess -> false }t
-t{ w abacc valid-guess -> false }t
+t{ s" xxxxx" drop find-word -> false }t
+t{ s" abacc" drop find-word -> false }t
+
+testing w
+t{ w aback -> 0 }t
+t{ 0 ww len s" aback" compare -> 0 }t
+t{ w zonal -> #hidden 1- }t
