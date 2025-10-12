@@ -1,11 +1,13 @@
 ( entropy results )
 
-
-\ Table of results from the entropy guesser, # guesses per word 7 if failed
+\ Table of results from the entropy guesser, # guesses per word, 7 if failed.
 \ This table was generated with `filler` below:
-\ : takes ( w -- guesses )  secret!  solve? if guesses else 7 then ;
-\ : filler  #hidden 0 do  i 10 mod 0= if cr then  i ww takes . ." c, " loop ;
-\ use entropy-guess hidden off endgame off filler
+0 [if]
+: takes ( w -- guesses )  to secret  solve? if guesses else 7 then ;
+: filler  #hidden 0 do  i 10 mod 0= if cr then  i takes . ." c, " loop ;
+use entropy-guess hidden off endgame off filler
+[then]
+
 create entropy-guesses
 4 c, 4 c, 3 c, 4 c, 4 c, 5 c, 4 c, 3 c, 4 c, 3 c, 
 4 c, 4 c, 3 c, 4 c, 4 c, 3 c, 3 c, 4 c, 5 c, 3 c, 

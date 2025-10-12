@@ -52,7 +52,7 @@ create scored   #scores cells allot
 : max-entropy-all ( -- w )
     0e ( entropy ) working @ ( default ) #words 0 do
         i entropy  fover fover f< if  drop i  fswap  then  fdrop
-    loop fdrop >w ;
+    loop fdrop ;
 
 \ It takes time for the first guess which is always the same
 \   hidden on  init time max-entropy w.  2.189 sec raise
@@ -71,25 +71,14 @@ create scored   #scores cells allot
 
 \ guess the word with the highest entropy
 variable fence
+variable allon2
 : entropy-guess ( -- w )
+    remaining 2 < if ( can't use entropy ) simple-guess exit then
     guesses 0= if ( shortcut ) first-guess exit then
-    remaining 1 = if ( can't use entropy ) simple-guess exit then
-    guesses fence @ < if ( use all on 2nd guess ) max-entropy-all exit then
-    \  remaining fence @ < if tally-guess exit then
-    \ use all words for the second guess
-    \  guesses 1 = if max-entropy exit then
-\     #working fence < if max-entropy exit then
-\   #working fence
+    guesses 1 = allon2 @ and if max-entropy-all exit then
+    \ entropy is ineffective when the working set gets too small
+    remaining fence @ u<  guesses 5 < and if max-entropy-all exit then
     max-entropy ;
-
-\  \ try entropy for two rounds on all the hidden words to see how we go
-\  variable useall
-\  : testone ( w -- )  init secret!
-\      first-guess guess [w] ggggg = if 
-\      useall @ if max-entropy-all else max-entropy then
-
-
-\  : test-entropy  for-hidden-words do
 
 
 0 [if]

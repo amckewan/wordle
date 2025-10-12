@@ -1,9 +1,11 @@
 ( testing )
 
 use entropy-guess
+50 fence !
+allon2 off
 hidden off
 endgame off
-fails off
+fails on
 timing on
 
 \ It takes 2.5 minutes to solve all puzzles with the entropy guesser.
@@ -11,19 +13,13 @@ timing on
 \ Now it takes about 30 seconds to go through those ~400 words.
 include entropy-guesses.fs
 
-: tsolver ( ignore words that are solved in 5 or fewer guesses )
+: tsolver ( n -- ) \ ignore words that are solved in n or fewer guesses
     results #guesses 1+ cells erase
     #hidden 0 do
-        i entropy-guesses + c@ 5 >
-        if  init  i ww secret!  solve? +results  then
-    loop .results ;
+        i entropy-guesses + c@ over >
+        if  init  i to secret  solve? +results  then
+    loop .results drop ;
 
-: failing ( just failing words )
-    results #guesses 1+ cells erase
-    #hidden 0 do
-        i entropy-guesses + c@ 6 >
-        if  init  i ww secret!  solve? +results  then
-    loop .results ;
 
 0 [if]
 === baseline, entropy guess, all words
@@ -80,5 +76,39 @@ endgame on failing
    11 Solved in 6 
     3 Failed 
 Average: 0.03
+
+
+
+boxer 
+cover 
+cower 
+foyer 
+goner 
+homer 
+hover 
+joker 
+mover 
+mower 
+roger 
+rover 
+rower 
+wooer 
+boner 
+bower 
+comer 
+cooer 
+coyer 
+fouer 
+gofer 
+gomer 
+honer 
+koker 
+moner 
+roker 
+vomer 
+vower 
+woker 
+yoker 
+zoner
 
 [then]
