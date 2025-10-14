@@ -28,8 +28,8 @@ create scored   #scores cells allot
 : score-working  ( w -- #words )
     scored #scores cells erase   0 ( #words )
     working @ begin >r
-        over r@ >w swap score  cells scored +  1 swap +!  1+
-    r> @ ?dup 0= until nip ;
+        over r@ swap score  cells scored +  1 swap +!  1+
+    r> next? until nip ;
 
 \ calculate the entropy for a guess against all the words in the working set
 : entropy ( w -- ) ( F: -- entropy )
@@ -45,8 +45,8 @@ create scored   #scores cells allot
 
 : max-entropy ( -- w )    
     0e ( entropy ) working @ ( default ) dup begin
-        dup >w entropy  fover fover f< if  nip dup  fswap  then  fdrop
-    @ ?dup 0= until fdrop >w ;
+        dup entropy  fover fover f< if  nip dup  fswap  then  fdrop
+    next? until fdrop ;
 
 \ find the word with the highest entropy from all words
 : max-entropy-all ( -- w )

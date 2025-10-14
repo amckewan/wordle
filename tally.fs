@@ -15,7 +15,7 @@ create tallies          tallies# allot
     count i >tally  1 swap +!  32 cells +loop drop ;
 : tally-working ( -- )
     tallies tallies# erase
-    working @ begin  dup >w tally-word  @ ?dup 0= until ;
+    working @ begin  dup tally-word  next? until ;
 
 \ get the tally for a word
 : tally ( w -- n )   0 ( n ) swap ww

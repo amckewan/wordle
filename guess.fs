@@ -1,19 +1,18 @@
 ( take a guess )
 
 \ Pick the first word from the working set
-: simple-guess ( -- w )  working @ >w ;
+: simple-guess ( -- w )  working @ ;
 
 \ Pick a random word from the working set
-: random-guess ( -- w )  working  remaining random -1 do @ loop  >w ;
+: random-guess ( -- w )  working @  remaining random 0 ?do next loop ;
 
 \ Pick the word with the largest letter tally.
-\ We tally the working set every round.
 : tally-guess ( -- w )
-    tally-working \ guesses 0= if tally-working then
-    0 ( w ) 0 ( tally )
-    #working 0 do
-        i tally 2dup < if ( replace ) nip nip i swap else drop then
-    loop drop ;
+    tally-working  0 ( w ) 0 ( tally )
+    working @ begin  dup >r tally ( w1 t1 t2 )
+        2dup < if ( replace ) nip nip r@ swap else drop then  r>
+    next? until drop ;
+
 
 \ Use different algorithms
 ' simple-guess value guesser

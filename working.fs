@@ -7,30 +7,29 @@
 \ The working set always contains at least the secret (which is never pruned).
 \
 \ We implement the set as a linked list. Each entry in workset contains the
-\ address of the next entry or 0 to end the list.
+\ word # of the next entry or -1 to end the list.
 
 create workset   #words cells allot
  
 variable working    ( head of the working set linked list )
 variable hidden     ( true if the solver can use the hidden word list )
 
-: >w ( working -- w )  workset - [ 1 cells ] literal / ;
+: next  ( w1 -- w2 )        cells workset + @ ;
+: next? ( w1 -- w2 f | t )  next ?dup 0= ;
 
 : #working ( -- n )  hidden @ if #hidden else #words then ;
 
 : init-working ( add words to the working set )
-    workset dup working !
-    #working 1 do  dup cell+  dup rot !  loop
-    0 swap ! ( terminate the list ) ;
+    workset  #working 1 do  i over ! cell+  loop  0 swap !  0 working ! ;
 
-: remaining ( -- n )  0  working @ begin  swap 1+ swap  @ ?dup 0= until ;
-: .working  0 working @ begin  dup >w w.  swap 1+ swap  @ ?dup 0= until . ;
+: remaining ( -- n )  0  working @ begin  swap 1+ swap  next? until ;
+: .working  working @ begin  dup w.  next? until  remaining . ;
 
 \ Prune the working set, removing words that wouldn't produce this score.
 : prune ( -- )  latest 2>r
-    working begin dup @ dup while
-        dup 2r@ rot >w prune? if  @ over !  else  nip  then
-    repeat 2r> 2drop 2drop ;
+    working begin  dup @ ( next )
+        dup 2r@ rot prune? if  next over !  else  cells workset +  nip  then
+    dup @ 0= until drop  2r> 2drop ;
 
 
 
@@ -38,5 +37,5 @@ variable hidden     ( true if the solver can use the hidden word list )
 testing remaining
 t{ hidden on  init-working remaining -> #hidden }t
 t{ hidden off init-working remaining -> #words  }t
-t{ workset 3 cells + working ! remaining -> #words 3 - }t
-t{ workset working ! 0 workset ! remaining -> 1 }t
+t{ 3 working ! remaining -> #words 3 - }t
+t{ 0 working ! 0 workset ! remaining -> 1 }t

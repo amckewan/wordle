@@ -25,8 +25,8 @@ create pos2  32 len * allot
 : mark-pos ( pos -- )
     dup latest drop ww + c@ >r ( the grey letter )
     working @ begin
-      2dup >w ww + c@  dup r@ - if dup 3 pick >pos2 c++  >possible c++ else drop then
-    @ ?dup 0= until r> 2drop ;
+      2dup ww + c@  dup r@ - if dup 3 pick >pos2 c++  >possible c++ else drop then
+    next? until r> 2drop ;
 : mark-possibles ( -- )
     possibles 32 erase  pos2 32 len * erase
     greens  len 0 do  count '-' = if i mark-pos then  loop drop ;
@@ -60,9 +60,9 @@ create pos2  32 len * allot
 
 \ Just use the working set for the last guess (no chance otherwise)
 : find-most-working ( -- w )  working @ ( w )  0 ( #letters )
-    working @ begin  dup >r  >w #possibles
+    working @ begin  dup >r  #possibles
         2dup < if  nip nip r@ swap  else  drop  then  r>
-    @ ?dup 0= until drop >w ;
+    next? until drop ;
 
 : endgame-guess ( -- w )  mark-possibles
     guesses 5 < if find-most-all else find-most-working then ;
@@ -74,4 +74,11 @@ variable endgame ( 0=off, 3,4 greens, -1=4)
     #guesses guesses - remaining >= if ( enough guesses left ) false exit then
     #greens endgame @ 7 and 4 min < if ( not yet ) false exit then
     \  cr ." endgame " guesses . greens len type space
+    endgame-guess true ;
+
+\ old endgame that solves all with hidden on (for comparison testing)
+: endgame? ( -- w true | false )
+    endgame @ 0= if false exit then
+    #guesses guesses - remaining >= if ( enough guesses left ) false exit then
+    #greens 3 < if false exit then
     endgame-guess true ;
