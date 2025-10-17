@@ -40,9 +40,6 @@ create scored   #scores cells allot
     loop drop ;
 
 \ find the word from the working set with the highest entropy
-\  : biggest ( w1 w2 -- w1 w2 | w2 w2 ) ( F: e -- e' )
-\      dup entropy  fover fover f< if  nip dup  fswap  then  fdrop
-
 : max-entropy ( -- w )    
     0e ( entropy ) working @ ( default ) dup begin
         dup entropy  fover fover f< if  nip dup  fswap  then  fdrop
@@ -50,33 +47,35 @@ create scored   #scores cells allot
 
 \ find the word with the highest entropy from all words
 : max-entropy-all ( -- w )
-    0e ( entropy ) working @ ( default ) #words 0 do
+    0e ( entropy ) 0 ( default ) #words 0 do
         i entropy  fover fover f< if  drop i  fswap  then  fdrop
     loop fdrop ;
 
 \ It takes time for the first guess which is always the same
-\   hidden on  init time max-entropy w.  2.189 sec raise
-\   hidden off init time max-entropy w. 70.853 sec tares
-\ When we consider all words (hidden off), "tares" has higher entropy
+\   all-words              time max-entropy w.  85.293 sec   tares
+\   all-words prune-hidden time max-entropy w.   2.601 sec   raise
+\ When we consider all words, "tares" has higher entropy
 \   w raise entropy f. 5.91973684251619
 \   w tares entropy f. 6.19405254437545
 \ The proven best first word is "salet", which we don't prize quite as much:
 \   w salet entropy f. 6.01684287539826
 
-: first-guess  hidden @ if [w] raise else [w] tares then ;
+w tares value first-guess
 
 \  cr .( calculating first entropy guess... )
-\  wordle first-guess
-\  init-solver max-entropy first-guess wmove
+\  all-words max-entropy to first-guess
+
+variable allon2 ( consider all words for 2nd guess - slow )
+: second-guess  allon2 @ if max-entropy-all else max-entropy then ;
 
 \ guess the word with the highest entropy
-variable fence
-variable allon2
+variable fence ( working set size below which we guess with all words )
 : entropy-guess ( -- w )
     remaining 2 < if ( can't use entropy ) simple-guess exit then
-    guesses 0= if ( shortcut ) first-guess exit then
-    guesses 1 = allon2 @ and if max-entropy-all exit then
+    guesses 0=  if first-guess  exit then
+    guesses 1 = if second-guess exit then
     \ entropy is ineffective when the working set gets too small
+    \ but it doesn't make sense for the last guess
     remaining fence @ u<  guesses 5 < and if max-entropy-all exit then
     max-entropy ;
 

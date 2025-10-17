@@ -7,23 +7,26 @@
 \ The working set always contains at least the secret (which is never pruned).
 \
 \ We implement the set as a linked list. Each entry in workset contains the
-\ word # of the next entry or -1 to end the list.
+\ word # of the next entry or 0 to end the list.
 
 create workset   #words cells allot
  
 variable working    ( head of the working set linked list )
-variable hidden     ( true if the solver can use the hidden word list )
+
+: all-words  ( add all words to the working set )
+    0 working !  workset #words 1 do i over ! cell+ loop  0 swap ! ;
 
 : next  ( w1 -- w2 )        cells workset + @ ;
 : next? ( w1 -- w2 f | t )  next ?dup 0= ;
 
-: #working ( -- n )  hidden @ if #hidden else #words then ;
-
-: init-working ( add words to the working set )
-    workset  #working 1 do  i over ! cell+  loop  0 swap !  0 working ! ;
-
 : remaining ( -- n )  0  working @ begin  swap 1+ swap  next? until ;
+
 : .working  working @ begin  dup w.  next? until  remaining . ;
+
+\ Prune the working set to just the hidden words
+: prune-hidden ( -- )
+    working @ begin  cells workset + dup @  dup #hidden u< and while @ repeat
+    0 swap ! ( snip ) ;
 
 \ Prune the working set, removing words that wouldn't produce this score.
 : prune ( -- )  latest 2>r
@@ -35,7 +38,12 @@ variable hidden     ( true if the solver can use the hidden word list )
 
 ( ===== TESTS ===== )
 testing remaining
-t{ hidden on  init-working remaining -> #hidden }t
-t{ hidden off init-working remaining -> #words  }t
+t{ all-words remaining -> #words }t
 t{ 3 working ! remaining -> #words 3 - }t
 t{ 0 working ! 0 workset ! remaining -> 1 }t
+
+testing prune-hidden
+t{ all-words remaining -> #words }t
+t{ prune-hidden remaining -> #hidden }t
+t{ prune-hidden remaining -> #hidden }t
+
