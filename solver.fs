@@ -1,12 +1,14 @@
 ( solver )
 
 variable hidden     \ true if the solver can use the hidden word list
-\  variable endgame    \ true to use endgame strategy
 variable fails      \ true to show failures
 
-use tally-guess
-hidden on
-endgame on
+\ config to solve all puzzles
+use entropy-guess
+hidden off
+4 endgame !
+100 fence !
+allon2 off
 fails off
 timing on
 
@@ -35,22 +37,22 @@ timing on
 : try init w to secret ;
 : r round drop .history ;
 : p prune remaining . ;
-: rounds ( n -- )  0 do round if unloop exit then prune loop ;
+: rounds ( n -- )  0 do round if leave then prune loop ;
 
 \ display solver state
-: .guesser ( try ) guesser case
+: .guesser  guesser case
     ['] simple-guess  of ." simple-guess "  endof
     ['] random-guess  of ." random-guess "  endof
     ['] tally-guess   of ." tally-guess "   endof
     ['] entropy-guess of ." entropy-guess " endof
     dup . endcase ;
-: .onoff @ if ." on " else ." off " then ;
 : .solver
-    cr ." Guesser: " .guesser
-    cr ." Hidden:  " hidden .onoff
-    cr ." Endgame: " endgame .onoff
-    cr ." Fails:   " fails ?
-    cr ." Timing:  " timing .onoff
-    cr ." Fence:   " fence ?
-    cr ." Allon2:  " allon2 .onoff
+    cr ." Guesser:  " .guesser
+    cr ." Hidden:   " hidden ?
+    cr ." Endgame:  " endgame ?
+    cr ." Fence:    " fence ?
+    cr ." Allon2:   " allon2 ?
+    \ these don't affect the results, just output
+    \  cr ." Fails:    " fails ?
+    \  cr ." Timing:   " timing ?
 ;
