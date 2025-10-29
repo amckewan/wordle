@@ -9,7 +9,17 @@ create histbuf  #guesses 2 cells * allot
 
 : history ( n -- a )  2 cells * histbuf + ;
 
-: .history  guesses 0 ?do i history 2@ swap  cr i 1+ . w.  cr 2 spaces s. loop ;
+\ ansi colors
+: esc  27 emit ." [" ;
+: color ( color -- )  dup yellow = if 2 + then 100 +  esc 0 .r ." ;30m" ;
+: normal  esc ." 0m" ;
+: .colored ( guess score -- )
+    swap ww len bounds do
+        3 /mod swap color
+        i c@ bl xor ( upc ) emit
+    loop drop normal space ;
+
+: .history  guesses 0 ?do  cr i 1+ .  i history 2@ .colored  loop ;
 
 : +history ( guess score -- )
     guesses #guesses u< not abort" History full!"
