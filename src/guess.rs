@@ -8,7 +8,7 @@
 // Entropy = sum (P*I) over all possible scores
 
 use crate::score::{score, SCORES};
-use crate::words::{from_str, Word};
+use crate::words::{from_str, Word, WORDS};
 use crate::game::Game;
 use crate::workset::Workset;
 
@@ -40,27 +40,36 @@ fn entropy(word: Word, work: &Workset) -> f64 {
 }
 
 fn max_entropy(work: &Workset) -> Word {
-    let mut result = 0;
-    let mut max = 0.;
+    let mut word = 0;
+    let mut emax = 0.;
 
     let mut w = work.first();
     loop {
         let e = entropy(w, &work);
-        if e > max {
-            result = w;
-            max = e;
+        if e > emax {
+            word = w;
+            emax = e;
         }
         match work.next(w) {
             Some(next) => w = next,
             None => break,
         }
     }
-
-    result
+    word
 }
 
-fn max_entropy_all(workset: &Workset) -> Word {
-    workset.first()
+fn max_entropy_all(work: &Workset) -> Word {
+    let mut word = 0;
+    let mut emax = 0.;
+
+    for w in 0..WORDS {
+        let e = entropy(w, &work);
+        if e > emax {
+            word = w;
+            emax = e;
+        }
+    }
+    word
 }
 
 pub fn guess(wordle: &Game, workset: &Workset) -> Word {
@@ -73,7 +82,7 @@ pub fn guess(wordle: &Game, workset: &Workset) -> Word {
     if wordle.greens() == 5 {
         return wordle.answer();
     }
-    if workset.remaining() < 1 {
+    if workset.remaining() < 100 {
         max_entropy_all(workset)
     } else {
         max_entropy(workset)
