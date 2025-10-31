@@ -1,20 +1,36 @@
 mod words;
 mod score;
-mod wordle;
+mod game;
 mod workset;
+mod guess;
 mod solver;
+mod prune;
 
-static WORDLIST: &str = "\
-aback\
-abase\
-abate\
-abbey\
-abbot\
-";
+use crate::{game::{Game, GUESSES}, guess::guess, words::HIDDEN, workset::Workset};
 
 fn main() {
-    println!("wordlist = '{}'", WORDLIST);
-    for w in 0..2315 {
-        print!("{} ", words::ww(w))
+    let mut game = Game::new();
+    let mut work = Workset::new();
+    let mut solved = 0;
+    for w in 0..HIDDEN {
+        game.secret(w);
+        if solve(&mut game, &mut work) {
+            solved += 1;
+        }        
+    }
+    println!("Solved {}, failed {}", solved, HIDDEN-solved);
+}
+
+fn solve(game: &mut Game, work: &mut Workset) -> bool {
+    game.reset();
+    work.fill();
+    loop {
+        if game.submit(guess(game, &work)) {
+            return true;
+        }
+        if game.guesses() == GUESSES {
+            return false;
+        }
+        // prune(work, |w| {} );
     }
 }

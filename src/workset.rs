@@ -2,19 +2,25 @@
 
 use crate::words::{Word, WORDS};
 
-struct Workset {
+pub struct Workset {
     head: Word,                     // first word in the list
     list: [Word; WORDS as usize],   // next word or 0 to end list
 }
 
-impl Workset {
-    // New set with all words
-    pub fn new() -> Workset {
-        let mut workset = Workset {
+impl Default for Workset {
+    fn default() -> Workset {
+        let mut workset: Workset = Workset {
             head: 0,
             list: [0; _],
         };
         workset.fill();
+        workset
+    }
+}
+
+impl Workset {
+    pub fn new() -> Workset {
+        let workset: Workset = Default::default();
         workset
     }
 
@@ -65,12 +71,17 @@ impl Workset {
             }
         }
     }
-
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_default() {
+        let workset: Workset = Default::default();
+        assert_eq!(workset.remaining(), 1);
+    }
 
     #[test]
     fn test_first_next() {
