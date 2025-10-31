@@ -12,13 +12,14 @@ fn main() {
     let mut game = Game::new();
     let mut work = Workset::new();
     let mut solved = 0;
-    for w in 0..HIDDEN {
+    let n = HIDDEN;//HIDDEN
+    for w in 0..n {
         game.secret(w);
         if solve(&mut game, &mut work) {
             solved += 1;
         }        
     }
-    println!("Solved {}, failed {}", solved, HIDDEN-solved);
+    println!("Solved {}, failed {}", solved, n-solved);
 }
 
 fn solve(game: &mut Game, work: &mut Workset) -> bool {

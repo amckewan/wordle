@@ -72,7 +72,7 @@ impl Game {
             panic!("no more guesses");
         }
 
-        let score = score(ww(guess), ww(self.secret));
+        let score = score(guess, self.secret);
         let solved = score == 242;
 
         self.history[self.guesses] = (guess, score);

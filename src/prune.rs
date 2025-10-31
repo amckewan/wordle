@@ -8,16 +8,9 @@ pub fn prune(target: Word, answer: (Word, Score)) -> bool {
     let mut guess: Vec<char> = ww(answer.0).chars().collect();
     let score: Score = answer.1;
 
-    if prune_greens(&mut target, &mut guess, score) {
-        return true;
-    }
-    if prune_yellows(&mut target, &mut guess, score) {
-        return true;
-    }
-    if prune_greys(&mut target, &mut guess, score) {
-        return true;
-    }
-    false
+    prune_greens(&mut target, &mut guess, score) ||
+    prune_yellows(&mut target, &guess, score) ||
+    prune_greys(&target, &guess, score)
 }
 
 fn prune_greens(target: &mut Vec<char>, guess: &mut Vec<char>, mut score: Score) -> bool {
@@ -34,16 +27,7 @@ fn prune_greens(target: &mut Vec<char>, guess: &mut Vec<char>, mut score: Score)
     false
 }
 
-// : prune-yellow? ( score -- f )
-//     for-scoring do
-//         3 /mod swap yellow = if
-//             i 2@ = if ( prune ) drop true unloop exit then
-//             i @ find-match not if ( prune ) drop true unloop exit then
-//             -1 swap ! ( mark )
-//         then
-//     2 cells +loop   drop false ;
-
-fn prune_yellows(target: &mut Vec<char>, guess: &mut Vec<char>, mut score: Score) -> bool {
+fn prune_yellows(target: &mut Vec<char>, guess: &Vec<char>, mut score: Score) -> bool {
     for i in 0..5 {
         if score % 3 == YELLOW {
             if guess[i] == target[i] {
@@ -79,14 +63,4 @@ fn find_match(target: &Vec<char>, c: char) -> Option<usize> {
         }
     }
     None
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_prune_greens() {
-        // assert!(prune());
-    }
 }
