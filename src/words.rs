@@ -11,21 +11,25 @@ pub fn ww(w: Word) -> &'static str {
     &WORDLIST[offset..offset+5]
 }
 
-pub fn find(word: &str) -> Result<Word, String> {
-    search(word, 0, HIDDEN).or(search(word, HIDDEN, WORDS))
+pub fn find(s: &str) -> Result<Word, String> {
+    search(s, 0, HIDDEN).or(search(s, HIDDEN, WORDS))
 }
 
-fn search(word: &str, start: Word, end: Word) -> Result<Word, String> {
+pub fn from_str(s: &str) -> Word {
+    find(s).unwrap()
+}
+
+fn search(s: &str, start: Word, end: Word) -> Result<Word, String> {
     let mut low = start;
     let mut high = end;
 
     while low < high {
         let mid = (low + high) / 2;
         let w = ww(mid);
-        if word == w {
+        if s == w {
             return Ok(mid)
         }
-        if word < w {
+        if s < w {
             high = mid; // bottom half
         } else {
             low = mid + 1; // top half

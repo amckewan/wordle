@@ -6,7 +6,7 @@ mod guess;
 mod solver;
 mod prune;
 
-use crate::{game::{Game, GUESSES}, guess::guess, words::HIDDEN, workset::Workset};
+use crate::{game::{Game, GUESSES}, guess::guess, prune::prune, words::{ww, HIDDEN}, workset::Workset};
 
 fn main() {
     let mut game = Game::new();
@@ -26,11 +26,15 @@ fn solve(game: &mut Game, work: &mut Workset) -> bool {
     work.fill();
     loop {
         if game.submit(guess(game, &work)) {
+            // println!("Solved in {}", game.guesses());
             return true;
         }
         if game.guesses() == GUESSES {
+            // println!("Failed");
             return false;
         }
-        // prune(work, |w| {} );
+        work.prune(|w| prune(w, game.latest().unwrap()));
+        let latest = game.latest().unwrap();
+        // println!("Guess {} {} {} remaining {}", game.guesses(), ww(latest.0), score::to_string(latest.1), work.remaining());
     }
 }

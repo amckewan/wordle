@@ -7,7 +7,7 @@
 //
 // Entropy = sum (P*I) over all possible scores
 
-use crate::words::{Word, find};
+use crate::words::{from_str, Word};
 use crate::game::Game;
 use crate::workset::Workset;
 
@@ -21,7 +21,7 @@ fn max_entropy_all(workset: &Workset) -> Word {
 
 pub fn guess(wordle: &Game, workset: &Workset) -> Word {
     if wordle.guesses() == 0 {
-        return find("salet").unwrap();
+        return from_str("salet");
     }
     if workset.remaining() == 1 {
         return workset.first();
