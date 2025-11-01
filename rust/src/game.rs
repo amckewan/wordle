@@ -1,7 +1,7 @@
 // Wordle game
 
 use crate::words::{Word, ww, find};
-use crate::score::{Score, score, GREEN, YELLOW};
+use crate::score::{Score, score, GREEN};
 
 pub const GUESSES: usize = 6;     // max guesses
 
@@ -97,44 +97,5 @@ impl Game {
         }
 
         solved
-    }
-
-// : esc  27 emit ." [" ;
-// : color ( color -- )  dup yellow = if 2 + then 100 +  esc 0 .r ." ;30m" ;
-// : normal  esc ." 0m" ;
-// : .colored ( guess score -- )
-//     swap ww len bounds do
-//         3 /mod swap color
-//         i c@ bl xor ( upc ) emit
-//     loop drop normal space ;
-// : .history  guesses 0 ?do  cr i 1+ .  i history 2@ .colored  loop ;
-
-    // println!("\x1B[100;30m Grey   \x1B[0m");
-    // println!("\x1B[103;30m Yellow \x1B[0m");
-    // println!("\x1B[102;30m Green  \x1B[0m");
-    fn color(color: u8) -> &'static str {
-        match color {
-            GREEN  => "\x1B[102;30m",
-            YELLOW => "\x1B[103;30m",
-            _      => "\x1B[100;30m",
-        }
-    }
-
-    fn print_char(c: char, color: u8) {
-        let fg = 30;
-        let bg = 102;
-        // print!("\x1B[{};{}m{}")
-    }
-
-    fn format_colored(word: Word, score: Score) -> String {
-
-        format!("{}", ww(word))
-    }
-
-    pub fn print_history(&self) {
-        for i in 0..self.guesses {
-            let (word, score) = self.history[i];
-            println!("{} {}", i+1, Self::format_colored(word, score));
-        }
     }
 }
