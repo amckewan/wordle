@@ -3,12 +3,12 @@
 \ From https://en.wikipedia.org/wiki/Linear_congruential_generator#
 
 \ Use linear congruential generator
-\ X(n+1) = X(n) * A + C
+\ X(n+1) = (X(n) * A + C) mod M
 \ Numerical Recipes ranqd1, Chapter 7.1, §An Even Quicker Generator, Eq. 7.1.6
-\ parameters from Knuth and H. W. Lewis	A=1664525 C=1013904223
+\ parameters from Knuth and H. W. Lewis	A=1664525 C=1013904223 M=2^32
 
 variable seed     time&date * * * * * seed ! ( cheesy seed )
 
-: rnd ( -- n )  seed @ 1664525 um* drop  1013904223 +  dup seed ! ;
+: rnd ( -- n )  seed @ 1664525 *  1013904223 +  $ffffffff and  dup seed ! ;
 
-: random ( max -- n )  rnd um* nip ;
+: random ( max -- n )  rnd * 32 rshift ;
