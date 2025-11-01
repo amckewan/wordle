@@ -3,7 +3,6 @@
 : not 0= ;
 \ : bounds over + swap ; ( gforth has )
 
-variable timing \ turn on to show elapsed times
 : timestamp ( -- us ) utime drop ; \ gforth
 : .### ( n -- )  0 <# # # # '.' hold #s #> type space ;
 : .elapsed ( us -- )  dup 1000 < if . ." us" else

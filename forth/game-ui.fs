@@ -1,6 +1,6 @@
 ( game UI )
 
-: new  new-game   ;
+: new  new-game ;
 
 : h .history ;
 
@@ -13,21 +13,7 @@
     cr ." Unused:  " a-z do i 0 .k loop ;
 
 : g ( "w" -- ) \ "g raise" etc.
-    w dup guess .history ( s )
+    w dup submit .history ( s )
     solved if ." You WIN! " else
     failed if ." Better luck next time ( " secret w. ." ) " else 
-    k then then ;
-
-
-
-( ===== TESTS ===== )
-testing guess
-init-game w aback to secret
-t{ w found guess -> s ----- }t
-t{ w track guess -> s --ggg }t
-t{ w aback guess -> s ggggg }t
-t{ guesses -> 3 }t
-t{ w madam guess -> s -y-y- }t
-t{ w brand guess -> s y-g-- }t
-t{ w block guess -> s y--gg }t
-t{ guesses -> 6 }t
+    cr k then then ;

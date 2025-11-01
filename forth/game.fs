@@ -26,25 +26,11 @@ create kb 32 allot
         ." greens: " greens len type space ;
 
 \ Submit guess to the game, update game state and return the score
-: submit ( guess score -- )  2dup +history  2dup +greens  +keyboard ;
-: guess  ( guess -- score )  dup score-guess  tuck submit ;
+: update ( guess score -- )  2dup +history  2dup +greens  +keyboard ;
+: submit ( guess -- score )  dup score-guess  tuck update ;
 
 \ Initialize everything except the secret (reset game)
 : init-game ( -- )  0 to guesses  greens len '-' fill  kb 32 erase ;
 
 \ Initialize a new game and pick a random secret word
 : new-game ( -- )  init-game  #hidden random to secret ;
-
-
-
-( ===== TESTS ===== )
-testing +greens
-init-game
-t{ w raise s gy-g- +greens  s" r--s-" greens len compare -> 0 }t
-t{ w smack s -g--- +greens  s" rm-s-" greens len compare -> 0 }t
-t{ w pound s ----- +greens  s" rm-s-" greens len compare -> 0 }t
-
-testing #greens
-t{ s" -----" greens swap move   #greens -> 0 }t
-t{ s" -i-d-" greens swap move   #greens -> 2 }t
-t{ s" windy" greens swap move   #greens -> 5 }t

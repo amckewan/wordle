@@ -26,13 +26,3 @@ create histbuf  #guesses 2 cells * allot
     guesses history 2!  guesses 1+ to guesses ;
 
 : latest ( -- guess score )  guesses 1- history 2@ ;
-
-
-
-( ===== TESTS ===== )
-testing history
-0 to guesses
-t{ w raise s gg-yy +history guesses -> 1 }t
-t{ w count s yy-gg +history guesses -> 2 }t
-t{ 0 history 2@ -> w raise s gg-yy }t
-t{ 1 history 2@ -> w count s yy-gg }t

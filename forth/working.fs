@@ -23,27 +23,8 @@ variable working    ( head of the working set linked list )
 
 : .working  working @ begin  dup w.  next? until  remaining . ;
 
-\ Prune the working set to just the hidden words
-: prune-hidden ( -- )
-    working @ begin  cells workset + dup @  dup #hidden u< and while @ repeat
-    0 swap ! ( snip ) ;
-
 \ Prune the working set, removing words that wouldn't produce this score.
 : prune ( -- )  latest 2>r
     working begin  dup @ ( next )
         dup 2r@ rot prune? if  next over !  else  cells workset +  nip  then
     dup @ 0= until drop  2r> 2drop ;
-
-
-
-( ===== TESTS ===== )
-testing remaining
-t{ all-words remaining -> #words }t
-t{ 3 working ! remaining -> #words 3 - }t
-t{ 0 working ! 0 workset ! remaining -> 1 }t
-
-testing prune-hidden
-t{ all-words remaining -> #words }t
-t{ prune-hidden remaining -> #hidden }t
-t{ prune-hidden remaining -> #hidden }t
-

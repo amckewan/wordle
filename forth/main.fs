@@ -1,5 +1,7 @@
 ( Wordle game & solver - A.McKewan 2025 )
 
+warnings off ( gforth )
+
 require preamble.fs
 
 ( basics )
@@ -14,9 +16,5 @@ include game-ui.fs
 
 ( solver )
 include working.fs
-include tally.fs
 include guess.fs
-include entropy.fs
-include endgame.fs
 include solver.fs
-include tryall.fs

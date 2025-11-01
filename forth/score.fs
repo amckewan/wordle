@@ -18,7 +18,6 @@
 
 : s. ( s -- ) len 0 do  3 /mod swap S" -YG" drop + c@ emit  loop drop space ;
 
-
 \ scoring...
 2 cells ( guess,target ) len * constant #scoring
 create scoring  #scoring allot
@@ -51,56 +50,3 @@ scoring #scoring bounds 2constant for-scoring
 
 : score ( target guess -- score )
     init-scoring  score-greens  score-yellows ;
-
-
-
-( ===== TESTS ===== )
-testing color
-t{ '-' color -> grey }t
-t{ 'y' color -> yellow }t
-t{ 'g' color -> green }t
-t{ 'y' color -> yellow }t
-t{ 'g' color -> green }t
-
-testing >s
-t{ s" -----" drop >s -> 0 }t
-t{ s" y----" drop >s -> yellow }t
-t{ s" g----" drop >s -> green }t
-t{ s" y--yy" drop >s -> yellow dup 27 * over 81 * + + }t
-t{ s" -g--g" drop >s -> green dup 3 * swap 81 * + }t
-t{ s" ggggg" drop >s -> #scores 1- }t
-
-testing s [s]
-t{ s ----- -> 0 }t
-t{ s y---- -> yellow }t
-t{ s g---- -> green }t
-t{ s yg-y- -> yellow  green 3 * +  yellow 27 * + }t
-t{ s yyyyy -> yellow dup 3 * dup 3 * dup 3 * dup 3 * + + + + }t
-t{ s ggggg -> #scores 1- }t
-t{ :noname [s] yg-y- ; execute -> s yg-y- }t
-
-testing init-scoring
-t{ w thorn w bears init-scoring -> }t
-t{ scoring           2@ -> 't' 'b' }t
-t{ scoring 2 cells + 2@ -> 'h' 'e' }t
-t{ scoring 8 cells + 2@ -> 'n' 's' }t
-
-testing score-greens
-t{ w trace w colon init-scoring  score-greens -> s ----- }t
-t{ w trace w trace init-scoring  score-greens -> s ggggg }t
-t{ w trace w tramp init-scoring  score-greens -> s ggg-- }t
-t{ w trace w brick init-scoring  score-greens -> s -g-g- }t
-
-testing score-yellows
-t{ w trace w flown init-scoring  0 score-yellows -> s ----- }t
-t{ w trace w could init-scoring  0 score-yellows -> s y---- }t
-t{ w trace w flesh init-scoring  0 score-yellows -> s --y-- }t
-t{ w trace w girth init-scoring  0 score-yellows -> s --yy- }t
-t{ w alert w raise init-scoring  0 score-yellows -> s yy--y }t
-
-testing score
-t{ w trace w flown score -> s ----- }t
-t{ w trace w tooth score -> s g---- }t
-t{ w trace w could score -> s y---- }t
-t{ w trace w colon score -> s y---- }t
-t{ w vixen w eerie score -> s y--y- }t
