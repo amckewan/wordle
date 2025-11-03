@@ -17,6 +17,11 @@ have written an optimal solver. According to
 we know that we can solve all puzzles in 5 or fewer guesses with an average
 of about 3.4 guesses per puzzle.
 
+There are two branches. `main` has the full implemenation and unit tests.
+`present` is cleaned up and simplified for presentation.
+
+There is also an implementation of the solver in Rust.
+
 Andrew McKewan 2025
 
 ## Wordle Game
@@ -25,6 +30,7 @@ hidden list.
 Make a guess with `g aword`. After each guess it displays the history
 of guesses and scores along with what we know about each letter.
 This is the same information we see in the real Wordle UI.
+
 ```
 new  ok
 
@@ -59,6 +65,8 @@ g whose
 3 whose 
   GGGGG You WIN!  ok
 ```
+
+Note: We now use colors in the history but the information is the same.
 
 ## Wordle Solver
 The solver starts with a "working set" that contains all of the Wordle words.
@@ -247,11 +255,13 @@ If we just use the endgame on the puzzles we failed to solve without it,
 we see that 2 additional puzzled are solved. We would have solved those
 two words with our guesser, but failed when we use the endgame strategy.
 
-# Glossary
-
-**score** ( target guess -- score )  *calculate the score for a word*
-
-**guess** ( guess -- score )  *submit a guess to the game*
+# Rust Implemention
+The `rust` directory contains an implementation of the solver in Rust.
+This is for fun and to improve my Rust skills. It's a fascinating language
+and almost the antithesis of Forth. In Rust the compiler tries to make
+the code "safe" and often getting things to compile is most of the effort.
+In Forth, the compiler gets out of the way, the programmer is in complete
+control (and has full responsibilty).
 
 # Acknowledgements
 I took some ideas inluding the scoring algorithm from
