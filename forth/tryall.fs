@@ -15,9 +15,10 @@ variable talking ( show progress as we go )
 : +results ( solved? -- )
     talking @ if dup if guesses . else ." X " then then
     if guesses >result else results then 1 swap +! ;
+: progress ( n ) 100 mod 0= if [char] . emit then ;
 : solve-all ( -- )
     results #guesses 1+ cells erase
-    #hidden 0 do  init  i to secret  solve? +results  loop ;
+    #hidden 0 do  i progress  init  i to secret  solve? +results  loop ;
 : solver ( -- )
     timestamp  solve-all  timestamp  .results
     timing @ if swap - 3 spaces .elapsed else 2drop then ;
