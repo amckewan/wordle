@@ -54,7 +54,7 @@ create pos2  32 len * allot
     guesses 5 < if find-most-all else find-most-working then ;
 
 variable endgame ( 0=off, 3,4 greens, -1=4)
-: endgame? ( -- w true | false )
+: endgame-guess? ( -- w true | false )
     endgame @ 0= if ( endgame off ) false exit then
     #guesses guesses - remaining >= if ( enough guesses ) false exit then
     #greens endgame @ 7 and 4 min < if ( not enough Gs  ) false exit then

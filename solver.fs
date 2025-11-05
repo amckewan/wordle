@@ -8,21 +8,14 @@ use entropy-guess
 hidden off
 4 endgame !
 100 fence !
-allon2 off
 fails off
 timing on
 
 : init-solver  init-game  all-words  hidden @ if prune-hidden then ;
 
-: make-guess ( -- w )
-    remaining 1 = if ( only one left ) simple-guess exit then
-    #greens len = if ( we know it ) greens exit then
-    endgame? if ( endgame guess ) exit then
-    guesser execute ;
-
 \ Try to solve the puzzle in 6 rounds, return true if we solved it.
 : .failed fails @ if cr secret w. ." failed " fails @ 0> if .history cr then then ;
-: round ( -- f )  make-guess guess solved ;
+: round ( -- f )  guess submit solved ;
 : solve? ( -- f )
     init-solver
     begin round not while
@@ -51,8 +44,4 @@ timing on
     cr ." Hidden:   " hidden ?
     cr ." Endgame:  " endgame ?
     cr ." Fence:    " fence ?
-    cr ." Allon2:   " allon2 ?
-    \ these don't affect the results, just output
-    \  cr ." Fails:    " fails ?
-    \  cr ." Timing:   " timing ?
 ;

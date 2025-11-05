@@ -4,7 +4,6 @@ use entropy-guess
 hidden off
 endgame off
 fence off
-allon2 off
 
 fails on
 timing on

@@ -26,8 +26,8 @@ create kb 32 allot
         ." greens: " greens len type space ;
 
 \ Submit guess to the game, update game state and return the score
-: submit ( guess score -- )  2dup +history  2dup +greens  +keyboard ;
-: guess  ( guess -- score )  dup score-guess  tuck submit ;
+: update ( guess score -- )  2dup +history  2dup +greens  +keyboard ;
+: submit ( guess -- score )  dup score-guess  tuck update ;
 
 \ Initialize everything except the secret (reset game)
 : init-game ( -- )  0 to guesses  greens len '-' fill  kb 32 erase ;

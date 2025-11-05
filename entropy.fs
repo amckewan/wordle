@@ -65,74 +65,9 @@ w tares value first-guess
 \  cr .( calculating first entropy guess... )
 \  all-words max-entropy to first-guess
 
-variable allon2 ( consider all words for 2nd guess - slow )
-: second-guess  allon2 @ if max-entropy-all else max-entropy then ;
-
 \ guess the word with the highest entropy
 variable fence ( working set size below which we guess with all words )
 : entropy-guess ( -- w )
-    remaining 2 < if ( can't use entropy ) simple-guess exit then
-    guesses 0=  if first-guess  exit then
-    guesses 1 = if second-guess exit then
-    \ entropy is ineffective when the working set gets too small
-    \ but it doesn't make sense for the last guess
+    guesses 0= if first-guess exit then
     remaining fence @ u<  guesses 5 < and if max-entropy-all exit then
     max-entropy ;
-
-
-0 [if]
-( ===== RESULTS =====)
-fence off
-
-endgame off hidden off solver
-    0 Solved in 1 
-   64 Solved in 2 
-  828 Solved in 3 
- 1022 Solved in 4 
-  313 Solved in 5 
-   71 Solved in 6 
-   17 Failed 
-Average: 3.75    146.995 sec
-
-endgame off hidden on solver  ( using raise )
-    1 Solved in 1 
-  131 Solved in 2 
-  990 Solved in 3 
-  926 Solved in 4 
-  208 Solved in 5 
-   48 Solved in 6 
-   11 Failed 
-Average: 3.57    7.684 sec
-
-endgame on hidden off solver 
-    0 Solved in 1 
-   64 Solved in 2 
-  828 Solved in 3 
- 1018 Solved in 4 
-  319 Solved in 5 
-   75 Solved in 6 
-   11 Failed 
-Average: 3.77    148.061 sec
-
-endgame on hidden on solver ( using raise )
-    1 Solved in 1 
-  131 Solved in 2 
-  988 Solved in 3 
-  928 Solved in 4 
-  218 Solved in 5 
-   46 Solved in 6 
-    3 Failed 
-Average: 3.58    7.878 sec
-
-( tally guess is faster and almost as good )
-use tally-guess solver 
-    1 Solved in 1 
-  145 Solved in 2 
-  861 Solved in 3 
- 1006 Solved in 4 
-  264 Solved in 5 
-   34 Solved in 6 
-    4 Failed 
-Average: 3.63    2.588 sec
-
-[then]

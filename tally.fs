@@ -22,3 +22,10 @@ create tallies          tallies# allot
     tallies tallies# bounds do
         count i >tally @  rot + swap
     32 cells +loop drop ;
+
+\ Guess the word with the largest letter tally
+: tally-guess ( -- w )
+    tally-working  0 ( w ) 0 ( tally )
+    working @ begin  dup >r tally ( w1 t1 t2 )
+        2dup < if ( replace ) nip nip r@ swap else drop then  r>
+    next? until drop ;

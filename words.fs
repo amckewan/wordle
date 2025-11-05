@@ -20,16 +20,12 @@ wordle-words - len / constant #hidden   ( just the possible solutions )
 : ww ( w -- a )  len * wordle-words + ;
 : w. ( w -- )    ww len type space ;
 
-\ find a word using in one of the lists using a binary search
-: search ( a start end -- w t | f )  rot >r
-    begin 2dup < while
-        2dup + 2/ ( low high mid )
-        dup ww  r@ len  rot len compare
-        dup 0= if ( found ) r> 2drop  nip nip true exit then
-        0< if ( bottom half ) nip else ( top half ) rot drop  1+ swap then
-    repeat  2drop false  r> drop ;
 : find-word ( a -- w t | f )  \ find word in either list
-    dup 0 #hidden search if nip true exit then  #hidden #words search ;
+    wordle-words #words len * bounds do
+        dup len i len compare 0= if ( found )
+            drop  i wordle-words - len / true  unloop exit
+        then
+    len +loop  drop false ;
 
 \ word literals
 : ?len ( n -- )  len - abort" need 5 letters" ;
